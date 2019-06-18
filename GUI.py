@@ -19,12 +19,13 @@ class MainWindow(QWidget):
 
         blackPen = QPen(Qt.black)
         blackBrush = QBrush(Qt.black)
-        scene = QGraphicsScene()
-        scene.setSceneRect(0, 0, 900, 600)
-        field = scene.addRect(0, 0, 900, 600, blackPen, QBrush(Qt.white))
-        player = scene.addEllipse(0, 0, 20, 20, blackPen, blackBrush)
+        self.scene = QGraphicsScene()
+        self.scene.setSceneRect(0, 0, 900, 600)
+        field = self.scene.addRect(0, 0, 900, 600, blackPen, QBrush(Qt.white))
+        player = self.scene.addEllipse(0, 0, 20, 20, blackPen, blackBrush)
         player.setFlag(QGraphicsItem.ItemIsMovable)
-        view = QGraphicsView(scene, self)
+        player.setToolTip("Player 1")
+        view = QGraphicsView(self.scene, self)
         view.setGeometry(200, 50, 1000, 700)
 
 
@@ -32,16 +33,17 @@ class MainWindow(QWidget):
         self.move(200, 100)
         self.setWindowTitle("DingDongSchamalamaDINGdingDong")
 
-##      self.addplayer = QPushButton('add player', self)
-##      self.addplayer.move(30, 30)
-##      self.addplayer.clicked.connect(self.click_function)
+        self.addplayer = QPushButton('add player', self)
+        self.addplayer.move(30, 30)
+        self.addplayer.clicked.connect(self.AddPlayer)
+        
         self.closeButton = QPushButton('Exit', self)
         self.closeButton.move(900, 550)
         self.closeButton.clicked.connect(self.close_function)
         self.textbox = QLineEdit(self)
         self.textbox.move(self.width()-350, 50)
         self.textbox.resize(300, 20)
-        self.textbox.setText(str(scene.width()) + ", " + str(scene.height()))
+        self.textbox.setText(str(self.scene.width()) + ", " + str(self.scene.height()))
         
         self.setMinimumSize(1600, 800)
         self.show()
@@ -59,6 +61,10 @@ class MainWindow(QWidget):
         ##self.addplayer.move(self.width() / 2 - self.addplayer.width() / 2, self.height() / 2 - self.addplayer.height() / 2)
         ##self.textbox.move(self.width() - self.textbox.width()-50, 50)
         ##self.textbox.setText(str(self.size()))
+
+    def AddPlayer(self, event):
+        newplayer = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.black), QBrush(Qt.black))
+        newplayer.setFlag(QGraphicsItem.ItemIsMovable)
 
 ##  def paintEvent(self, event):
 ##      ##Feld zeichnen
