@@ -1,28 +1,49 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QGraphicsScene, QGraphicsView, QGraphicsItem
+from PyQt5 import QtGui, QtCore
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QBrush, QPen
+
+
+
+##class Player():
+   ## def __init__(self):
+
 
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.initMe()
+        self.init()
 
-    def initMe(self):
-        self.resize(1000, 600)
-        self.move(460, 240)
+    def init(self):
+
+        blackPen = QPen(Qt.black)
+        blackBrush = QBrush(Qt.black)
+        scene = QGraphicsScene()
+        scene.setSceneRect(0, 0, 900, 600)
+        field = scene.addRect(0, 0, 900, 600, blackPen, QBrush(Qt.white))
+        player = scene.addEllipse(0, 0, 20, 20, blackPen, blackBrush)
+        player.setFlag(QGraphicsItem.ItemIsMovable)
+        view = QGraphicsView(scene, self)
+        view.setGeometry(200, 50, 1000, 700)
+
+
+        self.resize(1600, 800)
+        self.move(200, 100)
         self.setWindowTitle("DingDongSchamalamaDINGdingDong")
-        self.b = QPushButton('hola',self)
-        self.b.move(500, 300)
-        self.b.clicked.connect(self.click_function)
+
+##      self.addplayer = QPushButton('add player', self)
+##      self.addplayer.move(30, 30)
+##      self.addplayer.clicked.connect(self.click_function)
         self.closeButton = QPushButton('Exit', self)
         self.closeButton.move(900, 550)
         self.closeButton.clicked.connect(self.close_function)
         self.textbox = QLineEdit(self)
         self.textbox.move(self.width()-350, 50)
-        self.textbox.resize(300, 50)
-        self.textbox.setText(str(self.textbox.pos()))
-        self.setMinimumSize(400, 400)
-        ##Feld zeichnen
+        self.textbox.resize(300, 20)
+        self.textbox.setText(str(scene.width()) + ", " + str(scene.height()))
+        
+        self.setMinimumSize(1600, 800)
         self.show()
 
     def click_function(self):
@@ -35,8 +56,21 @@ class MainWindow(QWidget):
 
     def resizeEvent(self, event):
         self.closeButton.move(self.width()-100, self.height()-50)
-        self.b.move(self.width()/2 - self.b.width()/2, self.height()/2-self.b.height()/2)
-        self.textbox.move(self.width() - self.textbox.width()-50, 50)
+        ##self.addplayer.move(self.width() / 2 - self.addplayer.width() / 2, self.height() / 2 - self.addplayer.height() / 2)
+        ##self.textbox.move(self.width() - self.textbox.width()-50, 50)
+        ##self.textbox.setText(str(self.size()))
+
+##  def paintEvent(self, event):
+##      ##Feld zeichnen
+##      painter = QtGui.QPainter()
+##      color = QtGui.QColor(200, 0, 0)
+##      painter.setBrush(color)
+##      painter.begin(self)
+##      bereich = QtCore.QRect(200, 50, 900, 600)
+##      painter.drawRect(bereich)
+##      painter.drawEllipse(200, 50, 15, 15)
+##      painter.end()
+
 
 app = QApplication(sys.argv)
 w = MainWindow()
