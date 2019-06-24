@@ -3,7 +3,8 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QBrush, QPen
 
-
+dict_players = {}
+dict_opponents = {}
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -16,11 +17,13 @@ class MainWindow(QWidget):
         self.scene = QGraphicsScene()
         self.scene.setSceneRect(0, 0, 900, 600)
         field = self.scene.addRect(0, 0, 900, 600, blackPen, QBrush(Qt.white))
+
+        view = QGraphicsView(self.scene, self)
+        view.setGeometry(200, 50, 1000, 700)
+
         self.player = self.scene.addEllipse(0, 0, 20, 20, blackPen, blackBrush)
         self.player.setFlag(QGraphicsItem.ItemIsMovable)
         self.player.setToolTip("Player 1")
-        view = QGraphicsView(self.scene, self)
-        view.setGeometry(200, 50, 1000, 700)
 
         self.resize(1600, 800)
         self.move(200, 100)
@@ -30,8 +33,12 @@ class MainWindow(QWidget):
         self.addplayer.move(30, 30)
         self.addplayer.clicked.connect(self.AddPlayer)
 
+        self.addopponent = QPushButton('add opponent', self)
+        self.addopponent.move(30, 60)
+        self.addopponent.clicked.connect(self.AddOpponent)
+
         self.posbut = QPushButton("Get Position", self)
-        self.posbut.move(30, 60)
+        self.posbut.move(30, 90)
         self.posbut.clicked.connect(self.click_function)
 
         self.closeButton = QPushButton('Exit', self)
@@ -65,8 +72,30 @@ class MainWindow(QWidget):
         ##self.textbox.setText(str(self.size()))
 
     def AddPlayer(self, event):
-        newplayer = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.black), QBrush(Qt.black))
-        newplayer.setFlag(QGraphicsItem.ItemIsMovable)
+        if len(dict_players) == 0:
+            dict_players[1] = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.black), QBrush(Qt.black))
+            dict_players[1].setFlag(QGraphicsItem.ItemIsMovable)
+            dict_players[1].setToolTip(str(1))
+        else:
+            i = sorted(dict_players.keys())[-1]+1
+            dict_players[i] = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.black), QBrush(Qt.black))
+            dict_players[i].setFlag(QGraphicsItem.ItemIsMovable)
+            dict_players[i].setToolTip(str(i))
+
+    def AddOpponent(self, event):
+        if len(dict_opponents) == 0:
+            dict_opponents[1] = self.scene.addEllipse(900, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue))
+            dict_opponents[1].setFlag(QGraphicsItem.ItemIsMovable)
+            dict_opponents[1].setToolTip(str(1))
+        else:
+            i = sorted(dict_opponents.keys())[-1]+1
+            dict_opponents[i] = self.scene.addEllipse(900, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue))
+            dict_opponents[i].setFlag(QGraphicsItem.ItemIsMovable)
+            dict_opponents[i].setToolTip(str(i))
+
+
+        ##newplayer = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.black), QBrush(Qt.black))
+        ##newplayer.setFlag(QGraphicsItem.ItemIsMovable)
 
     def anzeigen(self):
         self.show()
