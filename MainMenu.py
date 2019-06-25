@@ -1,10 +1,12 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QGraphicsScene, QGraphicsView, QGraphicsItem
+from PyQt5.QtWidgets import *
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QDir
 from PyQt5.QtGui import QBrush, QPen
+from pathlib import Path
 
 dict_players = {}
 dict_opponents = {}
+myPath = Path(__file__).absolute().parent / 'strats'
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -51,6 +53,15 @@ class MainWindow(QWidget):
         ##self.textbox.setText(str(self.scene.width()) + ", " + str(self.scene.height()))
         self.textbox.setText(str(self.player.scenePos()))
 
+        self.saveButton = QPushButton('save strat', self)
+        self.saveButton.move(30, 120)
+        self.saveButton.clicked.connect(self.save_function)
+
+        self.loadButton = QPushButton('load strat', self)
+        self.loadButton.move(30, 150)
+        self.loadButton.clicked.connect(self.load_function)
+
+
         self.setMinimumSize(1600, 800)
 
     def click_function(self):
@@ -93,9 +104,29 @@ class MainWindow(QWidget):
             dict_opponents[i].setFlag(QGraphicsItem.ItemIsMovable)
             dict_opponents[i].setToolTip(str(i))
 
+    def save_function(self, event):
+        filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
+        f = open(filenames[0], 'w')
+        txt = ""
+        for key in dict_players.keys():
+            txt += str(key) + ": " + str(dict_players[key].x()) + ", " + str(dict_players[key].y()) + "\n"
+        txt += "Opponents:\n"
+        for x in dict_opponents.keys():
+            txt += str(x) + ": " + str(dict_opponents[x].x()) + ", " + str(dict_opponents[x].y()) + "\n"
+        print(txt)
+        f.write(txt)
+        f.close()
 
-        ##newplayer = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.black), QBrush(Qt.black))
-        ##newplayer.setFlag(QGraphicsItem.ItemIsMovable)
+    def load_function(self):
+        filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
+        f = open(filenames[0], 'r')
+        txt = f.read()
+        teams = txt.split("Opponents:\n")
+        ##print(teams)
+        for team in teams:
+            playerList = team.split("\n")
+            for x in playerList:
+                print(x)
 
     def anzeigen(self):
         self.show()
