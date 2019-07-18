@@ -32,11 +32,11 @@ class MainWindow(QWidget):
 
         self.addplayer = QPushButton('add player', self)
         self.addplayer.move(30, 30)
-        self.addplayer.clicked.connect(self.AddPlayer)
+        self.addplayer.clicked.connect(self.add_player)
 
         self.addopponent = QPushButton('add opponent', self)
         self.addopponent.move(30, 60)
-        self.addopponent.clicked.connect(self.AddOpponent)
+        self.addopponent.clicked.connect(self.add_opponent)
 
         self.posbut = QPushButton("Get Position", self)
         self.posbut.move(30, 90)
@@ -111,7 +111,7 @@ class MainWindow(QWidget):
     def save_function(self, event):
         """starts file dialog for saving the player positions"""
         filenames = QFileDialog.getSaveFileName(self, 'Save File', str(myPath))
-        if filenames:
+        if filenames[0] is not '':
             f = open(filenames[0], 'w')
             txt = ""
             for key in dict_players.keys():
@@ -125,10 +125,15 @@ class MainWindow(QWidget):
 
     def load_function(self):
         """starts file dialog for loading player positions"""
+        dialog = QDialog()
+        dialog.setWindowTitle("Strategy deleting")
+        dialog.setVisible(True)
+
         dict_opponents.clear()
         dict_players.clear()
         filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
-        if filenames:
+
+        if filenames[0] is not '':
             f = open(filenames[0], 'r')
             txt = f.read()
             teams = txt.split("Opponents:\n")
