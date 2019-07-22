@@ -3,6 +3,7 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt, QDir
 from PyQt5.QtGui import QBrush, QPen
 from pathlib import Path
+from Player import player
 
 dict_players = {}
 dict_opponents = {}
@@ -38,7 +39,7 @@ class MainWindow(QWidget):
         self.addopponent.move(30, 60)
         self.addopponent.clicked.connect(self.add_opponent)
 
-        self.posbut = QPushButton("Get Position", self)
+        self.posbut = QPushButton("test", self)
         self.posbut.move(30, 90)
         self.posbut.clicked.connect(self.click_function)
 
@@ -65,12 +66,15 @@ class MainWindow(QWidget):
 
     def click_function(self):
         """test function for buttpn clickking"""
-        print("button clicked")
-        print(str(self.height()) + "\n" + str(self.width()) + "\n" + str(self.pos()))
-        self.position = self.player.scenePos()
-        x = self.position.x()
-        y = self.position.y()
-        print(str(x) + ", " + str(y))
+
+        dict_players.clear()
+        print(dict_players)
+        #print("button clicked")
+        #print(str(self.height()) + "\n" + str(self.width()) + "\n" + str(self.pos()))
+        #self.position = self.player.scenePos()
+        #x = self.position.x()
+        #y = self.position.y()
+        #print(str(x) + ", " + str(y))
 
     def close_function(self):
         """closes the window"""
@@ -86,27 +90,15 @@ class MainWindow(QWidget):
 
     def add_player(self, event):
         """adds a player to scene"""
-        if len(dict_players) == 0:
-            dict_players[1] = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.black), QBrush(Qt.black))
-            dict_players[1].setFlag(QGraphicsItem.ItemIsMovable)
-            dict_players[1].setToolTip(str(1))
-        else:
-            i = sorted(dict_players.keys())[-1]+1
-            dict_players[i] = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.black), QBrush(Qt.black))
-            dict_players[i].setFlag(QGraphicsItem.ItemIsMovable)
-            dict_players[i].setToolTip(str(i))
+        dict_players[len(dict_players)+1] = player(len(dict_players)+1, False, self.scene)
+        print(dict_players)
+
 
     def add_opponent(self, event):
         """adds a opponent to scene"""
-        if len(dict_opponents) == 0:
-            dict_opponents[1] = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue))
-            dict_opponents[1].setFlag(QGraphicsItem.ItemIsMovable)
-            dict_opponents[1].setToolTip(str(1))
-        else:
-            i = sorted(dict_opponents.keys())[-1]+1
-            dict_opponents[i] = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue))
-            dict_opponents[i].setFlag(QGraphicsItem.ItemIsMovable)
-            dict_opponents[i].setToolTip(str(i))
+        dict_opponents[len(dict_opponents) + 1] = player(len(dict_opponents) + 1, True, self.scene)
+        print(dict_opponents)
+
 
     def save_function(self, event):
         """starts file dialog for saving the player positions"""
@@ -115,49 +107,54 @@ class MainWindow(QWidget):
             f = open(filenames[0], 'w')
             txt = ""
             for key in dict_players.keys():
-                txt += str(key) + "," + str(int(dict_players[key].x())) + "," + str(int(dict_players[key].y())) + "\n"
+                txt += str(dict_players[key]) + "\n"
             txt += "Opponents:\n"
             for x in dict_opponents.keys():
-                txt += str(x) + "," + str(int(dict_opponents[x].x())) + "," + str(int(dict_opponents[x].y())) + "\n"
-            print(txt)
+                txt += str(dict_opponents[x]) + "\n"
+            print('\n' + txt)
             f.write(txt)
             f.close()
 
     def load_function(self):
-        """starts file dialog for loading player positions"""
-        dialog = QDialog()
+        """deleting actual players, starts file dialog for loading player positions"""
+
+        dialog = QMessageBox()
         dialog.setWindowTitle("Strategy deleting")
-        dialog.setVisible(True)
+        dialog.setIcon(QMessageBox.Warning)
+        dialog.setText("Continuing will delete actual strategy")
+        dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        val = dialog.exec_()
+        print(val)
 
-        dict_opponents.clear()
-        dict_players.clear()
-        filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
+        if val == 1024:
 
-        if filenames[0] is not '':
-            f = open(filenames[0], 'r')
-            txt = f.read()
-            teams = txt.split("Opponents:\n")
-            print(teams[0])
-            mates = teams[0].split("\n")
-            for x in mates:
-                if len(x) > 1:
-                    att = x.split(",")
-                    print("attributes:\n")
-                    print(att)
-                    dict_players[int(att[0])] = self.scene.addEllipse(int(att[1]), int(att[2]), 20, 20, QPen(Qt.black), QBrush(Qt.black))
-                    dict_players[int(att[0])].setFlag(QGraphicsItem.ItemIsMovable)
-                    dict_players[int(att[0])].setToolTip(str(att[0]))
+            dict_opponents.clear()
+            dict_players.clear()
+            filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
 
-            print("\nopponents: \n")
-            opponents = teams[1].split("\n")
-            for op in opponents:
-                if len(op) > 1:
-                    att = op.split(",")
-                    print("attributes:\n")
-                    print(att)
-                    dict_opponents[int(att[0])] = self.scene.addEllipse(int(att[1]), int(att[2]), 20, 20, QPen(Qt.blue), QBrush(Qt.blue))
-                    dict_opponents[int(att[0])].setFlag(QGraphicsItem.ItemIsMovable)
-                    dict_opponents[int(att[0])].setToolTip(att[0])
+            if filenames[0] is not '':
+                f = open(filenames[0], 'r')
+                txt = f.read()
+                teams = txt.split("Opponents:\n")
+                print(teams[0])
+                play_atts = teams[0].split("\n")
+                for wert_tripel in play_atts:
+                    if len(wert_tripel) > 1:
+                        att = wert_tripel.split(", ")
+                        print("attributes:\n")
+                        print(att)
+                        print(len(dict_players))
+                        dict_players[len(dict_players)+1] = player(int(att[0]), False, self.scene, int(att[1]), int(att[2]))
+
+                print("\nopponents: \n")
+                opponents = teams[1].split("\n")
+                for wert_tripel in opponents:
+                    if len(wert_tripel) > 1:
+                        att = wert_tripel.split(', ')
+                        print("attributes:\n")
+                        print(att)
+                        dict_opponents[len(dict_opponents) + 1] = player(int(att[0]), True, self.scene, int(att[1]), int(att[2]))
+                    
 
     def anzeigen(self):
         """shows the main window"""
