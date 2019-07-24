@@ -67,7 +67,7 @@ class MainWindow(QWidget):
     def click_function(self):
         """test function for buttpn clickking"""
 
-        dict_players.clear()
+        ##dict_players.clear()
         print(dict_players)
         #print("button clicked")
         #print(str(self.height()) + "\n" + str(self.width()) + "\n" + str(self.pos()))

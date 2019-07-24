@@ -15,9 +15,11 @@ class player:
             posy = 0
         if op:
             self.ellipse = self.scene.addEllipse(posx, posy, 20, 20, QPen(Qt.black), QBrush(Qt.black))
+            self.ellipse.setToolTip("Player " + str(self.number))
             self.ellipse.setFlag(QGraphicsItem.ItemIsMovable)
         else:
             self.ellipse = self.scene.addEllipse(posx, posy, 20, 20, QPen(Qt.blue), QBrush(Qt.blue))
+            self.ellipse.setToolTip("Opponent " + str(self.number))
             self.ellipse.setFlag(QGraphicsItem.ItemIsMovable)
 
     def setLocation(self, posx, posy):
