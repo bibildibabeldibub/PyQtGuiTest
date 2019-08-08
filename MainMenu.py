@@ -5,8 +5,8 @@ from PyQt5.QtGui import QBrush, QPen
 from pathlib import Path
 from Player import player
 
-dict_players = {}
-dict_opponents = {}
+dict_players: [player] = []
+dict_opponents: [player] = []
 myPath = Path(__file__).absolute().parent / 'strats'
 
 class MainWindow(QWidget):
@@ -67,8 +67,9 @@ class MainWindow(QWidget):
     def click_function(self):
         """test function for buttpn clickking"""
 
+        print(dict_players[0])
+
         ##dict_players.clear()
-        print(dict_players)
         #print("button clicked")
         #print(str(self.height()) + "\n" + str(self.width()) + "\n" + str(self.pos()))
         #self.position = self.player.scenePos()
@@ -90,7 +91,7 @@ class MainWindow(QWidget):
 
     def add_player(self, event):
         """adds a player to scene"""
-        dict_players[len(dict_players)+1] = player(len(dict_players)+1, False, self.scene)
+        dict_players.append(player(len(dict_players)+1, False, self.scene))
         print(dict_players)
 
 
@@ -106,11 +107,11 @@ class MainWindow(QWidget):
         if filenames[0] is not '':
             f = open(filenames[0], 'w')
             txt = ""
-            for key in dict_players.keys():
-                txt += str(dict_players[key]) + "\n"
+            for key in dict_players:
+                txt += str(key) + "\n"
             txt += "Opponents:\n"
-            for x in dict_opponents.keys():
-                txt += str(dict_opponents[x]) + "\n"
+            for x in dict_opponents:
+                txt += str(x) + "\n"
             print('\n' + txt)
             f.write(txt)
             f.close()
@@ -140,11 +141,13 @@ class MainWindow(QWidget):
                 play_atts = teams[0].split("\n")
                 for wert_tripel in play_atts:
                     if len(wert_tripel) > 1:
-                        att = wert_tripel.split(", ")
-                        print("attributes:\n")
+                        att = wert_tripel.split(", ")   # 3 attribute von einzelnen spielern
+                        print("P"+str(len(dict_players)) + " attributes:\n")
                         print(att)
-                        print(len(dict_players))
-                        dict_players[len(dict_players)+1] = player(int(att[0]), False, self.scene, int(att[1]), int(att[2]))
+                        p = player(int(att[0]), False, self.scene)
+                        p.setLocation(int(att[1]), int(att[2]))
+                        dict_players.append(p)
+                        print(dict_players)
 
                 print("\nopponents: \n")
                 opponents = teams[1].split("\n")
@@ -153,7 +156,10 @@ class MainWindow(QWidget):
                         att = wert_tripel.split(', ')
                         print("attributes:\n")
                         print(att)
-                        dict_opponents[len(dict_opponents) + 1] = player(int(att[0]), True, self.scene, int(att[1]), int(att[2]))
+                        o = player(int(att[0]), True, self.scene)
+                        dict_opponents.append(o)
+                        o.setLocation(int(att[1]), int(att[2]))
+                print(dict_opponents)
                     
 
     def anzeigen(self):

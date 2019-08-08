@@ -4,26 +4,25 @@ from PyQt5.QtCore import Qt
 
 
 class player:
-    def __init__(self, number: int, op: bool, scene: QGraphicsScene, posx: int = None, posy: int = None):
+    def __init__(self, number: int, op: bool, scene: QGraphicsScene):
         """initialising player with ellipse, op is boolean and should be true if the player is an opponent"""
         self.op = op
         self.number = number
         self.scene = scene
-        if not posx:
-            posx = 0
-        if not posy:
-            posy = 0
+
         if op:
-            self.ellipse = self.scene.addEllipse(posx, posy, 20, 20, QPen(Qt.black), QBrush(Qt.black))
+            self.ellipse = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.black), QBrush(Qt.black))
             self.ellipse.setToolTip("Player " + str(self.number))
             self.ellipse.setFlag(QGraphicsItem.ItemIsMovable)
         else:
-            self.ellipse = self.scene.addEllipse(posx, posy, 20, 20, QPen(Qt.blue), QBrush(Qt.blue))
+            self.ellipse = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue))
             self.ellipse.setToolTip("Opponent " + str(self.number))
             self.ellipse.setFlag(QGraphicsItem.ItemIsMovable)
 
+        print(self.ellipse.scenePos().x())
+
     def setLocation(self, posx, posy):
-        self.ellipse.move(posx, posy)
+        self.ellipse.setPos(posx, posy)
 
     def deleteMarker(self):
         self.scene.removeItem(self.ellipse)
