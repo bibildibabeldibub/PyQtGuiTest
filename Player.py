@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QBrush, QPen
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QLineF
 
 
 class player:
@@ -19,10 +19,12 @@ class player:
             self.ellipse.setToolTip("Opponent " + str(self.number))
             self.ellipse.setFlag(QGraphicsItem.ItemIsMovable)
 
-        print(self.ellipse.scenePos().x())
-
     def setLocation(self, posx, posy):
         self.ellipse.setPos(posx, posy)
+
+    def getLocation(self):
+        """:return: tuple x and y coordinates as integer"""
+        return [int(self.ellipse.scenePos().x()), int(self.ellipse.scenePos().y())]
 
     def deleteMarker(self):
         self.scene.removeItem(self.ellipse)

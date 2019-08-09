@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt, QDir
+from PyQt5.QtCore import Qt, QDir, QLineF
 from PyQt5.QtGui import QBrush, QPen
 from pathlib import Path
 from Player import player
+import VoronoiFunction
 
 dict_players: [player] = []
 dict_opponents: [player] = []
@@ -15,13 +16,16 @@ class MainWindow(QWidget):
         super().__init__()
         self.init()
 
+
     def init(self):
         """Creating the main window, with several buttons and the field simulator"""
 
         blackPen = QPen(Qt.black)
         blackBrush = QBrush(Qt.black)
+
         self.scene = QGraphicsScene()
         self.scene.setSceneRect(0, 0, 900, 600)
+
         field = self.scene.addRect(0, 0, 900, 600, blackPen, QBrush(Qt.white))
 
         view = QGraphicsView(self.scene, self)
@@ -61,6 +65,9 @@ class MainWindow(QWidget):
         self.loadButton.move(30, 150)
         self.loadButton.clicked.connect(self.load_function)
 
+        self.voronoiButton = QPushButton('Voronoi', self)
+        self.voronoiButton.move(30, 180)
+        self.voronoiButton.clicked.connect(self.vor)
 
         self.setMinimumSize(1600, 800)
 
@@ -160,7 +167,16 @@ class MainWindow(QWidget):
                         dict_opponents.append(o)
                         o.setLocation(int(att[1]), int(att[2]))
                 print(dict_opponents)
-                    
+
+    def vor(self):
+        lines = VoronoiFunction.voronoi_function(dict_opponents, dict_players)
+        print("lines:")
+        print(lines)
+        print(len(lines))
+        for l in lines:
+            print(l)
+            ql = QLineF(l[0], l[1], l[2], l[3])
+            self.scene.addLine(ql, QPen(Qt.black))
 
     def anzeigen(self):
         """shows the main window"""
