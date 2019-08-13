@@ -1,33 +1,46 @@
-from scipy.spatial import Voronoi, voronoi_plot_2d
-
+from scipy.spatial import Voronoi
+import numpy as np
 
 def voronoi_function(dict_players, dict_opponents):
-    """taking all players and returning list of voronoi lines (list of quadruples x1,y1,x2,y2) """
-    print("\n\n\nVoronoi:")
-    eckpunkte = []
-    ridges = []
-    #points = [[-450, -300], [450, -300], [1350, -300],
-    #          [-450, 300], [450, 300 ], [1350, 300],
-    #          [-450, 900], [450, 900 ], [1350, 900]]
     points = []
     for p in dict_players:
         points.append(p.getLocation())
     for o in dict_opponents:
         points.append(o.getLocation())
-    vor = Voronoi(points)
-    eckpunkte = vor.vertices
-    ridges = vor.ridge_vertices
+    print("Points: " + str(points))
 
-    print("länge rigdes: " + str(len(ridges)))
-    print("ridges: " + str(ridges))
-    print("Vertices: " + str(eckpunkte))
+    bastard = np.asarray(points)
+    vor = Voronoi(bastard)
+    vertices = vor.ridge_vertices
+    eckpunkte = vor.vertices
+    print(bastard)
+
     lines = []
-    for vpair in ridges:
-        if vpair[0] >= 0 and vpair[1] >= 0:
-            v0 = eckpunkte[vpair[0]]
-            v1 = eckpunkte[vpair[1]]
-            lines.append([round(v0[0], 2), round(v0[1], 2), round(v1[0], 2), round(v1[1], 2)])
+    for simplex in vor.ridge_vertices:
+        simplex = np.asarray(simplex)
+        if np.all(simplex >= 0):
+            a = vor.vertices[simplex[0]]
+            a1 = a.tolist()
+            l = [a1, vor.vertices[simplex[1]].tolist()]
+            lines.append(l)
+
+    print("\n\nLines:")
+    print(len(lines))
+
+    center = bastard.mean(axis=0)
+    for pointidx, simplex in zip(vor.ridge_points, vor.ridge_vertices):
+        simplex = np.asarray(simplex)
+        if np.any(simplex < 0):
+            i = simplex[simplex >= 0][0]  # finite end Voronoi vertex
+            print("Finite Point: " + str(i))
+            t = bastard[pointidx[1]] - bastard[pointidx[0]]  # tangent
+            print("Vektor P1P2: " + str(t))
+            x = np.linalg.norm(t)
+            t = t / x
+            n = np.array([-t[1], t[0]])  # normal
+            midpoint = bastard[pointidx].mean(axis=0)
+            far_point = vor.vertices[i] + np.sign(np.dot(midpoint - center, n)) * n * 100
+    
+            lines.append([[vor.vertices[i, 0], vor.vertices[i, 1]], [far_point[0], far_point[1]]])
 
     return lines
-
-

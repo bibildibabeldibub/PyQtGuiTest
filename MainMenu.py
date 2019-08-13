@@ -175,7 +175,7 @@ class MainWindow(QWidget):
         print(len(lines))
         for l in lines:
             print(l)
-            ql = QLineF(l[0], l[1], l[2], l[3])
+            ql = QLineF(l[0][0], l[0][1], l[1][0], l[1][1])
             self.scene.addLine(ql, QPen(Qt.black))
 
     def anzeigen(self):

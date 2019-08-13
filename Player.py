@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QBrush, QPen
 from PyQt5.QtCore import Qt, QLineF
+import numpy as np
 
 
 class player:
@@ -25,6 +26,9 @@ class player:
     def getLocation(self):
         """:return: tuple x and y coordinates as integer"""
         return [int(self.ellipse.scenePos().x()), int(self.ellipse.scenePos().y())]
+
+    def getLocationArray(self):
+        return np.array([[self.ellipse.scenePos().x(), self.ellipse.scenePos().y()]])
 
     def deleteMarker(self):
         self.scene.removeItem(self.ellipse)
