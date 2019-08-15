@@ -1,13 +1,14 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt, QDir, QLineF
-from PyQt5.QtGui import QBrush, QPen
+from PyQt5.QtGui import QBrush, QPen, QPolygonF
 from pathlib import Path
 from Player import player
 import VoronoiFunction
 
 dict_players: [player] = []
 dict_opponents: [player] = []
+voronoi_lines = []
 myPath = Path(__file__).absolute().parent / 'strats'
 
 class MainWindow(QWidget):
@@ -22,11 +23,12 @@ class MainWindow(QWidget):
 
         blackPen = QPen(Qt.black)
         blackBrush = QBrush(Qt.black)
+        self.field = [[0, 0], [0, 600], [900, 600], [900, 0]]
 
         self.scene = QGraphicsScene()
         self.scene.setSceneRect(0, 0, 900, 600)
 
-        field = self.scene.addRect(0, 0, 900, 600, blackPen, QBrush(Qt.white))
+        #self.scene.addRect(0, 0, 900, 600, blackPen, QBrush(Qt.white))
 
         view = QGraphicsView(self.scene, self)
         view.setGeometry(200, 50, 1000, 700)
@@ -169,14 +171,18 @@ class MainWindow(QWidget):
                 print(dict_opponents)
 
     def vor(self):
-        lines = VoronoiFunction.voronoi_function(dict_opponents, dict_players)
-        print("lines:")
-        print(lines)
-        print(len(lines))
+        for line_item in voronoi_lines:
+            self.scene.removeItem(line_item)
+        lines = VoronoiFunction.voronoi_function(dict_players, dict_opponents, self.field)
+
         for l in lines:
             print(l)
             ql = QLineF(l[0][0], l[0][1], l[1][0], l[1][1])
-            self.scene.addLine(ql, QPen(Qt.black))
+            voronoi_lines.append(self.scene.addLine(ql, QPen(Qt.black)))
+
+        #for p in dict_players:
+        #    print(p.polygon.size())
+        #    self.scene.addPolygon(QPolygonF(p.polygon), QPen(Qt.red), QBrush(Qt.green))
 
     def anzeigen(self):
         """shows the main window"""
