@@ -175,6 +175,9 @@ class MainWindow(QWidget):
             self.scene.removeItem(line_item)
         lines = VoronoiFunction.voronoi_function(dict_players, dict_opponents, self.field)
 
+        for p in dict_players:
+            print(p.polygon.size())
+            self.scene.addPolygon(QPolygonF(p.polygon), QPen(Qt.red))
         for l in lines:
             print(l)
             ql = QLineF(l[0][0], l[0][1], l[1][0], l[1][1])
