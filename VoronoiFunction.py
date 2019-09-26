@@ -11,10 +11,10 @@ from copy import deepcopy
 def voronoi_function(list_players, list_opponents, field):
 
     points = []
-    for p in list_players:
-        points.append(p.getLocation())
     for o in list_opponents:
         points.append(o.getLocation())
+    for p in list_players:
+        points.append(p.getLocation())
 
     pointArray = np.asarray(points)
     vor = Voronoi(pointArray)
@@ -38,6 +38,7 @@ def voronoi_function(list_players, list_opponents, field):
         regionidx = vor.point_region.tolist()[pointidx]
         print("\n\n")
         print(pointidx)
+        print(vor.points[pointidx])
         print(regions[regionidx])
         if min(regions[regionidx], default=-1) >= 0:        ##behandlung falls polygon geschlossen
             for vidx in regions[regionidx]:
@@ -132,6 +133,17 @@ def voronoi_function(list_players, list_opponents, field):
                                 lines.remove(l)
 
                 print("Polygon: " + str(polygon))
+
+                for p in polygon:
+                    print(p)
+                    if pointidx > len(list_opponents)-1:
+                        pidx = pointidx - len(list_opponents)
+                        list_players[pidx].polygon.append(QPoint(p[0], p[1]))
+                        print("p added player" + str(pidx))
+                    else:
+                        pidx = pointidx
+                        list_opponents[pidx].polygon.append(QPoint(p[0], p[1]))
+                        print("p added op" + str(pidx))
 
             else:
                 ##adding vertices in between schnittpunkte
