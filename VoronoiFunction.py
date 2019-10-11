@@ -62,7 +62,7 @@ def voronoi_function(list_players, list_opponents, field):
                         li = [vor.vertices[vor.ridge_vertices[ridgeidx][0]].tolist(), vor.vertices[vor.ridge_vertices[ridgeidx][1]].tolist()]
                         print()
                         print(li)
-                        lines.append(li)
+                        lines.append([round(li[0]), round(li[1])])
                         val.append(li)
 
                     else:       ##für offenes polygon
@@ -76,10 +76,10 @@ def voronoi_function(list_players, list_opponents, field):
                         n = np.array([-t[1], t[0]])  # normal
                         midpoint = pointArray[punkte_paar].mean(axis=0)
                         far_point = v + np.sign(np.dot(midpoint - center, n)) * n * 5000
-                        p1 = [int(v[0]), int(v[1])]
+                        p1 = [v[0], v[1]]
                         #if p1 not in open_polygon_points:
                         #    open_polygon_points.append(p1)
-                        p2 = [int(far_point[0]), int(far_point[1])]
+                        p2 = [far_point[0], far_point[1]]
                         line = [p1, p2]
 
                         #Clipping der unendlichen linien
@@ -92,8 +92,10 @@ def voronoi_function(list_players, list_opponents, field):
                         line_differenced = pc.Execute2(pyclipper.CT_DIFFERENCE, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
                         line_intersected = pyclipper.PolyTreeToPaths(line_intersected)
                         line_differenced = pyclipper.PolyTreeToPaths(line_differenced)
-                        s = [i for i in line_intersected[0] if i in line_differenced[0]]
-                        lines.append([p1, s[0]])
+                        if not line_intersected or line_differenced:
+                            print("lines out of field ")
+                        s = [round(i) for i in line_intersected[0] if i in line_differenced[0]]
+                        lines.append([[round(p1[0]), round(p1[1])], [round(s[0][0]), round(s[0][1])]])
                         val.append([p1, s[0]])
                         schnittpunkte.append(s[0])
                         #ve_schnitt = ve_schnitt.append(line[0])

@@ -117,7 +117,7 @@ class MainWindow(QWidget):
             f = open(filenames[0], 'w')
             txt = ""
             for key in dict_players:
-                txt += str(key) + "\n"
+                txt += str(key) 
             txt += "Opponents:\n"
             for x in dict_opponents:
                 txt += str(x) + "\n"

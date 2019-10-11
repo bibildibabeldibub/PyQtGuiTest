@@ -35,7 +35,7 @@ class player:
         self.scene.removeItem(self.ellipse)
 
     def __repr__(self):
-        return "[" + str(int(self.number)) + ', ' + str(int(self.ellipse.x())) + ', ' + str(int(self.ellipse.y())) + "]\n"
+        return str(int(self.number)) + ', ' + str(int(self.ellipse.x())) + ', ' + str(int(self.ellipse.y())) + "\n"
 
     def __del__(self):
         self.scene.removeItem(self.ellipse)
