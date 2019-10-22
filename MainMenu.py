@@ -106,7 +106,7 @@ class MainWindow(QWidget):
 
     def add_opponent(self, event):
         """adds a opponent to scene"""
-        dict_opponents[len(dict_opponents) + 1] = player(len(dict_opponents) + 1, True, self.scene)
+        dict_opponents.append(player(len(dict_opponents) + 1, True, self.scene))
         print(dict_opponents)
 
 
@@ -171,21 +171,11 @@ class MainWindow(QWidget):
                 print(dict_opponents)
 
     def vor(self):
-        for line_item in voronoi_lines:
-            self.scene.removeItem(line_item)
-        lines = VoronoiFunction.voronoi_function(dict_players, dict_opponents, self.field)
+        for p in dict_opponents + dict_players:
+            p.polygon.setPolygon(QPolygonF())       ##clearing the polygon
 
-        for l in lines:
-            ql = QLineF(l[0][0], l[0][1], l[1][0], l[1][1])
-            voronoi_lines.append(self.scene.addLine(ql, QPen(Qt.black)))
+        VoronoiFunction.voronoi_function(dict_players, dict_opponents, self.field)
 
-        for p in dict_players:
-            print(p.polygon.size())
-            self.scene.addPolygon(QPolygonF(p.polygon), QPen(Qt.red))
-
-        for p in dict_opponents:
-            print(p.polygon.size())
-            self.scene.addPolygon(QPolygonF(p.polygon), QPen(Qt.red))
 
     def anzeigen(self):
         """shows the main window"""

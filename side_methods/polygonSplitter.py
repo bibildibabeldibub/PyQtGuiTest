@@ -7,7 +7,7 @@ def splitPolygon(schnittpunkte, polygon):
     firstPoly = []
     indices = []
     copy = deepcopy(polygon)
-    for eck in polygon:
+    for eck in polygon:                                 ## test auf welcher Linie die Schnittpunkte liegen
         if eckidx < len(polygon) - 1:
             l = [eck, polygon[eckidx + 1]]
         else:
@@ -17,8 +17,8 @@ def splitPolygon(schnittpunkte, polygon):
             if check:
                 copy.insert(copy.index(eck) + 1, s)  # einfügen der schnittpunkte in field_copy
                 indices.append(copy.index(eck) + 1)
-
         eckidx += 1
+
     # aufteilen der polygone
     if indices[0] == indices[1]:
         val = None
@@ -30,6 +30,6 @@ def splitPolygon(schnittpunkte, polygon):
                 popcounter += 1
             else:
                 firstPoly.append(copy[i-popcounter])
-        val = [firstPoly, copy]
+        val = firstPoly, copy
 
     return val
