@@ -1,20 +1,63 @@
 from scipy.spatial import Voronoi
-from PyQt5.QtGui import QBrush, QPen, QPolygon, QPolygonF
-from PyQt5.QtCore import QPoint
+from PyQt5.QtCore import QPointF, QPoint, Qt
+from PyQt5.QtGui import QPolygonF, QPolygon
 import numpy as np
 import pyclipper
-import polygonSplitter
-import math
-from sortPolygons import counterClockwise
 from copy import deepcopy
+from side_methods.LinesToPolygon import lines_to_polygon as ltp
+from side_methods.polygonSplitter import splitPolygon
+
 
 def voronoi_function(list_players, list_opponents, field):
-
     points = []
     for o in list_opponents:
         points.append(o.getLocation())
     for p in list_players:
         points.append(p.getLocation())
+
+
+    if len(list_players + list_opponents) == 1:
+        field = [QPoint(field[0][0], field[0][1]), QPoint(field[1][0], field[1][1]),
+                 QPoint(field[2][0], field[2][1]), QPoint(field[3][0], field[3][1])]
+        if list_players:
+            list_players[0].polygon.setPolygon(QPolygonF(QPolygon(field)))
+            return
+        if list_opponents:
+            list_opponents[0].polygon.setPolygon(QPolygonF(QPolygon(field)))
+            return
+
+    if len(points) == 2:
+        startpoints = np.array(points)
+        print(startpoints)
+        mitte = startpoints.mean(axis=0)
+        print(mitte)
+        #mitte = [(points[0][0]+points[1][0])/2, (points[0][1]+points[1][1])/2]
+        v = startpoints[0] - startpoints[1]
+        print(v)
+        n = np.linalg.norm(v)                            #orthogonaler vektor
+        p1 = mitte + 50000 * n
+        p2 = mitte + (-50000) * n
+        pc = pyclipper.Pyclipper()
+        pc.AddPath(field, pyclipper.PT_CLIP, True)
+        pc.AddPath([p1, p2], pyclipper.PT_SUBJECT, False)
+        line = pc.Execute2(pyclipper.CT_INTERSECTION, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
+        line = pyclipper.PolyTreeToPaths(line)
+        print(line[0])
+        firstPoly, secondPoly = splitPolygon(line[0], field)
+        firstpol = QPolygon()
+        secondpol = QPolygon()
+
+        for p in firstPoly:
+            firstpol.append(QPoint(p[0], p[1]))
+        for p in secondPoly:
+            secondpol.append(QPoint(p[0], p[1]))
+
+        for p in list_opponents + list_players:
+            if firstpol.containsPoint(QPoint(p.getLocation()[0], p.getLocation()[1]), Qt.OddEvenFill):
+                p.polygon.setPolygon(QPolygonF(firstpol))
+            if secondpol.containsPoint(QPoint(p.getLocation()[0], p.getLocation()[1]), Qt.OddEvenFill):
+                p.polygon.setPolygon(QPolygonF(secondpol))
+        return
 
     pointArray = np.asarray(points)
     vor = Voronoi(pointArray)
@@ -41,14 +84,18 @@ def voronoi_function(list_players, list_opponents, field):
         print(vor.points[pointidx])
         print(regions[regionidx])
         if min(regions[regionidx], default=-1) >= 0:        ##behandlung falls polygon geschlossen
+            poly = []
             for vidx in regions[regionidx]:
-                vertex = QPoint(vor.vertices[vidx][0], vor.vertices[vidx][1])
-                if pointidx > len(list_opponents)-1:
-                    pidx = pointidx - len(list_opponents)
-                    list_players[pidx].polygon.append(vertex)
-                else:
-                    pidx = pointidx
-                    list_opponents[pidx].polygon.append(vertex) #Hinzufügen der Eckpunkte der closed Polygone
+                poly.append([vor.vertices[vidx][0], vor.vertices[vidx][1]])
+
+            pc = pyclipper.Pyclipper()
+            pc.AddPath(field, pyclipper.PT_CLIP, True)
+            pc.AddPath(poly, pyclipper.PT_SUBJECT, True)
+            poly = pc.Execute2(pyclipper.CT_INTERSECTION, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
+            poly = pyclipper.PolyTreeToPaths(poly)
+            print("poly:")
+            print(poly[0])
+            add_player_poly(poly, pointidx, list_players, list_opponents) #Hinzufügen der Eckpunkte der closed Polygone
         else:
             ridgeidx = 0
             open_polygon_points = []
@@ -70,100 +117,46 @@ def voronoi_function(list_players, list_opponents, field):
                         v = vor.vertices[vor.ridge_vertices[ridgeidx]][1]  # finite end Voronoi vertex
                         ausgangspunkt1 = pointArray[punkte_paar[1]]
                         ausgangspunkt2 = pointArray[punkte_paar[0]]
+                        print(type(ausgangspunkt1))
                         t = ausgangspunkt1 - ausgangspunkt2  # tangent
                         x = np.linalg.norm(t)
                         t = t / x
                         n = np.array([-t[1], t[0]])  # normal
                         midpoint = pointArray[punkte_paar].mean(axis=0)
-                        far_point = v + np.sign(np.dot(midpoint - center, n)) * n * 5000
+                        far_point = v + np.sign(np.dot(midpoint - center, n)) * n * 50000
                         p1 = [v[0], v[1]]
                         #if p1 not in open_polygon_points:
                         #    open_polygon_points.append(p1)
                         p2 = [far_point[0], far_point[1]]
                         line = [p1, p2]
-
-                        #Clipping der unendlichen linien
-                        pc = pyclipper.Pyclipper()
-                        #print("Field: " + str(field))
-                        #print("Line: " + str(line))
-                        pc.AddPath(field, pyclipper.PT_CLIP, True)
-                        pc.AddPath(line, pyclipper.PT_SUBJECT, False)
-                        line_intersected = pc.Execute2(pyclipper.CT_INTERSECTION, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
-                        line_differenced = pc.Execute2(pyclipper.CT_DIFFERENCE, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
-                        line_intersected = pyclipper.PolyTreeToPaths(line_intersected)
-                        line_differenced = pyclipper.PolyTreeToPaths(line_differenced)
-                        if not line_intersected or line_differenced:
-                            print("lines out of field ")
-                        s = [round(i) for i in line_intersected[0] if i in line_differenced[0]]
-                        lines.append([[round(p1[0]), round(p1[1])], [round(s[0][0]), round(s[0][1])]])
-                        val.append([p1, s[0]])
-                        schnittpunkte.append(s[0])
-                        #ve_schnitt = ve_schnitt.append(line[0])
-                        #if line_intersected:
-                        #    lines.append(line_intersected[0])
-                        #if solution[0][0] not in field_copy:
+                        lines.append(line)
                 ridgeidx += 1
 
         print("Lines: " + str(lines))
-        ## erstellen von 2 polygonen aus vertices, field und schnittpunkten
-        if len(schnittpunkte) > 0:
-            print("\n Schnittpunkte: " + str(schnittpunkte))
-            possible_polygons = polygonSplitter.splitPolygon(schnittpunkte, field)
-            if not possible_polygons:
-                ##if schnittpunkte are on same line
-                polygon = schnittpunkte
-
-                while len(lines) > 0:
-                    for l in lines:
-                        if len(lines) == 1:
-                            if l == [polygon[0], polygon[1]] or l == [polygon[1], polygon[0]]:
-                                lines.remove(l)
-                                print("x")
-                            else:
-                                print("\n!!!!\nSOMETHING WRONG\n!!!\n")
-                                print(lines)
-                                print(polygon)
-                                lines.remove(l)
-                                break
-
-                        else:
-                            if l[0] == polygon[1]:
-                                polygon.insert(1, l[1])
-                                lines.remove(l)
-                            elif l[1] == polygon[1]:
-                                polygon.insert(1, l[0])
-                                lines.remove(l)
-
-                print("Polygon: " + str(polygon))
-
-                for p in polygon:
-                    print(p)
-                    if pointidx > len(list_opponents)-1:
-                        pidx = pointidx - len(list_opponents)
-                        list_players[pidx].polygon.append(QPoint(p[0], p[1]))
-                        print("p added player" + str(pidx))
-                    else:
-                        pidx = pointidx
-                        list_opponents[pidx].polygon.append(QPoint(p[0], p[1]))
-                        print("p added op" + str(pidx))
-
-            else:
-                ##adding vertices in between schnittpunkte
-                first_poly = possible_polygons[0]
-                second_poly = possible_polygons[1]
-                print("FirstPoly: " + str(first_poly))
-                print("SecondPoly: " + str(second_poly))
-#                firstPoly = QPolygon(firstPoly)
-#                secondPoly = QPolygon(secondPoly)
-#                if firstPoly.containsPoint(point.tolist(), Qt_FillRule=1):
-#                    print(1)
-#                    open_polygon_points = firstPoly
-#                else:
-#                    print(2)
-#                    open_polygon_points = secondPoly
+        if lines:
+            poly = ltp(lines)
+            pc = pyclipper.Pyclipper()
+            pc.AddPath(field, pyclipper.PT_CLIP, True)
+            pc.AddPath(poly, pyclipper.PT_SUBJECT, True)
+            poly = pc.Execute2(pyclipper.CT_INTERSECTION, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
+            poly = pyclipper.PolyTreeToPaths(poly)
+            print()
+            print(poly)
+            add_player_poly(poly, pointidx, list_players, list_opponents)
 
         pointidx += 1
 
     return val
 
+
+def add_player_poly(poly, pointidx, list_players, list_opponents):
+    polyF = QPolygonF()
+
+    for p in poly[0]:
+        polyF.append(QPointF(p[0], p[1]))
+
+    if pointidx > len(list_opponents)-1:
+        list_players[pointidx - len(list_opponents)].polygon.setPolygon(polyF)
+    else:
+        list_opponents[pointidx].polygon.setPolygon(polyF)
 

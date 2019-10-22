@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QBrush, QPen, QPolygon
+from PyQt5.QtGui import QBrush, QPen, QPolygonF
 from PyQt5.QtCore import Qt, QLineF
 import numpy as np
 
@@ -10,7 +10,7 @@ class player:
         self.op = op
         self.number = number
         self.scene = scene
-        self.polygon = QPolygon()
+        self.polygon = self.scene.addPolygon(QPolygonF(), QPen(Qt.red))
 
         if op:
             self.ellipse = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.black), QBrush(Qt.black))
@@ -26,7 +26,7 @@ class player:
 
     def getLocation(self):
         """:return: tuple x and y coordinates as integer"""
-        return [int(self.ellipse.scenePos().x()), int(self.ellipse.scenePos().y())]
+        return [self.ellipse.scenePos().x(), self.ellipse.scenePos().y()]
 
     def getLocationArray(self):
         return np.array([[self.ellipse.scenePos().x(), self.ellipse.scenePos().y()]])
@@ -34,8 +34,12 @@ class player:
     def deleteMarker(self):
         self.scene.removeItem(self.ellipse)
 
+    def removePoly(self):
+        self.scene.removeItem(self.polygon)
+
     def __repr__(self):
-        return str(int(self.number)) + ', ' + str(int(self.ellipse.x())) + ', ' + str(int(self.ellipse.y())) + "\n"
+        return str(int(self.number)) + ', ' + str(int(self.ellipse.x())) + ', ' + str(int(self.ellipse.y()))
 
     def __del__(self):
         self.scene.removeItem(self.ellipse)
+        self.scene.removeItem(self.polygon)
