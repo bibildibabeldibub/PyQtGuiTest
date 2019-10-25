@@ -1,4 +1,4 @@
-from checkPointOnLine import checkPointOnLine
+from side_methods.checkPointOnLine import checkPointOnLine
 from copy import deepcopy
 
 def splitPolygon(schnittpunkte, polygon):
