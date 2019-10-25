@@ -6,6 +6,7 @@ import pyclipper
 from copy import deepcopy
 from side_methods.LinesToPolygon import lines_to_polygon as ltp
 from side_methods.polygonSplitter import splitPolygon
+from side_methods.checkPointOnLine import checkPointOnLine
 
 
 def voronoi_function(list_players, list_opponents, field):
@@ -76,7 +77,7 @@ def voronoi_function(list_players, list_opponents, field):
     for point in vor.points:  ##iteration über punkte
         lines = []
         schnittpunkte = []
-        ve_schnitt = []
+        far_line = []
         regions = vor.regions
         regionidx = vor.point_region.tolist()[pointidx]
         print("\n\n")
@@ -128,20 +129,47 @@ def voronoi_function(list_players, list_opponents, field):
                         #if p1 not in open_polygon_points:
                         #    open_polygon_points.append(p1)
                         p2 = [far_point[0], far_point[1]]
+                        far_line.append(p2)
                         line = [p1, p2]
                         lines.append(line)
                 ridgeidx += 1
 
-        print("Lines: " + str(lines))
         if lines:
+            print("Lines: " + str(lines))
             poly = ltp(lines)
             pc = pyclipper.Pyclipper()
             pc.AddPath(field, pyclipper.PT_CLIP, True)
             pc.AddPath(poly, pyclipper.PT_SUBJECT, True)
             poly = pc.Execute2(pyclipper.CT_INTERSECTION, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
             poly = pyclipper.PolyTreeToPaths(poly)
-            print()
+            if poly:
+                poly = poly[0]
+            print("\nPoly:")
             print(poly)
+
+            pc = pyclipper.Pyclipper()
+            pc.AddPath(field, pyclipper.PT_CLIP, True)
+            pc.AddPath(far_line, pyclipper.PT_SUBJECT, False)
+            intersect_far = pc.Execute2(pyclipper.CT_INTERSECTION, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
+            intersect_far = pyclipper.PolyTreeToPaths(intersect_far)
+            if intersect_far:
+                print("\nfucked up poly!")
+                intersect_far = intersect_far[0]
+                for p in intersect_far:
+                    print("intersect_point:" + str(p))
+                    idx = poly.index(p)
+                    idx2 = idx + 1
+                    if idx2 > len(poly) - 1:
+                        idx2 = -1
+                    if poly[idx2] in intersect_far:
+                        iscp = poly[idx - 1]
+                    elif poly[idx - 1] in intersect_far:
+                        iscp = poly[idx2]
+                    for eck in field:
+                        if checkPointOnLine(p, [iscp, eck]):
+                            poly.pop(idx)
+                            poly.insert(idx, eck)
+                print(poly)
             add_player_poly(poly, pointidx, list_players, list_opponents)
 
         pointidx += 1
@@ -152,7 +180,7 @@ def voronoi_function(list_players, list_opponents, field):
 def add_player_poly(poly, pointidx, list_players, list_opponents):
     polyF = QPolygonF()
 
-    for p in poly[0]:
+    for p in poly:
         polyF.append(QPointF(p[0], p[1]))
 
     if pointidx > len(list_opponents)-1:
