@@ -110,7 +110,7 @@ def voronoi_function(list_players, list_opponents, field):
                         li = [vor.vertices[vor.ridge_vertices[ridgeidx][0]].tolist(), vor.vertices[vor.ridge_vertices[ridgeidx][1]].tolist()]
                         print()
                         print(li)
-                        lines.append([round(li[0]), round(li[1])])
+                        lines.append([li[0], li[1]])
                         val.append(li)
 
                     else:       ##für offenes polygon
