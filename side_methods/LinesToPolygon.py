@@ -27,8 +27,5 @@ def lines_to_polygon(lines):
                 i -= 1
             i += 1
 
-        if c == lines:
-            warnings.warn('SomeThing Wrong while transforming lines to polygons')
-
     return polygon
 

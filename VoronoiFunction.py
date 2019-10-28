@@ -7,6 +7,7 @@ from copy import deepcopy
 from side_methods.LinesToPolygon import lines_to_polygon as ltp
 from side_methods.polygonSplitter import splitPolygon
 from side_methods.checkPointOnLine import checkPointOnLine
+import warnings
 
 
 def voronoi_function(list_players, list_opponents, field):
@@ -76,6 +77,7 @@ def voronoi_function(list_players, list_opponents, field):
     val = []
     for point in vor.points:  ##iteration über punkte
         lines = []
+        poly = []
         schnittpunkte = []
         far_line = []
         regions = vor.regions
@@ -85,7 +87,6 @@ def voronoi_function(list_players, list_opponents, field):
         print(vor.points[pointidx])
         print(regions[regionidx])
         if min(regions[regionidx], default=-1) >= 0:        ##behandlung falls polygon geschlossen
-            poly = []
             for vidx in regions[regionidx]:
                 poly.append([vor.vertices[vidx][0], vor.vertices[vidx][1]])
 
@@ -93,13 +94,12 @@ def voronoi_function(list_players, list_opponents, field):
             pc.AddPath(field, pyclipper.PT_CLIP, True)
             pc.AddPath(poly, pyclipper.PT_SUBJECT, True)
             poly = pc.Execute2(pyclipper.CT_INTERSECTION, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
-            poly = pyclipper.PolyTreeToPaths(poly)
-            print("poly:")
-            print(poly[0])
-            add_player_poly(poly, pointidx, list_players, list_opponents) #Hinzufügen der Eckpunkte der closed Polygone
+            poly = pyclipper.PolyTreeToPaths(poly)                    #Hinzufügen der Eckpunkte der closed Polygone
+            print("closedPoly:" + str(poly))
+            poly = poly[0]
+
         else:
             ridgeidx = 0
-            open_polygon_points = []
             field_copy = deepcopy(field)
 
             for punkte_paar in vor.ridge_points:        ##iteration über die kanten die aus dem punkt gebildet werden
@@ -118,7 +118,6 @@ def voronoi_function(list_players, list_opponents, field):
                         v = vor.vertices[vor.ridge_vertices[ridgeidx]][1]  # finite end Voronoi vertex
                         ausgangspunkt1 = pointArray[punkte_paar[1]]
                         ausgangspunkt2 = pointArray[punkte_paar[0]]
-                        print(type(ausgangspunkt1))
                         t = ausgangspunkt1 - ausgangspunkt2  # tangent
                         x = np.linalg.norm(t)
                         t = t / x
@@ -126,8 +125,6 @@ def voronoi_function(list_players, list_opponents, field):
                         midpoint = pointArray[punkte_paar].mean(axis=0)
                         far_point = v + np.sign(np.dot(midpoint - center, n)) * n * 50000
                         p1 = [v[0], v[1]]
-                        #if p1 not in open_polygon_points:
-                        #    open_polygon_points.append(p1)
                         p2 = [far_point[0], far_point[1]]
                         far_line.append(p2)
                         line = [p1, p2]
@@ -135,7 +132,6 @@ def voronoi_function(list_players, list_opponents, field):
                 ridgeidx += 1
 
         if lines:
-            print("Lines: " + str(lines))
             poly = ltp(lines)
             pc = pyclipper.Pyclipper()
             pc.AddPath(field, pyclipper.PT_CLIP, True)
@@ -144,8 +140,6 @@ def voronoi_function(list_players, list_opponents, field):
             poly = pyclipper.PolyTreeToPaths(poly)
             if poly:
                 poly = poly[0]
-            print("\nPoly:")
-            print(poly)
 
             pc = pyclipper.Pyclipper()
             pc.AddPath(field, pyclipper.PT_CLIP, True)
@@ -169,8 +163,9 @@ def voronoi_function(list_players, list_opponents, field):
                         if checkPointOnLine(p, [iscp, eck]):
                             poly.pop(idx)
                             poly.insert(idx, eck)
-                print(poly)
-            add_player_poly(poly, pointidx, list_players, list_opponents)
+
+        print("Polygon: \n" + str(poly))
+        add_player_poly(poly, pointidx, list_players, list_opponents)
 
         pointidx += 1
 
@@ -179,7 +174,6 @@ def voronoi_function(list_players, list_opponents, field):
 
 def add_player_poly(poly, pointidx, list_players, list_opponents):
     polyF = QPolygonF()
-
     for p in poly:
         polyF.append(QPointF(p[0], p[1]))
 
