@@ -144,6 +144,7 @@ def voronoi_function(list_players, list_opponents, field):
             print()
             print(poly)
             add_player_poly(poly, pointidx, list_players, list_opponents)
+            #this shit is kinda working
 
         pointidx += 1
 
