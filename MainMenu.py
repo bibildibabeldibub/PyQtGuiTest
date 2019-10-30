@@ -17,52 +17,67 @@ class MainWindow(QWidget):
 
     def init(self):
         """Creating the main window, with several buttons and the field simulator"""
+        horizontallayout = QHBoxLayout()
+        verticallayout = QVBoxLayout()
 
         blackPen = QPen(Qt.black)
         blackBrush = QBrush(Qt.black)
-        self.scene = QGraphicsScene()
-        self.scene.setSceneRect(0, 0, 900, 600)
-        field = self.scene.addRect(0, 0, 900, 600, blackPen, QBrush(Qt.white))
-
-        view = QGraphicsView(self.scene, self)
-        view.setGeometry(200, 50, 1000, 700)
 
         self.resize(1600, 800)
         self.move(200, 100)
         self.setWindowTitle("Simulator")
 
-        self.addplayer = QPushButton('add player', self)
-        self.addplayer.move(30, 30)
+        self.addplayer = QPushButton('add player')
         self.addplayer.clicked.connect(self.add_player)
+        verticallayout.addWidget(self.addplayer)
 
-        self.addopponent = QPushButton('add opponent', self)
-        self.addopponent.move(30, 60)
+        self.addopponent = QPushButton('add opponent')
         self.addopponent.clicked.connect(self.add_opponent)
+        verticallayout.addWidget(self.addopponent)
 
-        self.posbut = QPushButton("test", self)
-        self.posbut.move(30, 90)
+        self.posbut = QPushButton("test")
         self.posbut.clicked.connect(self.click_function)
+        verticallayout.addWidget(self.posbut)
+        self.saveButton = QPushButton('save strat')
+        self.saveButton.clicked.connect(self.save_function)
+        verticallayout.addWidget(self.saveButton)
 
-        self.closeButton = QPushButton('Exit', self)
-        self.closeButton.move(900, 550)
+        self.loadButton = QPushButton('load strat')
+        self.loadButton.clicked.connect(self.load_function)
+        verticallayout.addWidget(self.loadButton)
+
+        verticallayout.addStretch(1)
+
+        self.closeButton = QPushButton('Exit')
         self.closeButton.clicked.connect(self.close_function)
+        verticallayout.addWidget(self.closeButton)
 
+        horizontallayout.addLayout(verticallayout)
+
+        self.scene = QGraphicsScene()
+        self.scene.setSceneRect(-450, -300, 900, 600)
+        field = self.scene.addRect(-450, -300, 900, 600, blackPen, QBrush(Qt.white))
+        self.scene.addEllipse(0,0,20,20, QPen(Qt.blue), QBrush(Qt.black))
+        view = QGraphicsView(self.scene, self)
+        view.setGeometry(200, 50, 1000, 700)
+        view.setMinimumSize(1000, 700)
+
+        horizontallayout.addWidget(view)
+
+        verticallayout3 = QVBoxLayout()
         self.textbox = QLineEdit(self)
-        self.textbox.move(self.width() - 350, 50)
         self.textbox.resize(300, 20)
+        self.textbox.setMinimumSize(300, 20)
+        verticallayout3.addWidget(self.textbox)
+        verticallayout3.addStretch(1)
+        horizontallayout.addLayout(verticallayout3)
         ##self.textbox.setText(str(self.scene.width()) + ", " + str(self.scene.height()))
         ##self.textbox.setText(str(self.player.scenePos()))
 
-        self.saveButton = QPushButton('save strat', self)
-        self.saveButton.move(30, 120)
-        self.saveButton.clicked.connect(self.save_function)
-
-        self.loadButton = QPushButton('load strat', self)
-        self.loadButton.move(30, 150)
-        self.loadButton.clicked.connect(self.load_function)
+        self.setLayout(horizontallayout)
 
 
-        self.setMinimumSize(1600, 800)
+        #self.setMinimumSize(1600, 800)
 
     def click_function(self):
         """test function for buttpn clickking"""
@@ -83,7 +98,6 @@ class MainWindow(QWidget):
 
     def resizeEvent(self, event):
         """acting while window is resized"""
-        self.closeButton.move(self.width() - 100, self.height() - 50)
         ##self.addplayer.move(self.width() / 2 - self.addplayer.width() / 2, self.height() / 2 - self.addplayer.height() / 2)
         ##self.textbox.move(self.width() - self.textbox.width()-50, 50)
         ##self.textbox.setText(str(self.size()))
