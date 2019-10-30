@@ -1,3 +1,4 @@
 .idea
 venv
 /strats
+__pycache__/
