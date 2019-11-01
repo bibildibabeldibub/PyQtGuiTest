@@ -77,6 +77,16 @@ class MainWindow(QWidget):
         self.textbox.resize(300, 20)
         self.textbox.setMinimumSize(300, 20)
         verticallayout3.addWidget(self.textbox)
+
+        group_pl, group_op = QGroupBox("Players"), QGroupBox("Opponents")
+        self.group_pl_layout, self.group_op_layout = QVBoxLayout(), QVBoxLayout()
+        group_pl.setLayout(self.group_pl_layout)
+        group_op.setLayout(self.group_op_layout)
+        groups_layout = QHBoxLayout()
+        groups_layout.addWidget(group_pl)
+        groups_layout.addWidget(group_op)
+        verticallayout3.addLayout(groups_layout)
+
         verticallayout3.addStretch(1)
         horizontallayout.addLayout(verticallayout3)
         ##self.textbox.setText(str(self.scene.width()) + ", " + str(self.scene.height()))
@@ -112,13 +122,17 @@ class MainWindow(QWidget):
 
     def add_player(self, event):
         """adds a player to scene"""
-        dict_players.append(player(len(dict_players)+1, False, self.scene))
+        p = player(len(dict_players)+1, False, self.scene)
+        dict_players.append(p)
+        self.group_pl_layout.addWidget(p.check_box)
         print(dict_players)
 
 
     def add_opponent(self, event):
         """adds a opponent to scene"""
-        dict_opponents.append(player(len(dict_opponents) + 1, True, self.scene))
+        op = player(len(dict_opponents) + 1, True, self.scene)
+        dict_opponents.append(op)
+        self.group_op_layout.addWidget(op.check_box)
         print(dict_opponents)
 
 
