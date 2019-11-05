@@ -65,7 +65,7 @@ class MainWindow(QWidget):
         self.scene = QGraphicsScene()
         self.scene.setSceneRect(-450, -300, 900, 600)
         self.scene.addRect(-450, -300, 900, 600, blackPen, QBrush(Qt.white))
-        self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.black))
+        #self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.black))
         view = QGraphicsView(self.scene, self)
         view.setGeometry(200, 50, 1000, 700)
         view.setMinimumSize(1000, 700)
