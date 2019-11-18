@@ -1,15 +1,22 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QBrush, QPen, QPolygonF
-from PyQt5.QtCore import Qt, QLineF
+from PyQt5.QtCore import Qt, QLineF, QPointF, QObject, pyqtSignal, pyqtSlot
+import warnings
 import numpy as np
+from Widgets.MyEllipse import MyEllipse
+import random
 
 
 class player:
+    positionChanged = pyqtSignal()
+    polygonChanged = pyqtSignal()
+
     def __init__(self, number: int, op: bool, scene: QGraphicsScene):
         """initialising player with ellipse, op is boolean and should be true if the player is an opponent"""
         self.op = op
         self.number = number
         self.scene = scene
+        self.vertices = []
         self.polygon = self.scene.addPolygon(QPolygonF(), QPen(Qt.red))
         self.removePoly()
 
@@ -19,17 +26,18 @@ class player:
             self.check_box.toggled.connect(self.togglePoly)
             self.check_box.setChecked(True)
 
-            self.ellipse = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.black), QBrush(Qt.black))
+            self.ellipse = MyEllipse(00, 00, 20, 20, QPen(Qt.black), QBrush(Qt.black), self.scene)
+            self.ellipse.setPos(20, 20)
             self.ellipse.setToolTip(string)
-            self.ellipse.setFlag(QGraphicsItem.ItemIsMovable)
+
         else:
             string = "Player " + str(self.number)
             self.check_box = QCheckBox(string)
             self.check_box.toggled.connect(self.togglePoly)
             self.check_box.setChecked(True)
-            self.ellipse = self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue))
+
+            self.ellipse = MyEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue), self.scene)
             self.ellipse.setToolTip(string)
-            self.ellipse.setFlag(QGraphicsItem.ItemIsMovable)
         self.check_box.setToolTip("Toggle Polygon display")
 
     def setLocation(self, posx, posy):
@@ -55,9 +63,26 @@ class player:
         else:
             self.removePoly()
 
+    def area(self):
+
+        return random.randint(-100, 0)
+
+    def setPoly(self, points):
+        self.vertices = points
+        polyF = QPolygonF()
+
+        for p in points:
+            polyF.append(QPointF(p[0], p[1]))
+
+        self.polygon.setPolygon(polyF)
+
+    def posChange(self):
+        self.positionChanged.emit()
+
     def __repr__(self):
-        return str(int(self.number)) + ', ' + str(int(self.ellipse.x())) + ', ' + str(int(self.ellipse.y()))
+        return str(int(self.number)) + ', ' + str(int(self.ellipse.x())) + ', ' + str(int(self.ellipse.y())) + '\n'
 
     def __del__(self):
+        print("DESTRUCTION")
         self.scene.removeItem(self.ellipse)
         self.scene.removeItem(self.polygon)

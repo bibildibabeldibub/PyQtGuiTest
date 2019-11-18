@@ -17,6 +17,8 @@ def voronoi_function(list_players, list_opponents, field):
     for p in list_players:
         points.append(p.getLocation())
 
+    if len(list_players + list_opponents) == 0:
+        return
 
     if len(list_players + list_opponents) == 1:
         field = [QPoint(field[0][0], field[0][1]), QPoint(field[1][0], field[1][1]),
@@ -173,12 +175,9 @@ def voronoi_function(list_players, list_opponents, field):
 
 
 def add_player_poly(poly, pointidx, list_players, list_opponents):
-    polyF = QPolygonF()
-    for p in poly:
-        polyF.append(QPointF(p[0], p[1]))
 
     if pointidx > len(list_opponents)-1:
-        list_players[pointidx - len(list_opponents)].polygon.setPolygon(polyF)
+        list_players[pointidx - len(list_opponents)].setPoly(poly)
     else:
-        list_opponents[pointidx].polygon.setPolygon(polyF)
+        list_opponents[pointidx].setPoly(poly)
 

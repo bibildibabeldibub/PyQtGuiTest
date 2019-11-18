@@ -3,8 +3,10 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt, QDir, QLineF
 from PyQt5.QtGui import QBrush, QPen, QPolygonF
 from pathlib import Path
-from Player import player
+from Player import *
+from Widgets.InfoBox import InfoBox
 import VoronoiFunction
+import gc
 
 dict_players: [player] = []
 dict_opponents: [player] = []
@@ -38,7 +40,7 @@ class MainWindow(QWidget):
         self.addopponent.clicked.connect(self.add_opponent)
         verticallayout.addWidget(self.addopponent)
 
-        self.posbut = QPushButton("test")
+        self.posbut = QPushButton("remove all players")
         self.posbut.clicked.connect(self.click_function)
         verticallayout.addWidget(self.posbut)
 
@@ -65,6 +67,7 @@ class MainWindow(QWidget):
         self.scene = QGraphicsScene()
         self.scene.setSceneRect(-450, -300, 900, 600)
         self.scene.addRect(-450, -300, 900, 600, blackPen, QBrush(Qt.white))
+        #self.scene.changed.connect(self.scene_change)
         #self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.black))
         view = QGraphicsView(self.scene, self)
         view.setGeometry(200, 50, 1000, 700)
@@ -78,16 +81,25 @@ class MainWindow(QWidget):
         self.textbox.setMinimumSize(300, 20)
         verticallayout3.addWidget(self.textbox)
 
-        group_pl, group_op = QGroupBox("Players"), QGroupBox("Opponents")
+        self.group_pl, self.group_op = QGroupBox("Players"), QGroupBox("Opponents")
         self.group_pl_layout, self.group_op_layout = QVBoxLayout(), QVBoxLayout()
-        group_pl.setLayout(self.group_pl_layout)
-        group_op.setLayout(self.group_op_layout)
+        self.group_pl.setLayout(self.group_pl_layout)
+        self.group_op.setLayout(self.group_op_layout)
         groups_layout = QHBoxLayout()
-        groups_layout.addWidget(group_pl)
-        groups_layout.addWidget(group_op)
+        groups_layout.addWidget(self.group_pl)
+        groups_layout.addWidget(self.group_op)
         verticallayout3.addLayout(groups_layout)
 
+        self.tabWidget = QTabWidget()
+        self.infoPlayer = InfoBox(self.scene)
+        self.infoOpponents = InfoBox(self.scene)
+        self.tabWidget.addTab(self.infoPlayer, "Player")
+        self.tabWidget.addTab(self.infoOpponents, "Opponents")
+
+        verticallayout3.addWidget(self.tabWidget)
+
         verticallayout3.addStretch(1)
+
         horizontallayout.addLayout(verticallayout3)
         ##self.textbox.setText(str(self.scene.width()) + ", " + str(self.scene.height()))
         ##self.textbox.setText(str(self.player.scenePos()))
@@ -96,10 +108,13 @@ class MainWindow(QWidget):
 
         #self.setMinimumSize(1600, 800)
 
+    def scene_change(self):
+        self.vor()
+
     def click_function(self):
         """test function for buttpn clickking"""
 
-        print(dict_players[0])
+        self.delete_all_players()
 
         ##dict_players.clear()
         #print("button clicked")
@@ -124,17 +139,20 @@ class MainWindow(QWidget):
         """adds a player to scene"""
         p = player(len(dict_players)+1, False, self.scene)
         dict_players.append(p)
+        self.infoPlayer.appendPlayer(p)
         self.group_pl_layout.addWidget(p.check_box)
+        p.ellipse.s.positionMove.connect(self.update_info)
         print(dict_players)
 
 
     def add_opponent(self, event):
         """adds a opponent to scene"""
         op = player(len(dict_opponents) + 1, True, self.scene)
+        self.infoOpponents.appendPlayer(op)
         dict_opponents.append(op)
         self.group_op_layout.addWidget(op.check_box)
+        op.ellipse.s.positionMove.connect(self.update_info)
         print(dict_opponents)
-
 
     def save_function(self, event):
         """starts file dialog for saving the player positions"""
@@ -142,8 +160,8 @@ class MainWindow(QWidget):
         if filenames[0] is not '':
             f = open(filenames[0], 'w')
             txt = ""
-            for key in dict_players:
-                txt += str(key) 
+            for p in dict_players:
+                txt += str(p)
             txt += "Opponents:\n"
             for x in dict_opponents:
                 txt += str(x) + "\n"
@@ -164,8 +182,7 @@ class MainWindow(QWidget):
 
         if val == 1024:
 
-            dict_opponents.clear()
-            dict_players.clear()
+            self.delete_all_players()
             filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
 
             if filenames[0] is not '':
@@ -181,8 +198,11 @@ class MainWindow(QWidget):
                         print(att)
                         p = player(int(att[0]), False, self.scene)
                         p.setLocation(int(att[1]), int(att[2]))
+                        self.group_pl_layout.addWidget(p.check_box)
                         dict_players.append(p)
+                        self.infoPlayer.appendPlayer(p)
                         print(dict_players)
+                        p.ellipse.s.positionMove.connect(self.update_info)
 
                 print("\nopponents: \n")
                 opponents = teams[1].split("\n")
@@ -193,7 +213,10 @@ class MainWindow(QWidget):
                         print(att)
                         o = player(int(att[0]), True, self.scene)
                         dict_opponents.append(o)
+                        self.group_op_layout.addWidget(o.check_box)
                         o.setLocation(int(att[1]), int(att[2]))
+                        self.infoOpponents.appendPlayer(o)
+                        o.ellipse.s.positionMove.connect(self.update_info)
                 print(dict_opponents)
 
     def vor(self):
@@ -202,9 +225,27 @@ class MainWindow(QWidget):
 
         VoronoiFunction.voronoi_function(dict_players, dict_opponents, self.field)
 
+    def update_info(self):
+        self.vor()
+        self.infoPlayer.updateInfo()
+        self.infoOpponents.updateInfo()
+
+    def delete_all_players(self):
+
+        for op in dict_opponents:
+            op.check_box.setParent(None)
+            self.infoOpponents.removePlayerInfo(op)
+            op.__del__()
+            # self.infoOpponents.removeInfo(op)
+        for p in dict_players:
+            p.check_box.setParent(None)
+            self.infoPlayer.removePlayerInfo(p)
+            p.__del__()
+
+        dict_opponents.clear()
+        dict_players.clear()
 
     def anzeigen(self):
         """shows the main window"""
         self.show()
-
-
+        self.raise_()
