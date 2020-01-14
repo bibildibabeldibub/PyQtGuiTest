@@ -38,9 +38,12 @@ def voronoi_function(list_players, list_opponents, field):
         #mitte = [(points[0][0]+points[1][0])/2, (points[0][1]+points[1][1])/2]
         v = startpoints[0] - startpoints[1]
         print(v)
-        n = np.linalg.norm(v)                            #orthogonaler vektor
-        p1 = mitte + 50000 * n
-        p2 = mitte + (-50000) * n
+        if(v[1] == 0):
+            n = np.array([0, 1])
+        else:
+            n = np.array([1, -v[0]/v[1]])
+        p1 = mitte + 5000 * n
+        p2 = mitte + (-5000) * n
         pc = pyclipper.Pyclipper()
         pc.AddPath(field, pyclipper.PT_CLIP, True)
         pc.AddPath([p1, p2], pyclipper.PT_SUBJECT, False)

@@ -64,8 +64,20 @@ class player:
             self.removePoly()
 
     def area(self):
+        pls = []
+        pol = self.polygon.polygon()
+        for p in range(pol.count()):
+            pls.append([pol[p].x(), pol[p].y()])
+        erg = 0
+        for k in range(pol.count()):            ##2A
+            if k+1 < pol.count():
+                pkt1X = pol[k].x()+450               ##umrechnen der punkte, damit das ergebnis positiv ist
+                pkt2X = pol[k+1].x()+450
+                pkt1Y = pol[k].y()+300
+                pkt2Y = pol[k+1].y()+300
+                erg = erg + ((pkt1X * pkt2Y) - (pkt1Y * pkt2X))
 
-        return random.randint(-100, 0)
+        return abs(.5*erg/10000)                        ##umrechnung in Quadratmeter
 
     def setPoly(self, points):
         self.vertices = points
