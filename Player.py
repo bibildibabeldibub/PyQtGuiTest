@@ -75,7 +75,13 @@ class player:
                 pkt2X = pol[k+1].x()+450
                 pkt1Y = pol[k].y()+300
                 pkt2Y = pol[k+1].y()+300
-                erg = erg + ((pkt1X * pkt2Y) - (pkt1Y * pkt2X))
+                erg += ((pkt1X * pkt2Y) - (pkt1Y * pkt2X))
+            else:
+                pkt1X = pol[k].x() + 450  ##umrechnen der punkte, damit das ergebnis positiv ist
+                pkt2X = pol[0].x() + 450
+                pkt1Y = pol[k].y() + 300
+                pkt2Y = pol[0].y() + 300
+                erg += ((pkt1X * pkt2Y) - (pkt1Y * pkt2X))
 
         return abs(.5*erg/10000)                        ##umrechnung in Quadratmeter
 
