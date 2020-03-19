@@ -32,12 +32,9 @@ def voronoi_function(list_players, list_opponents, field):
 
     if len(points) == 2:
         startpoints = np.array(points)
-        print(startpoints)
         mitte = startpoints.mean(axis=0)
-        print(mitte)
         #mitte = [(points[0][0]+points[1][0])/2, (points[0][1]+points[1][1])/2]
         v = startpoints[0] - startpoints[1]
-        print(v)
         if(v[1] == 0):
             n = np.array([0, 1])
         else:
@@ -49,7 +46,6 @@ def voronoi_function(list_players, list_opponents, field):
         pc.AddPath([p1, p2], pyclipper.PT_SUBJECT, False)
         line = pc.Execute2(pyclipper.CT_INTERSECTION, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
         line = pyclipper.PolyTreeToPaths(line)
-        print(line[0])
         firstPoly, secondPoly = splitPolygon(line[0], field)
         firstpol = QPolygon()
         secondpol = QPolygon()
@@ -70,12 +66,12 @@ def voronoi_function(list_players, list_opponents, field):
     vor = Voronoi(pointArray)
     vertices = vor.ridge_vertices
     eckpunkte = vor.vertices
-    print("Points: " + str(vor.points))
-    print("Ridge_Vertices: " + str(vertices))
-    print("Vertices: " + str(eckpunkte.tolist()))
-    print("Ridge_Points: " + str(vor.ridge_points))
-    print("Regions: " + str(vor.regions))
-    print("Point_regions" + str(vor.point_region))
+    #print("Points: " + str(vor.points))
+    #print("Ridge_Vertices: " + str(vertices))
+    #print("Vertices: " + str(eckpunkte.tolist()))
+    #print("Ridge_Points: " + str(vor.ridge_points))
+    #print("Regions: " + str(vor.regions))
+    #print("Point_regions" + str(vor.point_region))
 
 
     pointidx = 0
@@ -87,10 +83,6 @@ def voronoi_function(list_players, list_opponents, field):
         far_line = []
         regions = vor.regions
         regionidx = vor.point_region.tolist()[pointidx]
-        print("\n\n")
-        print(pointidx)
-        print(vor.points[pointidx])
-        print(regions[regionidx])
         if min(regions[regionidx], default=-1) >= 0:        ##behandlung falls polygon geschlossen
             for vidx in regions[regionidx]:
                 poly.append([vor.vertices[vidx][0], vor.vertices[vidx][1]])
@@ -100,7 +92,6 @@ def voronoi_function(list_players, list_opponents, field):
             pc.AddPath(poly, pyclipper.PT_SUBJECT, True)
             poly = pc.Execute2(pyclipper.CT_INTERSECTION, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
             poly = pyclipper.PolyTreeToPaths(poly)                    #Hinzufügen der Eckpunkte der closed Polygone
-            print("closedPoly:" + str(poly))
             poly = poly[0]
 
         else:
@@ -113,8 +104,6 @@ def voronoi_function(list_players, list_opponents, field):
                 if np.any(punkte_paar == pointidx):
                     if min(vor.ridge_vertices[ridgeidx]) >= 0:      ##definierte linien des offenen polygons
                         li = [vor.vertices[vor.ridge_vertices[ridgeidx][0]].tolist(), vor.vertices[vor.ridge_vertices[ridgeidx][1]].tolist()]
-                        print()
-                        print(li)
                         lines.append([li[0], li[1]])
                         val.append(li)
 
@@ -152,10 +141,8 @@ def voronoi_function(list_players, list_opponents, field):
             intersect_far = pc.Execute2(pyclipper.CT_INTERSECTION, pyclipper.PFT_NONZERO, pyclipper.PFT_NONZERO)
             intersect_far = pyclipper.PolyTreeToPaths(intersect_far)
             if intersect_far:
-                print("\nfucked up poly!")
                 intersect_far = intersect_far[0]
                 for p in intersect_far:
-                    print("intersect_point:" + str(p))
                     idx = poly.index(p)
                     idx2 = idx + 1
                     if idx2 > len(poly) - 1:
@@ -169,7 +156,6 @@ def voronoi_function(list_players, list_opponents, field):
                             poly.pop(idx)
                             poly.insert(idx, eck)
 
-        print("Polygon: \n" + str(poly))
         add_player_poly(poly, pointidx, list_players, list_opponents)
 
         pointidx += 1

@@ -1,12 +1,18 @@
-from PyQt5.QtWidgets import *
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt, QDir, QLineF
-from PyQt5.QtGui import QBrush, QPen, QPolygonF
+#from PyQt5.QtWidgets import *
+#from PyQt5 import QtGui, QtCore
+from PyQt5.QtCore import Qt, QDir, QLineF, QTimer, QObject
+#from PyQt5.QtGui import QBrush, QPen, QPolygonF
 from pathlib import Path
 from Player import *
 from Widgets.InfoBox import InfoBox
+from Widgets.MyField import MyField
 import VoronoiFunction
-import gc
+from side_methods import animation
+import json
+import time
+import PyQt5.QtCore
+from os import listdir
+from os.path import isfile, join
 
 dict_players: [player] = []
 dict_opponents: [player] = []
@@ -27,12 +33,30 @@ class MainWindow(QWidget):
 
         blackPen = QPen(Qt.black)
         blackBrush = QBrush(Qt.black)
+
         self.field = [[-450, -300], [-450, 300], [450, 300], [450, -300]]
+
         self.resize(1600, 800)
         self.move(200, 100)
         self.setWindowTitle("Simulator")
 
-        self.addplayer = QPushButton('add player')
+        """Setup ComboBox"""
+        self.start_selector = QComboBox()
+        #self.start_selector.addItem("empty")
+
+        start_formation_path = 'StartFormations/'
+        "load all startpositions"
+        startpositions = []
+        for f in listdir(start_formation_path):
+            if isfile(join(start_formation_path, f)):
+                startpositions.append(f)
+                self.start_selector.addItem(f)
+
+        self.start_selector.currentIndexChanged.connect(self.selectionchange)
+
+        verticallayout.addWidget(self.start_selector)
+
+        self.addplayer = QPushButton('AddPlayer')
         self.addplayer.clicked.connect(self.add_player)
         verticallayout.addWidget(self.addplayer)
 
@@ -56,6 +80,10 @@ class MainWindow(QWidget):
         self.voronoiButton.clicked.connect(self.vor)
         verticallayout.addWidget(self.voronoiButton)
 
+        self.anim = QPushButton('anim')
+        self.anim.clicked.connect(self.animation)
+        verticallayout.addWidget(self.anim)
+
         verticallayout.addStretch(1)
 
         self.closeButton = QPushButton('Exit')
@@ -66,7 +94,8 @@ class MainWindow(QWidget):
 
         self.scene = QGraphicsScene()
         self.scene.setSceneRect(-450, -300, 900, 600)
-        self.scene.addRect(-450, -300, 900, 600, blackPen, QBrush(Qt.white))
+        # self.field_rect = MyField(-450, -300, 900, 600)
+        # self.scene.addItem(self.field_rect, blackPen, QBrush(Qt.white))
         #self.scene.changed.connect(self.scene_change)
         #self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.black))
         view = QGraphicsView(self.scene, self)
@@ -106,6 +135,8 @@ class MainWindow(QWidget):
 
         self.setLayout(horizontallayout)
 
+
+
         #self.setMinimumSize(1600, 800)
 
     def scene_change(self):
@@ -135,7 +166,13 @@ class MainWindow(QWidget):
         ##self.textbox.move(self.width() - self.textbox.width()-50, 50)
         ##self.textbox.setText(str(self.size()))
 
-    def add_player(self, event):
+    def selectionchange(self, i):
+        print(i)
+        print(self.start_selector.currentText())
+        self.load_function("StartFormations/" + self.start_selector.currentText())
+        return
+
+    def add_player(self, position=(0, 0)):
         """adds a player to scene"""
         p = player(len(dict_players)+1, False, self.scene)
         dict_players.append(p)
@@ -169,55 +206,61 @@ class MainWindow(QWidget):
             f.write(txt)
             f.close()
 
-    def load_function(self):
+    def load_function(self, file = None):
         """deleting actual players, starts file dialog for loading player positions"""
+        if(not file):
+            dialog = QMessageBox()
+            dialog.setWindowTitle("Strategy deleting")
+            dialog.setIcon(QMessageBox.Warning)
+            dialog.setText("Continuing will delete actual strategy")
+            dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            val = dialog.exec_()
+        else: val = 1023
 
-        dialog = QMessageBox()
-        dialog.setWindowTitle("Strategy deleting")
-        dialog.setIcon(QMessageBox.Warning)
-        dialog.setText("Continuing will delete actual strategy")
-        dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        val = dialog.exec_()
+        print(file)
         print(val)
 
         if val == 1024:
-
-            self.delete_all_players()
             filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
+        elif val == 1023: filenames = [file]
+        else: return
 
-            if filenames[0] is not '':
-                f = open(filenames[0], 'r')
-                txt = f.read()
-                teams = txt.split("Opponents:\n")
-                print(teams[0])
-                play_atts = teams[0].split("\n")
-                for wert_tripel in play_atts:
-                    if len(wert_tripel) > 1:
-                        att = wert_tripel.split(", ")   # 3 attribute von einzelnen spielern
-                        print("P"+str(len(dict_players)) + " attributes:\n")
-                        print(att)
-                        p = player(int(att[0]), False, self.scene)
-                        p.setLocation(int(att[1]), int(att[2]))
-                        self.group_pl_layout.addWidget(p.check_box)
-                        dict_players.append(p)
-                        self.infoPlayer.appendPlayer(p)
-                        print(dict_players)
-                        p.ellipse.s.positionMove.connect(self.update_info)
+        self.delete_all_players()
+        if filenames[0] is not '':
+            f = open(filenames[0], 'r')
+            txt = f.read()
+            if txt == '':
+                return
+            teams = txt.split("Opponents:\n")
+            print(teams[0])
+            play_atts = teams[0].split("\n")
+            for wert_tripel in play_atts:
+                if len(wert_tripel) > 1:
+                    att = wert_tripel.split(", ")   # 3 attribute von einzelnen spielern
+                    print("P"+str(len(dict_players)) + " attributes:\n")
+                    print(att)
+                    p = player(int(att[0]), False, self.scene)
+                    p.setLocation(int(att[1]), int(att[2]))
+                    self.group_pl_layout.addWidget(p.check_box)
+                    dict_players.append(p)
+                    self.infoPlayer.appendPlayer(p)
+                    print(dict_players)
+                    p.ellipse.s.positionMove.connect(self.update_info)
 
-                print("\nopponents: \n")
-                opponents = teams[1].split("\n")
-                for wert_tripel in opponents:
-                    if len(wert_tripel) > 1:
-                        att = wert_tripel.split(', ')
-                        print("attributes:\n")
-                        print(att)
-                        o = player(int(att[0]), True, self.scene)
-                        dict_opponents.append(o)
-                        self.group_op_layout.addWidget(o.check_box)
-                        o.setLocation(int(att[1]), int(att[2]))
-                        self.infoOpponents.appendPlayer(o)
-                        o.ellipse.s.positionMove.connect(self.update_info)
-                print(dict_opponents)
+            print("\nopponents: \n")
+            opponents = teams[1].split("\n")
+            for wert_tripel in opponents:
+                if len(wert_tripel) > 1:
+                    att = wert_tripel.split(', ')
+                    print("attributes:\n")
+                    print(att)
+                    o = player(int(att[0]), True, self.scene)
+                    dict_opponents.append(o)
+                    self.group_op_layout.addWidget(o.check_box)
+                    o.setLocation(int(att[1]), int(att[2]))
+                    self.infoOpponents.appendPlayer(o)
+                    o.ellipse.s.positionMove.connect(self.update_info)
+            print(dict_opponents)
 
     def vor(self):
         for p in dict_opponents + dict_players:
@@ -226,6 +269,8 @@ class MainWindow(QWidget):
         VoronoiFunction.voronoi_function(dict_players, dict_opponents, self.field)
 
     def update_info(self):
+        """is triggered everytime a player changes his position"""
+
         self.vor()
         self.infoPlayer.updateInfo()
         self.infoOpponents.updateInfo()
@@ -244,6 +289,14 @@ class MainWindow(QWidget):
 
         dict_opponents.clear()
         dict_players.clear()
+
+    def animation(self):
+
+        with open('config.json') as config_file:
+            data = json.load(config_file)
+            fps = data['aufrufe-pro-sekunde']
+        animThread = animation.anim_thread(self.scene)
+        animThread.start(1/fps)
 
     def anzeigen(self):
         """shows the main window"""

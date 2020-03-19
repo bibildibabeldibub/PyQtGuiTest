@@ -11,14 +11,16 @@ class player:
     positionChanged = pyqtSignal()
     polygonChanged = pyqtSignal()
 
-    def __init__(self, number: int, op: bool, scene: QGraphicsScene):
+    def __init__(self, number: int, op: bool, scene: QGraphicsScene, blocked=False):
         """initialising player with ellipse, op is boolean and should be true if the player is an opponent"""
+        self.blocked = blocked
         self.op = op
         self.number = number
         self.scene = scene
         self.vertices = []
         self.polygon = self.scene.addPolygon(QPolygonF(), QPen(Qt.red))
         self.removePoly()
+        self.mittlere_Bewertung = [0,0]
 
         if op:
             string = "Opponent " + str(self.number)
@@ -26,7 +28,7 @@ class player:
             self.check_box.toggled.connect(self.togglePoly)
             self.check_box.setChecked(True)
 
-            self.ellipse = MyEllipse(00, 00, 20, 20, QPen(Qt.black), QBrush(Qt.black), self.scene)
+            self.ellipse = MyEllipse(self, 00, 00, 20, 20, QPen(Qt.black), QBrush(Qt.black), self.scene)
             self.ellipse.setPos(20, 20)
             self.ellipse.setToolTip(string)
 
@@ -36,19 +38,19 @@ class player:
             self.check_box.toggled.connect(self.togglePoly)
             self.check_box.setChecked(True)
 
-            self.ellipse = MyEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue), self.scene)
+            self.ellipse = MyEllipse(self, 0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue), self.scene)
             self.ellipse.setToolTip(string)
         self.check_box.setToolTip("Toggle Polygon display")
 
     def setLocation(self, posx, posy):
-        self.ellipse.setPos(posx, posy)
+        self.ellipse.setPos(posx+10, posy+10)
 
     def getLocation(self):
         """:return: tuple x and y coordinates as integer"""
-        return [self.ellipse.scenePos().x(), self.ellipse.scenePos().y()]
+        return [self.ellipse.scenePos().x()+10, self.ellipse.scenePos().y()+10]
 
     def getLocationArray(self):
-        return np.array([[self.ellipse.scenePos().x(), self.ellipse.scenePos().y()]])
+        return np.array([[self.ellipse.scenePos().x()+10, self.ellipse.scenePos().y()+10]])
 
     def deleteMarker(self):
         self.scene.removeItem(self.ellipse)
@@ -83,6 +85,8 @@ class player:
                 pkt2Y = pol[0].y() + 300
                 erg += ((pkt1X * pkt2Y) - (pkt1Y * pkt2X))
 
+        self.mittlere_Bewertung[0] += 1
+        self.mittlere_Bewertung[1] += abs(.5*erg/10000)
         return abs(.5*erg/10000)                        ##umrechnung in Quadratmeter
 
     def setPoly(self, points):
