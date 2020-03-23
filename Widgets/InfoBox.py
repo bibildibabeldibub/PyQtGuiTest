@@ -14,8 +14,8 @@ class InfoLabel(QLabel):
         self.l2 = QLabel()
         self.l3 = QLabel()
 
-        self.l1.setText("Flächeninhalt:\t" + str(self.p.area()))
-        self.l2.setText("Position:\t" + str(self.p.getLocation()))
+        self.l1.setText("Flächeninhalt:\n  " + str(self.p.area()))
+        self.l2.setText("Position:\n  " + str(self.p.getLocation()))
         self.l3.setText(str(self.p))
 
         layout.addWidget(self.l1)
@@ -25,8 +25,8 @@ class InfoLabel(QLabel):
         self.setLayout(layout)
 
     def updateInfoLabel(self):
-        self.l1.setText("Flächeninhalt:\t" + str(self.p.area()))
-        self.l2.setText("Position:\t" + str(self.p.getLocation()))
+        self.l1.setText("Flächeninhalt:\n  " + str(self.p.area()))
+        self.l2.setText("Position:\n  " + str(self.p.getLocation()))
         self.l3.setText(str(self.p))
         self.l1.update()
         self.l2.update()
@@ -42,7 +42,7 @@ class InfoBox(QWidget):
         horizontallayout = QHBoxLayout()
 
         self.list_item = QListWidget()
-        self.list_item.setMaximumWidth(100)
+        self.list_item.setMaximumWidth(50)
         self.list_item.currentRowChanged.connect(self.changeInfo)
 
         self.infos = QStackedWidget()

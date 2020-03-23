@@ -1,7 +1,7 @@
 #from PyQt5.QtWidgets import *
 #from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt, QDir, QLineF, QTimer, QObject
-#from PyQt5.QtGui import QBrush, QPen, QPolygonF
+from PyQt5.QtCore import Qt, QDir, QLineF, QTimer, QObject, QPoint, QPointF
+from PyQt5.QtGui import QBrush, QPen, QPolygonF, QPolygon
 from pathlib import Path
 from Player import *
 from Widgets.InfoBox import InfoBox
@@ -13,6 +13,8 @@ import time
 import PyQt5.QtCore
 from os import listdir
 from os.path import isfile, join
+from screeninfo import get_monitors
+
 
 dict_players: [player] = []
 dict_opponents: [player] = []
@@ -28,6 +30,10 @@ class MainWindow(QWidget):
 
     def init(self):
         """Creating the main window, with several buttons and the field simulator"""
+
+        for m in get_monitors():
+            print(str(m))
+
         horizontallayout = QHBoxLayout()
         verticallayout = QVBoxLayout()
 
@@ -36,8 +42,6 @@ class MainWindow(QWidget):
 
         self.field = [[-450, -300], [-450, 300], [450, 300], [450, -300]]
 
-        self.resize(1600, 800)
-        self.move(200, 100)
         self.setWindowTitle("Simulator")
 
         """Setup ComboBox"""
@@ -56,15 +60,15 @@ class MainWindow(QWidget):
 
         verticallayout.addWidget(self.start_selector)
 
-        self.addplayer = QPushButton('AddPlayer')
+        self.addplayer = QPushButton('Player')
         self.addplayer.clicked.connect(self.add_player)
         verticallayout.addWidget(self.addplayer)
 
-        self.addopponent = QPushButton('add opponent')
+        self.addopponent = QPushButton('Opponent')
         self.addopponent.clicked.connect(self.add_opponent)
         verticallayout.addWidget(self.addopponent)
 
-        self.posbut = QPushButton("remove all players")
+        self.posbut = QPushButton("remove all")
         self.posbut.clicked.connect(self.click_function)
         verticallayout.addWidget(self.posbut)
 
@@ -84,30 +88,34 @@ class MainWindow(QWidget):
         self.anim.clicked.connect(self.animation)
         verticallayout.addWidget(self.anim)
 
-        verticallayout.addStretch(1)
-
         self.closeButton = QPushButton('Exit')
         self.closeButton.clicked.connect(self.close_function)
         verticallayout.addWidget(self.closeButton)
+
+        verticallayout.addStretch(1)
 
         horizontallayout.addLayout(verticallayout)
 
         self.scene = QGraphicsScene()
         self.scene.setSceneRect(-450, -300, 900, 600)
-        # self.field_rect = MyField(-450, -300, 900, 600)
-        # self.scene.addItem(self.field_rect, blackPen, QBrush(Qt.white))
+
+        field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]),
+                 QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
+        self.scene.addPolygon(field_poly)
+        #self.field_rect = MyField(-450, -300, 900, 600)
+        #self.scene.addItem(self.field_rect, blackPen, QBrush(Qt.white))
         #self.scene.changed.connect(self.scene_change)
         #self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.black))
         view = QGraphicsView(self.scene, self)
-        view.setGeometry(200, 50, 1000, 700)
-        view.setMinimumSize(1000, 700)
+        view.setGeometry(100, 20, 950, 700)
+        view.setMinimumSize(950, 600)
 
         horizontallayout.addWidget(view)
 
         verticallayout3 = QVBoxLayout()
         self.textbox = QLineEdit(self)
-        self.textbox.resize(300, 20)
-        self.textbox.setMinimumSize(300, 20)
+        self.textbox.resize(100, 20)
+        self.textbox.setMinimumSize(100, 20)
         verticallayout3.addWidget(self.textbox)
 
         self.group_pl, self.group_op = QGroupBox("Players"), QGroupBox("Opponents")
@@ -136,7 +144,7 @@ class MainWindow(QWidget):
         self.setLayout(horizontallayout)
 
 
-
+        #self.resize(1200, 600)
         #self.setMinimumSize(1600, 800)
 
     def scene_change(self):
@@ -300,5 +308,5 @@ class MainWindow(QWidget):
 
     def anzeigen(self):
         """shows the main window"""
-        self.show()
+        self.showMaximized()
         self.raise_()
