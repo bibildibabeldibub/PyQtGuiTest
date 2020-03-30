@@ -25,14 +25,24 @@ class MainWindow(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.init()
+
+        print(get_monitors()[0].width)
+
+        if get_monitors()[0] == None:
+            print("shit")
+            monitor_width = 0
+        else:
+            monitor_width = get_monitors()[0].width
+
+        if monitor_width != 0 and monitor_width < 1920:
+            self.init_small()
+        else:
+            print("That didn't worked too well!")
+            self.init_big()
 
 
-    def init(self):
+    def init_small(self):
         """Creating the main window, with several buttons and the field simulator"""
-
-        for m in get_monitors():
-            print(str(m))
 
         horizontallayout = QHBoxLayout()
         verticallayout = QVBoxLayout()
