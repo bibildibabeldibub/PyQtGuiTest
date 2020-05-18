@@ -69,7 +69,7 @@ class MyEllipse(QGraphicsEllipseItem):
 
                 print(filtered_colliding_items)
                 return QPointF(self.x(), self.y())
-            else: print("None")
+            #else: print("None")
 
             self.s.positionMove.emit()
 
@@ -89,7 +89,7 @@ class MyEllipse(QGraphicsEllipseItem):
                     self.richtungswinkel = random.uniform(-45, 45)
                     self.animcounter = 0
                 self.new_pos = self.positionsBerechnung(self.richtungswinkel)
-                print(self.new_pos)
+                #print(self.new_pos)
 
                 if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
                     self.spieler.blocked = True
@@ -99,7 +99,7 @@ class MyEllipse(QGraphicsEllipseItem):
                 #    self.new_pos = self.positionsBerechnung(winkel)
 
         if p_int == 1 and not self.spieler.blocked:
-            print("PositionSet!!" + str(self.new_pos))
+            #print("PositionSet!!" + str(self.new_pos))
             if not self.spieler.op:
                 self.setPos(old_pos[0]+self.new_pos[0], old_pos[1]+self.new_pos[1])
                 self.animcounter += 1
