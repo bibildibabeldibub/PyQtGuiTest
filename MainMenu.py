@@ -40,10 +40,13 @@ class MainWindow(QWidget):
             monitor_width = get_monitors()[0].width
 
         if monitor_width != 0 and monitor_width < 1920:
+            print("smaller screen")
             self.init_small()
-        else:
-            print("That didn't worked too well!")
+        elif monitor_width != 0 and monitor_width >= 1920:
+            print("large screen")
             self.init_big()
+        else:
+            print("Screen width = 0 ?? How u display this?")
 
         field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]),
                  QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
@@ -62,15 +65,11 @@ class MainWindow(QWidget):
 
     def init_small(self):
         """Creating the main window, with several buttons and the field simulator for small screens"""
-
         horizontallayout = layoutBuilder.buildSmall(self)
         self.setLayout(horizontallayout)
 
-
     def init_big(self):
         """Creating the main window, with several buttons and the field simulator for huge screens """
-
-
         self.setLayout(layoutBuilder.buildBig(self))
 
     def scene_change(self):

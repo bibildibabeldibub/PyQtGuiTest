@@ -187,5 +187,5 @@ def buildBig(self):
     ##self.textbox.setText(str(self.scene.width()) + ", " + str(self.scene.height()))
     ##self.textbox.setText(str(self.player.scenePos()))
 
-    self.setLayout(horizontallayout)
+    return(horizontallayout)
 
