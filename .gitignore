@@ -2,3 +2,4 @@
 venv
 /strats
 __pycache__/
+*.pyc
