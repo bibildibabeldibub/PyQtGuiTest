@@ -1,18 +1,19 @@
 from PyQt5 import QtCore, QtWidgets
+import time
 
 
-
-class anim_thread(QtCore.QThread):
-    def __init__(self, scene: QtWidgets.QGraphicsScene):
-        QtCore.QThread.__init__(self)
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.timerEvent)
+class anim_worker(QtCore.QRunnable):
+    def __init__(self, scene, seconds):
+        QtCore.QRunnable.__init__(self)
         self.scene = scene
+        self.seconds = seconds
+        self.pause = False
 
-    def start(self, seconds):
-        self.timer.start(seconds*1000)
-        loop = QtCore.QEventLoop()
-        loop.exec_()
+    def run(self):
+        self.loop()
 
-    def timerEvent(self):
-        self.scene.advance()
+    def loop(self):
+        while not self.pause:
+            self.scene.advance()
+            time.sleep(self.seconds)
+

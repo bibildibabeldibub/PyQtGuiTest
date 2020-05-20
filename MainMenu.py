@@ -1,6 +1,6 @@
 #from PyQt5.QtWidgets import *
 #from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt, QDir, QLineF, QTimer, QObject, QPoint, QPointF
+from PyQt5.QtCore import Qt, QDir, QLineF, QObject, QPoint, QPointF, QThreadPool
 from PyQt5.QtGui import QBrush, QPen, QPolygonF, QPolygon
 from pathlib import Path
 from Player import *
@@ -27,7 +27,6 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
 
-
         self.setWindowTitle("Simulator")
 
         print(get_monitors()[0].width)
@@ -40,10 +39,8 @@ class MainWindow(QWidget):
             monitor_width = get_monitors()[0].width
 
         if monitor_width != 0 and monitor_width < 1920:
-            print("smaller screen")
             self.init_small()
         elif monitor_width != 0 and monitor_width >= 1920:
-            print("large screen")
             self.init_big()
         else:
             print("Screen width = 0 ?? How u display this?")
@@ -51,7 +48,6 @@ class MainWindow(QWidget):
         field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]),
                  QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
         self.scene.addPolygon(field_poly)
-
 
         start_formation_path = 'StartFormations/'
         "load all startpositions"
@@ -61,7 +57,11 @@ class MainWindow(QWidget):
                 startpositions.append(f)
                 self.start_selector.addItem(f)
 
+        with open('config.json') as config_file:
+            data = json.load(config_file)
+            self.fps = data['aufrufe-pro-sekunde']
 
+        self.animationRunning = False
 
     def init_small(self):
         """Creating the main window, with several buttons and the field simulator for small screens"""
@@ -122,7 +122,6 @@ class MainWindow(QWidget):
         dict_opponents.append(op)
         self.group_op_layout.addWidget(op.check_box)
         op.ellipse.s.positionMove.connect(self.update_info)
-        print(dict_opponents)
 
     def save_function(self, event):
         """starts file dialog for saving the player positions"""
@@ -151,7 +150,6 @@ class MainWindow(QWidget):
         else: val = 1023
 
         print(file)
-        print(val)
 
         if val == 1024:
             filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
@@ -224,12 +222,21 @@ class MainWindow(QWidget):
         dict_players.clear()
 
     def animation(self):
+        if not self.animationRunning:
+            #Thread timer approach 2
+            self.threadpool = QThreadPool()
+            self.animationWorker = animation.anim_worker(self.scene, 1/self.fps)
 
-        with open('config.json') as config_file:
-            data = json.load(config_file)
-            fps = data['aufrufe-pro-sekunde']
-        animThread = animation.anim_thread(self.scene)
-        animThread.start(1/fps)
+            print("Start animation")
+            self.animationWorker.pause = False
+            self.animationRunning = True
+            self.threadpool.start(self.animationWorker)
+        else:
+            #timer thread stops loop and gets killed
+
+            print("Stop animation")
+            self.animationWorker.pause = True
+            self.animationRunning = False
 
     def anzeigen(self):
         """shows the main window"""
