@@ -61,6 +61,8 @@ class MainWindow(QWidget):
                 startpositions.append(f)
                 self.start_selector.addItem(f)
 
+        self.anim_status = 0
+
 
 
     def init_small(self):
@@ -225,11 +227,25 @@ class MainWindow(QWidget):
 
     def animation(self):
 
+
         with open('config.json') as config_file:
             data = json.load(config_file)
             fps = data['aufrufe-pro-sekunde']
-        animThread = animation.anim_thread(self.scene)
-        animThread.start(1/fps)
+        self.animThread = animation.anim_thread(self.scene)
+
+        if self.anim_status ==0:
+            print("Starte Animation")
+            self.anim_status = 1
+            self.animThread.start(1/fps)
+            print("After Start")
+            return
+
+    def stop(self):
+        print("Try to stop")
+        if self.anim_status != 0:
+            self.animThread.stop()
+            self.anim_status = 0
+            return
 
     def anzeigen(self):
         """shows the main window"""

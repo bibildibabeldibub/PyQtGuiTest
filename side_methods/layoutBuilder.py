@@ -25,39 +25,7 @@ def buildSmall(self):
 
     verticallayout.addWidget(self.start_selector)
 
-    self.addplayer = QPushButton('Player')
-    self.addplayer.clicked.connect(self.add_player)
-    verticallayout.addWidget(self.addplayer)
-
-    self.addopponent = QPushButton('Opponent')
-    self.addopponent.clicked.connect(self.add_opponent)
-    verticallayout.addWidget(self.addopponent)
-
-    self.posbut = QPushButton("remove all")
-    self.posbut.clicked.connect(self.click_function)
-    verticallayout.addWidget(self.posbut)
-
-    self.saveButton = QPushButton('save strat')
-    self.saveButton.clicked.connect(self.save_function)
-    verticallayout.addWidget(self.saveButton)
-
-    self.loadButton = QPushButton('load strat')
-    self.loadButton.clicked.connect(self.load_function)
-    verticallayout.addWidget(self.loadButton)
-
-    self.voronoiButton = QPushButton('Voronoi')
-    self.voronoiButton.clicked.connect(self.vor)
-    verticallayout.addWidget(self.voronoiButton)
-
-    self.anim = QPushButton('anim')
-    self.anim.clicked.connect(self.animation)
-    verticallayout.addWidget(self.anim)
-
-    self.closeButton = QPushButton('Exit')
-    self.closeButton.clicked.connect(self.close_function)
-    verticallayout.addWidget(self.closeButton)
-
-    verticallayout.addStretch(1)
+    verticallayout = buildBtns(self, verticallayout)
 
     horizontallayout.addLayout(verticallayout)
     self.scene = QGraphicsScene()
@@ -109,39 +77,7 @@ def buildBig(self):
 
     verticallayout.addWidget(self.start_selector)
 
-    self.addplayer = QPushButton('AddPlayer')
-    self.addplayer.clicked.connect(self.add_player)
-    verticallayout.addWidget(self.addplayer)
-
-    self.addopponent = QPushButton('add opponent')
-    self.addopponent.clicked.connect(self.add_opponent)
-    verticallayout.addWidget(self.addopponent)
-
-    self.posbut = QPushButton("remove all players")
-    self.posbut.clicked.connect(self.click_function)
-    verticallayout.addWidget(self.posbut)
-
-    self.saveButton = QPushButton('save strat')
-    self.saveButton.clicked.connect(self.save_function)
-    verticallayout.addWidget(self.saveButton)
-
-    self.loadButton = QPushButton('load strat')
-    self.loadButton.clicked.connect(self.load_function)
-    verticallayout.addWidget(self.loadButton)
-
-    self.voronoiButton = QPushButton('Voronoi')
-    self.voronoiButton.clicked.connect(self.vor)
-    verticallayout.addWidget(self.voronoiButton)
-
-    self.anim = QPushButton('anim')
-    self.anim.clicked.connect(self.animation)
-    verticallayout.addWidget(self.anim)
-
-    verticallayout.addStretch(1)
-
-    self.closeButton = QPushButton('Exit')
-    self.closeButton.clicked.connect(self.close_function)
-    verticallayout.addWidget(self.closeButton)
+    verticallayout = buildBtns(self, verticallayout)
 
     horizontallayout.addLayout(verticallayout)
 
@@ -189,3 +125,47 @@ def buildBig(self):
 
     return(horizontallayout)
 
+def buildBtns(self, verticallayout = None):
+
+    if not verticallayout:
+        verticallayout = QVBoxLayout
+
+    self.addplayer = QPushButton('AddPlayer')
+    self.addplayer.clicked.connect(self.add_player)
+    verticallayout.addWidget(self.addplayer)
+
+    self.addopponent = QPushButton('add opponent')
+    self.addopponent.clicked.connect(self.add_opponent)
+    verticallayout.addWidget(self.addopponent)
+
+    self.posbut = QPushButton("remove all players")
+    self.posbut.clicked.connect(self.click_function)
+    verticallayout.addWidget(self.posbut)
+
+    self.saveButton = QPushButton('save strat')
+    self.saveButton.clicked.connect(self.save_function)
+    verticallayout.addWidget(self.saveButton)
+
+    self.loadButton = QPushButton('load strat')
+    self.loadButton.clicked.connect(self.load_function)
+    verticallayout.addWidget(self.loadButton)
+
+    self.voronoiButton = QPushButton('Voronoi')
+    self.voronoiButton.clicked.connect(self.vor)
+    verticallayout.addWidget(self.voronoiButton)
+
+    self.anim = QPushButton('anim')
+    self.anim.clicked.connect(self.animation)
+    verticallayout.addWidget(self.anim)
+
+    self.stop_btn = QPushButton('stop')
+    self.stop_btn.clicked.connect(self.stop)
+    verticallayout.addWidget(self.stop_btn)
+
+    verticallayout.addStretch(1)
+
+    self.closeButton = QPushButton('Exit')
+    self.closeButton.clicked.connect(self.close_function)
+    verticallayout.addWidget(self.closeButton)
+
+    return verticallayout
