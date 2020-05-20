@@ -233,7 +233,6 @@ class MainWindow(QWidget):
             self.threadpool.start(self.animationWorker)
         else:
             #timer thread stops loop and gets killed
-
             print("Stop animation")
             self.animationWorker.pause = True
             self.animationRunning = False
