@@ -158,6 +158,10 @@ def buildBtns(self, verticallayout = None):
     self.anim.clicked.connect(self.animation)
     verticallayout.addWidget(self.anim)
 
+    self.resetButton = QPushButton('reset')
+    self.resetButton.clicked.connect(self.reset)
+    verticallayout.addWidget(self.resetButton)
+
     verticallayout.addStretch(1)
 
     self.closeButton = QPushButton('Exit')

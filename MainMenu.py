@@ -62,6 +62,7 @@ class MainWindow(QWidget):
             self.fps = data['aufrufe-pro-sekunde']
 
         self.animationRunning = False
+        self.phase = 0
 
     def init_small(self):
         """Creating the main window, with several buttons and the field simulator for small screens"""
@@ -113,7 +114,6 @@ class MainWindow(QWidget):
         self.group_pl_layout.addWidget(p.check_box)
         p.ellipse.s.positionMove.connect(self.update_info)
         print(dict_players)
-
 
     def add_opponent(self, event):
         """adds a opponent to scene"""
@@ -236,6 +236,13 @@ class MainWindow(QWidget):
             print("Stop animation")
             self.animationWorker.pause = True
             self.animationRunning = False
+
+    def reset(self):
+        self.phase = 0
+        self.animationRunning = False
+        #Reset Player Positions self.
+        self.load_function("StartFormations/" + self.start_selector.currentText())
+
 
     def anzeigen(self):
         """shows the main window"""
