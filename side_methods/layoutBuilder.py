@@ -5,6 +5,7 @@ from Player import *
 from Widgets.InfoBox import InfoBox
 from os import listdir
 from os.path import isfile, join
+from Widgets import MyScene
 
 def buildSmall(self):
     horizontallayout = QHBoxLayout()
@@ -84,10 +85,6 @@ def buildBig(self):
     self.scene = QGraphicsScene()
     self.scene.setSceneRect(-450, -300, 900, 600)
 
-    # self.field_rect = MyField(-450, -300, 900, 600)
-    # self.scene.addItem(self.field_rect, blackPen, QBrush(Qt.white))
-    #self.scene.changed.connect(self.scene_change)
-    #self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.black))
     view = QGraphicsView(self.scene, self)
     view.setGeometry(200, 50, 1000, 700)
     view.setMinimumSize(1000, 700)

@@ -63,6 +63,7 @@ class MainWindow(QWidget):
 
         self.animationRunning = False
         self.phase = 0
+        self.advance_counter = 0
 
     def init_small(self):
         """Creating the main window, with several buttons and the field simulator for small screens"""
@@ -225,7 +226,7 @@ class MainWindow(QWidget):
         if not self.animationRunning:
             #Thread timer approach 2
             self.threadpool = QThreadPool()
-            self.animationWorker = animation.anim_worker(self.scene, 1/self.fps)
+            self.animationWorker = animation.anim_worker(self, self.scene, 1/self.fps)
 
             print("Start animation")
             self.animationWorker.pause = False
@@ -237,12 +238,24 @@ class MainWindow(QWidget):
             self.animationWorker.pause = True
             self.animationRunning = False
 
+    def animation_control(self):
+        print("Animation Control: " + str(self.advance_counter))
+        self.advance_counter += 1
+        #eine Sekunde = frames/aufrufe pro sekunde
+        if self.advance_counter == self.fps*45: #Phase 0 nach 45 Sekunden vorbei
+            self.animationRunning = False
+            self.animationWorker.pause = True
+            self.phase = 1
+            print("Pause")
+            time.sleep(3) ##Pause zwischen Phasen
+            self.animationRunning = True
+            self.animationWorker.pause = False
+        
+
     def reset(self):
         self.phase = 0
         self.animationRunning = False
-        #Reset Player Positions self.
         self.load_function("StartFormations/" + self.start_selector.currentText())
-
 
     def anzeigen(self):
         """shows the main window"""

@@ -47,21 +47,6 @@ class MyEllipse(QGraphicsEllipseItem):
         """Habits on Movement """
 
         if change == QGraphicsItem.ItemPositionChange:
-            #trunk_collide=[]
-            #colliding_items = self.collidingItems()
-            #for i in range(len(colliding_items)):
-            #    if str(type(colliding_items[i])) != "<class 'PyQt5.QtWidgets.QGraphicsRectItem'>" and str(type(colliding_items[i])) != "<class 'PyQt5.QtWidgets.QGraphicsPolygonItem'>":
-            #        trunk_collide.append(colliding_items[i])
-            #
-            #if trunk_collide:
-            #    print(trunk_collide)
-            #
-            #else:
-            #    print("CLEAR <3")
-            # colliding_item = self.scene.itemAt(value.x(), value.y(), QTransform())
-            # # print(colliding_item)
-            # if str(type(colliding_item)) != "<class 'PyQt5.QtWidgets.QGraphicsRectItem'>" and str(type(colliding_item)) != "<class 'PyQt5.QtWidgets.QGraphicsPolygonItem'>" and colliding_item:
-            #     return QPointF(self.x(), self.y())
 
             dummy_ellipse = QGraphicsEllipseItem(value.x(), value.y(), 20, 20)
             colliding_items = self.scene.items(dummy_ellipse.shape())
