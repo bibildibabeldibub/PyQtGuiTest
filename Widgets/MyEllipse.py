@@ -45,6 +45,7 @@ class MyEllipse(QGraphicsEllipseItem):
 
     def itemChange(self, change, value):
         """Habits on Movement """
+
         if change == QGraphicsItem.ItemPositionChange:
             #trunk_collide=[]
             #colliding_items = self.collidingItems()
@@ -64,12 +65,12 @@ class MyEllipse(QGraphicsEllipseItem):
 
             dummy_ellipse = QGraphicsEllipseItem(value.x(), value.y(), 20, 20)
             colliding_items = self.scene.items(dummy_ellipse.shape())
-            filtered_colliding_items = [o for o in colliding_items if (not isinstance(o, QGraphicsPolygonItem) and (o is not self))]
-            if filtered_colliding_items:
 
-                print(filtered_colliding_items)
+            filtered_colliding_items = [o for o in colliding_items if ((type(o) is not PyQt5.QtWidgets.QGraphicsPolygonItem) and (o is not self))]
+
+            if filtered_colliding_items:
+                #print(filtered_colliding_items)
                 return QPointF(self.x(), self.y())
-            #else: print("None")
 
             self.s.positionMove.emit()
 
@@ -77,6 +78,7 @@ class MyEllipse(QGraphicsEllipseItem):
 
     def advance(self, p_int):
         """Animation"""
+
         if self.spieler.blocked:
             return
 
@@ -86,7 +88,7 @@ class MyEllipse(QGraphicsEllipseItem):
             if not self.spieler.op:
                 if self.animcounter == self.richtungswechselcount:
                     #erste Winkelberechnung
-                    self.richtungswinkel = random.uniform(-45, 45)
+                    self.richtungswinkel = random.uniform(-45, 45)   #Buggy
                     self.animcounter = 0
                 self.new_pos = self.positionsBerechnung(self.richtungswinkel)
                 #print(self.new_pos)
@@ -94,7 +96,7 @@ class MyEllipse(QGraphicsEllipseItem):
                 if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
                     self.spieler.blocked = True
                 #while self.checkCollision(self.new_pos[0], self.new_pos[1]):
-                    #berechne winkel neu falls ein spieler an der position ist
+                   #berechne winkel neu falls ein spieler an der position ist
                 #    winkel = random.uniform(-45, 45)
                 #    self.new_pos = self.positionsBerechnung(winkel)
 
@@ -103,7 +105,6 @@ class MyEllipse(QGraphicsEllipseItem):
             if not self.spieler.op:
                 self.setPos(old_pos[0]+self.new_pos[0], old_pos[1]+self.new_pos[1])
                 self.animcounter += 1
-
         return
 
     def positionsBerechnung(self, winkel: float):
@@ -119,7 +120,6 @@ class MyEllipse(QGraphicsEllipseItem):
         filtered_colliding_items = [o for o in colliding_items if
                                     (not isinstance(o, QGraphicsPolygonItem) and (o is not self))]
         if filtered_colliding_items:
-            print(filtered_colliding_items)
             return True
         return False
 
