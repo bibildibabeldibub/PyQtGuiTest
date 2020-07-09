@@ -1,0 +1,7 @@
+Positionierungsphase:
+    - Jeder Spieler hat eine Liste von gedeckten Spielern
+    - Checke alle Gegner, wer ist der nächste ?
+    - ist in gedeckten Spielern ?
+    Nein -> Benachrichtige Mitspieler  Ja -> entferne aus Liste Suche den neuen nächsten
+    *Test: Spieler laufen zu ihren Gegenspielern
+

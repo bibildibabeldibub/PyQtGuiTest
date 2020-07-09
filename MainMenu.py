@@ -1,11 +1,8 @@
-#from PyQt5.QtWidgets import *
-#from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt, QDir, QLineF, QObject, QPoint, QPointF, QThreadPool
-from PyQt5.QtGui import QBrush, QPen, QPolygonF, QPolygon
+
+from PyQt5.QtCore import QPoint, QThreadPool
+from PyQt5.QtGui import QPolygon
 from pathlib import Path
 from Player import *
-from Widgets.InfoBox import InfoBox
-from Widgets.MyField import MyField
 import VoronoiFunction
 from side_methods import animation, layoutBuilder
 import json
@@ -28,9 +25,12 @@ class MainWindow(QWidget):
         super().__init__()
 
         self.setWindowTitle("Simulator")
+        with open('config.json') as config_file:
+            data = json.load(config_file)
+            self.fps = data['aufrufe-pro-sekunde']
 
         print(get_monitors()[0].width)
-
+        self.animationRunning = False
         self.field = [[-450, -300], [-450, 300], [450, 300], [450, -300]]
 
         if get_monitors()[0] == None:
@@ -56,14 +56,6 @@ class MainWindow(QWidget):
             if isfile(join(start_formation_path, f)):
                 startpositions.append(f)
                 self.start_selector.addItem(f)
-
-        with open('config.json') as config_file:
-            data = json.load(config_file)
-            self.fps = data['aufrufe-pro-sekunde']
-
-        self.animationRunning = False
-        self.phase = 0
-        self.advance_counter = 0
 
     def init_small(self):
         """Creating the main window, with several buttons and the field simulator for small screens"""
@@ -224,33 +216,11 @@ class MainWindow(QWidget):
 
     def animation(self):
         if not self.animationRunning:
-            #Thread timer approach 2
-            self.threadpool = QThreadPool()
-            self.animationWorker = animation.anim_worker(self, self.scene, 1/self.fps)
-
-            print("Start animation")
-            self.animationWorker.pause = False
+            self.animationRunning = self.scene.start_animation()
             self.animationRunning = True
-            self.threadpool.start(self.animationWorker)
         else:
-            #timer thread stops loop and gets killed
-            print("Stop animation")
-            self.animationWorker.pause = True
+            self.animationRunning = self.scene.stop_animation()
             self.animationRunning = False
-
-    def animation_control(self):
-        print("Animation Control: " + str(self.advance_counter))
-        self.advance_counter += 1
-        #eine Sekunde = frames/aufrufe pro sekunde
-        if self.advance_counter == self.fps*45: #Phase 0 nach 45 Sekunden vorbei
-            self.animationRunning = False
-            self.animationWorker.pause = True
-            self.phase = 1
-            print("Pause")
-            time.sleep(3) ##Pause zwischen Phasen
-            self.animationRunning = True
-            self.animationWorker.pause = False
-        
 
     def reset(self):
         self.phase = 0

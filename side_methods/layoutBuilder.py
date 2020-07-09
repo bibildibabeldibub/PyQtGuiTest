@@ -5,6 +5,7 @@ from Player import *
 from Widgets.InfoBox import InfoBox
 from os import listdir
 from os.path import isfile, join
+from Widgets.MyScene import SoccerScene
 from Widgets import MyScene
 
 def buildSmall(self):
@@ -29,7 +30,7 @@ def buildSmall(self):
     verticallayout = buildBtns(self, verticallayout)
 
     horizontallayout.addLayout(verticallayout)
-    self.scene = QGraphicsScene()
+    self.scene = SoccerScene(self.fps, self)
     self.scene.setSceneRect(-450, -300, 900, 600)
 
     view = QGraphicsView(self.scene, self)
