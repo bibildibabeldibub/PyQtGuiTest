@@ -17,6 +17,8 @@ class player:
         self.op = op
         self.number = number
         self.scene = scene
+        self.enemy_player = None
+        self.covered_enemies = []
         self.vertices = []
         self.polygon = self.scene.addPolygon(QPolygonF(), QPen(Qt.red))
         self.removePoly()
@@ -101,6 +103,19 @@ class player:
     def posChange(self):
         self.positionChanged.emit()
 
+    def findEnemy(self):
+        return
+
+    def checkCoveredEnemies(self, enemy):
+        return
+
+    def applyCoveredEnemyRequest(self, enemy):
+        if enemy in self.covered_enemies:
+            return False
+        else:
+            self.covered_enemies.append(enemy)
+            return True
+
     def __repr__(self):
         return str(int(self.number)) + ', ' + str(int(self.ellipse.x())) + ', ' + str(int(self.ellipse.y())) + '\n'
 
@@ -108,3 +123,4 @@ class player:
         print("DESTRUCTION")
         self.scene.removeItem(self.ellipse)
         self.scene.removeItem(self.polygon)
+

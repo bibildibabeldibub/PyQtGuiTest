@@ -5,6 +5,8 @@ from Player import *
 from Widgets.InfoBox import InfoBox
 from os import listdir
 from os.path import isfile, join
+from Widgets.MyScene import SoccerScene
+from Widgets import MyScene
 
 def buildSmall(self):
     horizontallayout = QHBoxLayout()
@@ -28,7 +30,7 @@ def buildSmall(self):
     verticallayout = buildBtns(self, verticallayout)
 
     horizontallayout.addLayout(verticallayout)
-    self.scene = QGraphicsScene()
+    self.scene = SoccerScene(self.fps, self)
     self.scene.setSceneRect(-450, -300, 900, 600)
 
     view = QGraphicsView(self.scene, self)
@@ -84,10 +86,6 @@ def buildBig(self):
     self.scene = QGraphicsScene()
     self.scene.setSceneRect(-450, -300, 900, 600)
 
-    # self.field_rect = MyField(-450, -300, 900, 600)
-    # self.scene.addItem(self.field_rect, blackPen, QBrush(Qt.white))
-    #self.scene.changed.connect(self.scene_change)
-    #self.scene.addEllipse(0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.black))
     view = QGraphicsView(self.scene, self)
     view.setGeometry(200, 50, 1000, 700)
     view.setMinimumSize(1000, 700)
@@ -157,6 +155,10 @@ def buildBtns(self, verticallayout = None):
     self.anim = QPushButton('anim')
     self.anim.clicked.connect(self.animation)
     verticallayout.addWidget(self.anim)
+
+    self.resetButton = QPushButton('reset')
+    self.resetButton.clicked.connect(self.reset)
+    verticallayout.addWidget(self.resetButton)
 
     verticallayout.addStretch(1)
 
