@@ -4,13 +4,14 @@ import time
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from Widgets import MyEllipse
 
 
 class SoccerScene(QGraphicsScene):
 
     stopSignal = pyqtSignal()
 
-    def __init__(self, fps, window):
+    def __init__(self, fps, window=None):
         super().__init__()
         self.window = window
         self.advance_counter = 0
@@ -24,9 +25,7 @@ class SoccerScene(QGraphicsScene):
         self.threadpool = QThreadPool()
         self.animationWorker = None
 
-
     def advance(self):
-        print("Advance")
         self.animation_control()
         self.advance_counter += 1
         super().advance()

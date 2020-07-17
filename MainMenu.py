@@ -5,6 +5,7 @@ from pathlib import Path
 from Player import *
 import VoronoiFunction
 from side_methods import animation, layoutBuilder
+from Widgets import MyScene
 import json
 import time
 import PyQt5.QtCore
@@ -29,6 +30,10 @@ class MainWindow(QWidget):
             data = json.load(config_file)
             self.fps = data['aufrufe-pro-sekunde']
 
+        self.scene = MyScene.SoccerScene(self.fps, self)
+        print(type(self.scene))
+        self.scene.setSceneRect(-450, -300, 900, 600)
+
         print(get_monitors()[0].width)
         self.animationRunning = False
         self.field = [[-450, -300], [-450, 300], [450, 300], [450, -300]]
@@ -48,6 +53,8 @@ class MainWindow(QWidget):
         field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]),
                  QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
         self.scene.addPolygon(field_poly)
+        self.scene.addLine(0,-300,0,300)
+        self.scene.addLine(-450,0,450,0)
 
         start_formation_path = 'StartFormations/'
         "load all startpositions"
@@ -56,6 +63,8 @@ class MainWindow(QWidget):
             if isfile(join(start_formation_path, f)):
                 startpositions.append(f)
                 self.start_selector.addItem(f)
+
+        print(type(self.scene))
 
     def init_small(self):
         """Creating the main window, with several buttons and the field simulator for small screens"""
@@ -71,16 +80,7 @@ class MainWindow(QWidget):
 
     def click_function(self):
         """test function for buttpn clickking"""
-
         self.delete_all_players()
-
-        ##dict_players.clear()
-        #print("button clicked")
-        #print(str(self.height()) + "\n" + str(self.width()) + "\n" + str(self.pos()))
-        #self.position = self.player.scenePos()
-        #x = self.position.x()
-        #y = self.position.y()
-        #print(str(x) + ", " + str(y))
 
     def close_function(self):
         """closes the window"""
@@ -89,9 +89,6 @@ class MainWindow(QWidget):
 
     def resizeEvent(self, event):
         """acting while window is resized"""
-        ##self.addplayer.move(self.width() / 2 - self.addplayer.width() / 2, self.height() / 2 - self.addplayer.height() / 2)
-        ##self.textbox.move(self.width() - self.textbox.width()-50, 50)
-        ##self.textbox.setText(str(self.size()))
 
     def selectionchange(self, i):
         print(i)
@@ -216,10 +213,11 @@ class MainWindow(QWidget):
 
     def animation(self):
         if not self.animationRunning:
-            self.animationRunning = self.scene.start_animation()
+            print(type(self.scene))
+            self.scene.start_animation()
             self.animationRunning = True
         else:
-            self.animationRunning = self.scene.stop_animation()
+            self.scene.stop_animation()
             self.animationRunning = False
 
     def reset(self):

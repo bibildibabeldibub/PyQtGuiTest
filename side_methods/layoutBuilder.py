@@ -30,8 +30,6 @@ def buildSmall(self):
     verticallayout = buildBtns(self, verticallayout)
 
     horizontallayout.addLayout(verticallayout)
-    self.scene = SoccerScene(self.fps, self)
-    self.scene.setSceneRect(-450, -300, 900, 600)
 
     view = QGraphicsView(self.scene, self)
     view.setGeometry(100, 20, 950, 700)
@@ -82,9 +80,6 @@ def buildBig(self):
     verticallayout = buildBtns(self, verticallayout)
 
     horizontallayout.addLayout(verticallayout)
-
-    self.scene = QGraphicsScene()
-    self.scene.setSceneRect(-450, -300, 900, 600)
 
     view = QGraphicsView(self.scene, self)
     view.setGeometry(200, 50, 1000, 700)

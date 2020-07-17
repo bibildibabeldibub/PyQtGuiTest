@@ -36,8 +36,8 @@ class MyEllipse(QGraphicsEllipseItem):
         scene.addItem(self)
         self.s = ItemMoveSignal()
         self.scene = scene
-        self.setPen(pen)
-        self.setBrush(brush)
+        self.pen = pen
+        self.brush = brush
 
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges, True)
@@ -69,7 +69,6 @@ class MyEllipse(QGraphicsEllipseItem):
 
     def advance(self, p_int):
         """Animation"""
-
         if self.spieler.blocked:
             return
 
@@ -80,16 +79,17 @@ class MyEllipse(QGraphicsEllipseItem):
                 if self.animcounter == self.richtungswechselcount:
                     #erste Winkelberechnung
                     self.richtungswinkel = random.uniform(-45, 45)   #Buggy
+                    print(self.getCenter())
+                    self.setTransformOriginPoint(self.getCenter())
+                    self.setRotation(self.richtungswinkel)
                     self.animcounter = 0
+
                 self.new_pos = self.positionsBerechnung(self.richtungswinkel)
                 #print(self.new_pos)
 
-                if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
-                    self.spieler.blocked = True
-                #while self.checkCollision(self.new_pos[0], self.new_pos[1]):
-                   #berechne winkel neu falls ein spieler an der position ist
-                #    winkel = random.uniform(-45, 45)
-                #    self.new_pos = self.positionsBerechnung(winkel)
+                # if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
+                #     self.spieler.blocked = True
+
 
         if p_int == 1 and not self.spieler.blocked:
             #print("PositionSet!!" + str(self.new_pos))
@@ -127,16 +127,26 @@ class MyEllipse(QGraphicsEllipseItem):
         return
 
     def paint(self, painter, option, widget=None):
-        painter.setBrush(Qt.red)
+        painter.setPen(self.pen)
+        painter.setBrush(self.brush)
         painter.drawEllipse(0, 0, self.ws, self.hs)
 
         painter.setBrush(Qt.black)
         painter.drawEllipse(9, 9, 2, 2)
 
         #Facedirection
-        painter.setPen(Qt.black)
+        painter.setPen(Qt.yellow)
         pen = painter.pen()
         pen.setWidth(2)
         painter.setPen(pen)
         painter.drawLine(10, 0, 20, 10)
         painter.drawLine(10, 20, 20, 10)
+
+    def getCenter(self):
+        return QPointF(self.x()+10,self.y()+10)
+
+    def getX(self):
+        return self.x() + 10
+
+    def getY(self):
+        return self.y() + 10

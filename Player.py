@@ -43,6 +43,9 @@ class player:
             self.ellipse = MyEllipse(self, 0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue), self.scene)
             self.ellipse.setToolTip(string)
         self.check_box.setToolTip("Toggle Polygon display")
+        print("Center:\t" + str(self.ellipse.getCenter())+"\n\t" + str(self.ellipse.x()) + ", " + str(self.ellipse.y()))
+        self.ellipse.setTransformOriginPoint(self.ellipse.getCenter())
+
 
     def setLocation(self, posx, posy):
         self.ellipse.setPos(posx+10, posy+10)
