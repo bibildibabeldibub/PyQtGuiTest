@@ -117,7 +117,11 @@ class player:
             return True
 
     def __repr__(self):
-        return str(int(self.number)) + ', ' + str(int(self.ellipse.x())) + ', ' + str(int(self.ellipse.y())) + '\n'
+        string = ''
+        string += str(self.number) + ', '
+        string += str(self.ellipse.x()) + ', '
+        string += str(self.ellipse.y()) + '\n'
+        return string
 
     def __del__(self):
         print("DESTRUCTION")

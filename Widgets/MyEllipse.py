@@ -19,6 +19,11 @@ class MyEllipse(QGraphicsEllipseItem):
     def __init__(self, p: Player, x, y, w, h, pen, brush, scene: QGraphicsScene):
         super().__init__(x, y, w, h)
 
+        self.xs = x
+        self.ys = y
+        self.ws = w
+        self.hs = h
+
         with open('config.json') as config_file:
             data = json.load(config_file)
             self.aufrufe_pro_sekunde = data['aufrufe-pro-sekunde']
@@ -42,6 +47,7 @@ class MyEllipse(QGraphicsEllipseItem):
         self.setFlag(QGraphicsItem.ItemSendsGeometryChanges, True)
         self.spieler = p
         self.new_pos = [0, 0]
+        # self.setRotation(45)
 
     def itemChange(self, change, value):
         """Habits on Movement """
@@ -119,3 +125,18 @@ class MyEllipse(QGraphicsEllipseItem):
             elif event.key() == Qt.Key_Left:
                 self.moveBy(-1,0)
         return
+
+    def paint(self, painter, option, widget=None):
+        painter.setBrush(Qt.red)
+        painter.drawEllipse(0, 0, self.ws, self.hs)
+
+        painter.setBrush(Qt.black)
+        painter.drawEllipse(9, 9, 2, 2)
+
+        #Facedirection
+        painter.setPen(Qt.black)
+        pen = painter.pen()
+        pen.setWidth(2)
+        painter.setPen(pen)
+        painter.drawLine(10, 0, 20, 10)
+        painter.drawLine(10, 20, 20, 10)
