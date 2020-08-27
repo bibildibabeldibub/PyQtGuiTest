@@ -1,10 +1,9 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QBrush, QPen, QPolygonF
 from PyQt5.QtCore import Qt, QLineF, QPointF, QObject, pyqtSignal, pyqtSlot
-import warnings
 import numpy as np
 from Widgets.MyEllipse import MyEllipse
-import random
+import json
 
 
 class player:
@@ -14,7 +13,7 @@ class player:
     def __init__(self, number: int, op: bool, scene: QGraphicsScene, blocked=False):
         """initialising player with ellipse, op is boolean and should be true if the player is an opponent"""
         self.blocked = blocked
-        self.op = op
+        self.foe = op
         self.number = number
         self.scene = scene
         self.enemy_player = None
@@ -23,8 +22,12 @@ class player:
         self.polygon = self.scene.addPolygon(QPolygonF(), QPen(Qt.red))
         self.removePoly()
         self.mittlere_Bewertung = [0,0]
+        with open('config.json') as config_file:
+            data = json.load(config_file)
+            self.velocity = data['roboter-geschwindigkeit']
+            self.change_rotation = data['richtungswechsel-periode']
 
-        if op:
+        if self.foe:
             string = "Opponent " + str(self.number)
             self.check_box = QCheckBox(string)
             self.check_box.toggled.connect(self.togglePoly)
@@ -118,6 +121,9 @@ class player:
         else:
             self.covered_enemies.append(enemy)
             return True
+
+    def getRotation(self):
+        return self.ellipse.rotation()
 
     def __repr__(self):
         string = ''

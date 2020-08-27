@@ -5,3 +5,11 @@ Positionierungsphase:
     Nein -> Benachrichtige Mitspieler  Ja -> entferne aus Liste Suche den neuen nächsten
     *Test: Spieler laufen zu ihren Gegenspielern
 
+Movement:
+    - Rotation Buggy (y)
+
+    - New_Position wird nicht richtig addiert/zwischendurch auf 0 gesetzt (Y)
+    - bewegung startet erst nach Drag&Drop Bewegung? (Y)
+
+
+

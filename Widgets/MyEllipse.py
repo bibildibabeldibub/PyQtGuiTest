@@ -1,12 +1,9 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QBrush, QPen, QPolygonF, QTransform
+from PyQt5.QtGui import QBrush, QPen, QTransform
 from PyQt5.QtCore import Qt, QLineF, QPointF, QObject, pyqtSignal, pyqtSlot
 import PyQt5.QtCore
-import warnings
-import numpy as np
 import Player
 import random
-import json
 import math
 
 class ItemMoveSignal(QObject):
@@ -16,7 +13,7 @@ class ItemMoveSignal(QObject):
 class MyEllipse(QGraphicsEllipseItem):
     oldpos = QPointF()
 
-    def __init__(self, p: Player, x, y, w, h, pen, brush, scene: QGraphicsScene):
+    def __init__(self, p: Player, x, y, w, h, pen:QPen, brush:QBrush, scene: QGraphicsScene):
         super().__init__(x, y, w, h)
 
         self.xs = x
@@ -24,15 +21,8 @@ class MyEllipse(QGraphicsEllipseItem):
         self.ws = w
         self.hs = h
 
-        with open('config.json') as config_file:
-            data = json.load(config_file)
-            self.aufrufe_pro_sekunde = data['aufrufe-pro-sekunde']
-            self.geschwindigkeit = data['roboter-geschwindigkeit']
-            self.richtungswechselcount = data['richtungswechsel-periode']
-
         self.animcounter = 0
         self.richtungswinkel = 0
-        print(self.aufrufe_pro_sekunde)
         scene.addItem(self)
         self.s = ItemMoveSignal()
         self.scene = scene
@@ -74,35 +64,45 @@ class MyEllipse(QGraphicsEllipseItem):
 
         old_pos = [self.x(), self.y()]
         if p_int == 0:
-            self.new_pos = [0, 0]
-            if not self.spieler.op:
-                if self.animcounter == self.richtungswechselcount:
+            if not self.spieler.foe:
+                if self.animcounter == self.spieler.change_rotation:
                     #erste Winkelberechnung
-                    self.richtungswinkel = random.uniform(-45, 45)   #Buggy
-                    print(self.getCenter())
-                    self.setTransformOriginPoint(self.getCenter())
+                    self.new_pos = [0, 0]
+                    self.richtungswinkel = random.uniform(-45, 45)
+                    #Rotation
+                    self.setTransformOriginPoint(10, 10)
                     self.setRotation(self.richtungswinkel)
+                    # transform = QTransform()
+                    # transform.translate(10, 10)
+                    # transform.rotate(self.richtungswinkel)
+                    # transform.translate(-10,-10)
+                    # self.setTransform(transform)
+
+
                     self.animcounter = 0
+                    print("Rotation:\t" + str(self.rotation()))
+                    self.new_pos = self.moveForwardNextPos()
+                    print("Positionsdifferenz:\t" + str(self.new_pos))
 
-                self.new_pos = self.positionsBerechnung(self.richtungswinkel)
-                #print(self.new_pos)
 
+                """Collision detection"""
                 # if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
                 #     self.spieler.blocked = True
 
-
         if p_int == 1 and not self.spieler.blocked:
-            #print("PositionSet!!" + str(self.new_pos))
-            if not self.spieler.op:
+            # print("Old Pos:\t"+ str(old_pos[0]) + " | " + str(old_pos[1]))
+            # print("New Pos:\t" + str(old_pos[0]+self.new_pos[0]) + " | " + str(old_pos[1]+self.new_pos[1]))
+            if not self.spieler.foe:
                 self.setPos(old_pos[0]+self.new_pos[0], old_pos[1]+self.new_pos[1])
                 self.animcounter += 1
         return
 
-    def positionsBerechnung(self, winkel: float):
-        distance = self.geschwindigkeit/self.aufrufe_pro_sekunde      ##25cm/s dividiert mit Aufrufe/s
-        res_x = math.cos(winkel)*distance
-        res_y = math.sin(winkel)*distance
-        return [abs(res_x), res_y]
+    def moveForwardNextPos(self):
+        """:returns nextposition calculated by scenes fps, players velocity and rotation"""
+        distance = 1/self.scene.fps * self.spieler.velocity
+        new_x = math.cos(math.radians(self.rotation())) * distance
+        new_y = math.sin(math.radians(self.rotation())) * distance
+        return [round(new_x,2), round(new_y,2)]
 
     def checkCollision(self, x: float, y: float):
         """checks if another player is at position"""
@@ -143,6 +143,7 @@ class MyEllipse(QGraphicsEllipseItem):
         painter.drawLine(10, 20, 20, 10)
 
     def getCenter(self):
+        print("Center:\t" + str(self.x()+10) + " | " + str(self.y()+10) )
         return QPointF(self.x()+10,self.y()+10)
 
     def getX(self):

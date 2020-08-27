@@ -4,6 +4,7 @@ import time
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+import json
 from Widgets import MyEllipse
 
 
@@ -24,6 +25,9 @@ class SoccerScene(QGraphicsScene):
         self.advance_counter = 0
         self.threadpool = QThreadPool()
         self.animationWorker = None
+        with open('config.json') as config_file:
+            data = json.load(config_file)
+            self.fps = data['aufrufe-pro-sekunde']
 
     def advance(self):
         self.animation_control()

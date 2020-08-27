@@ -53,8 +53,10 @@ class MainWindow(QWidget):
         field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]),
                  QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
         self.scene.addPolygon(field_poly)
-        self.scene.addLine(0,-300,0,300)
-        self.scene.addLine(-450,0,450,0)
+
+        #Helferlinien
+        # self.scene.addLine(0,-300,0,300)
+        # self.scene.addLine(-450,0,450,0)
 
         start_formation_path = 'StartFormations/'
         "load all startpositions"
