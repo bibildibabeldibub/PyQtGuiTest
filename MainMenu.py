@@ -54,10 +54,6 @@ class MainWindow(QWidget):
                  QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
         self.scene.addPolygon(field_poly)
 
-        #Helferlinien
-        # self.scene.addLine(0,-300,0,300)
-        # self.scene.addLine(-450,0,450,0)
-
         start_formation_path = 'StartFormations/'
         "load all startpositions"
         startpositions = []
@@ -65,8 +61,6 @@ class MainWindow(QWidget):
             if isfile(join(start_formation_path, f)):
                 startpositions.append(f)
                 self.start_selector.addItem(f)
-
-        print(type(self.scene))
 
     def init_small(self):
         """Creating the main window, with several buttons and the field simulator for small screens"""
@@ -197,6 +191,15 @@ class MainWindow(QWidget):
         self.vor()
         self.infoPlayer.updateInfo()
         self.infoOpponents.updateInfo()
+
+    def add_lines(self):
+        #Helferlinien
+        if self.toggleLines.isChecked():
+            self.helpX = self.scene.addLine(0,-300,0,300)
+            self.helpY = self.scene.addLine(-450,0,450,0)
+        else:
+            self.scene.removeItem(self.helpX)
+            self.scene.removeItem(self.helpY)
 
     def delete_all_players(self):
 

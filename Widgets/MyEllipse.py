@@ -64,35 +64,29 @@ class MyEllipse(QGraphicsEllipseItem):
 
         old_pos = [self.x(), self.y()]
         if p_int == 0:
-            if not self.spieler.foe:
+            if not self.spieler.defense:
                 if self.animcounter == self.spieler.change_rotation:
                     #erste Winkelberechnung
                     self.new_pos = [0, 0]
                     self.richtungswinkel = random.uniform(-45, 45)
+
                     #Rotation
                     self.setTransformOriginPoint(10, 10)
                     self.setRotation(self.richtungswinkel)
-                    # transform = QTransform()
-                    # transform.translate(10, 10)
-                    # transform.rotate(self.richtungswinkel)
-                    # transform.translate(-10,-10)
-                    # self.setTransform(transform)
-
 
                     self.animcounter = 0
-                    print("Rotation:\t" + str(self.rotation()))
+                    # print("Rotation:\t" + str(self.rotation()))
                     self.new_pos = self.moveForwardNextPos()
-                    print("Positionsdifferenz:\t" + str(self.new_pos))
-
+                    # print("Positionsdifferenz:\t" + str(self.new_pos))
 
                 """Collision detection"""
-                # if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
-                #     self.spieler.blocked = True
+                if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
+                    self.spieler.blocked = True
 
         if p_int == 1 and not self.spieler.blocked:
             # print("Old Pos:\t"+ str(old_pos[0]) + " | " + str(old_pos[1]))
             # print("New Pos:\t" + str(old_pos[0]+self.new_pos[0]) + " | " + str(old_pos[1]+self.new_pos[1]))
-            if not self.spieler.foe:
+            if not self.spieler.defense:
                 self.setPos(old_pos[0]+self.new_pos[0], old_pos[1]+self.new_pos[1])
                 self.animcounter += 1
         return
@@ -147,7 +141,9 @@ class MyEllipse(QGraphicsEllipseItem):
         return QPointF(self.x()+10,self.y()+10)
 
     def getX(self):
+        """:return x value of circles center"""
         return self.x() + 10
 
     def getY(self):
+        """:returns y value of circles center"""
         return self.y() + 10

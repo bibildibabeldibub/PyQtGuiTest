@@ -13,16 +13,7 @@ def buildSmall(self):
     verticallayout = QVBoxLayout()
 
     self.start_selector = QComboBox()
-    #self.start_selector.addItem("empty")
-
-    start_formation_path = 'StartFormations/'
-    "load all startpositions"
-    startpositions = []
-    for f in listdir(start_formation_path):
-        if isfile(join(start_formation_path, f)):
-            startpositions.append(f)
-            self.start_selector.addItem(f)
-
+    self.start_selector.addItem("Auswählen")
     self.start_selector.currentIndexChanged.connect(self.selectionchange)
 
     verticallayout.addWidget(self.start_selector)
@@ -72,7 +63,7 @@ def buildBig(self):
 
     """Setup ComboBox"""
     self.start_selector = QComboBox()
-
+    self.start_selector.addItem("Auswählen")
     self.start_selector.currentIndexChanged.connect(self.selectionchange)
 
     verticallayout.addWidget(self.start_selector)
@@ -123,11 +114,11 @@ def buildBtns(self, verticallayout = None):
     if not verticallayout:
         verticallayout = QVBoxLayout
 
-    self.addplayer = QPushButton('AddPlayer')
+    self.addplayer = QPushButton('add offense')
     self.addplayer.clicked.connect(self.add_player)
     verticallayout.addWidget(self.addplayer)
 
-    self.addopponent = QPushButton('add opponent')
+    self.addopponent = QPushButton('add defense')
     self.addopponent.clicked.connect(self.add_opponent)
     verticallayout.addWidget(self.addopponent)
 
@@ -160,5 +151,9 @@ def buildBtns(self, verticallayout = None):
     self.closeButton = QPushButton('Exit')
     self.closeButton.clicked.connect(self.close_function)
     verticallayout.addWidget(self.closeButton)
+
+    self.toggleLines = QCheckBox('Linien')
+    self.toggleLines.toggled.connect(self.add_lines)
+    verticallayout.addWidget(self.toggleLines)
 
     return verticallayout

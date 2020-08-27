@@ -13,7 +13,7 @@ class player:
     def __init__(self, number: int, op: bool, scene: QGraphicsScene, blocked=False):
         """initialising player with ellipse, op is boolean and should be true if the player is an opponent"""
         self.blocked = blocked
-        self.foe = op
+        self.defense = op
         self.number = number
         self.scene = scene
         self.enemy_player = None
@@ -22,13 +22,19 @@ class player:
         self.polygon = self.scene.addPolygon(QPolygonF(), QPen(Qt.red))
         self.removePoly()
         self.mittlere_Bewertung = [0,0]
+
+        #Startposition (Ziel für Phase 0)
+        if not self.defense:
+            print("nothing")
+
+
         with open('config.json') as config_file:
             data = json.load(config_file)
             self.velocity = data['roboter-geschwindigkeit']
             self.change_rotation = data['richtungswechsel-periode']
 
-        if self.foe:
-            string = "Opponent " + str(self.number)
+        if self.defense:
+            string = "Defense " + str(self.number)
             self.check_box = QCheckBox(string)
             self.check_box.toggled.connect(self.togglePoly)
             self.check_box.setChecked(True)
@@ -36,6 +42,8 @@ class player:
             self.ellipse = MyEllipse(self, 00, 00, 20, 20, QPen(Qt.black), QBrush(Qt.black), self.scene)
             self.ellipse.setPos(20, 20)
             self.ellipse.setToolTip(string)
+            self.ellipse.setTransformOriginPoint(10,10)
+            self.ellipse.setRotation(180)
 
         else:
             string = "Player " + str(self.number)
@@ -46,12 +54,11 @@ class player:
             self.ellipse = MyEllipse(self, 0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue), self.scene)
             self.ellipse.setToolTip(string)
         self.check_box.setToolTip("Toggle Polygon display")
-        print("Center:\t" + str(self.ellipse.getCenter())+"\n\t" + str(self.ellipse.x()) + ", " + str(self.ellipse.y()))
-        self.ellipse.setTransformOriginPoint(self.ellipse.getCenter())
+        #print("Center:\t" + str(self.ellipse.getCenter())+"\n\t" + str(self.ellipse.x()) + ", " + str(self.ellipse.y()))
 
 
     def setLocation(self, posx, posy):
-        self.ellipse.setPos(posx+10, posy+10)
+        self.ellipse.setPos(posx-10, posy-10)
 
     def getLocation(self):
         """:return: tuple x and y coordinates as integer"""
@@ -128,8 +135,8 @@ class player:
     def __repr__(self):
         string = ''
         string += str(self.number) + ', '
-        string += str(self.ellipse.x()) + ', '
-        string += str(self.ellipse.y()) + '\n'
+        string += str(self.ellipse.getX()) + ', '
+        string += str(self.ellipse.getY()) + '\n'
         return string
 
     def __del__(self):
