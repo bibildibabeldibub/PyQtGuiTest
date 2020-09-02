@@ -89,12 +89,13 @@ class MainWindow(QWidget):
     def selectionchange(self, i):
         print(i)
         print(self.start_selector.currentText())
+        self.delete_all_players()
         self.load_function("StartFormations/" + self.start_selector.currentText())
         return
 
     def add_player(self, position=(0, 0)):
         """adds a player to scene"""
-        p = player(len(dict_players)+1, False, self.scene)
+        p = offensePlayer(len(dict_players)+1, False, self.scene)
         dict_players.append(p)
         self.infoPlayer.appendPlayer(p)
         self.group_pl_layout.addWidget(p.check_box)
@@ -103,7 +104,7 @@ class MainWindow(QWidget):
 
     def add_opponent(self, event):
         """adds a opponent to scene"""
-        op = player(len(dict_opponents) + 1, True, self.scene)
+        op = defensePlayer(len(dict_opponents) + 1, True, self.scene)
         self.infoOpponents.appendPlayer(op)
         dict_opponents.append(op)
         self.group_op_layout.addWidget(op.check_box)
@@ -156,8 +157,8 @@ class MainWindow(QWidget):
                     att = wert_tripel.split(", ")   # 3 attribute von einzelnen spielern
                     print("P"+str(len(dict_players)) + " attributes:\n")
                     print(att)
-                    p = player(int(att[0]), False, self.scene)
-                    p.setLocation(int(att[1]), int(att[2]))
+                    p = offensePlayer(int(att[0]), False, self.scene)
+                    p.setLocation(float(att[1]), float(att[2]))
                     self.group_pl_layout.addWidget(p.check_box)
                     dict_players.append(p)
                     self.infoPlayer.appendPlayer(p)
@@ -171,10 +172,10 @@ class MainWindow(QWidget):
                     att = wert_tripel.split(', ')
                     print("attributes:\n")
                     print(att)
-                    o = player(int(att[0]), True, self.scene)
+                    o = defensePlayer(int(att[0]), True, self.scene)
                     dict_opponents.append(o)
                     self.group_op_layout.addWidget(o.check_box)
-                    o.setLocation(int(att[1]), int(att[2]))
+                    o.setLocation(float(att[1]), float(att[2]))
                     self.infoOpponents.appendPlayer(o)
                     o.ellipse.s.positionMove.connect(self.update_info)
             print(dict_opponents)
@@ -202,7 +203,6 @@ class MainWindow(QWidget):
             self.scene.removeItem(self.helpY)
 
     def delete_all_players(self):
-
         for op in dict_opponents:
             op.check_box.setParent(None)
             self.infoOpponents.removePlayerInfo(op)

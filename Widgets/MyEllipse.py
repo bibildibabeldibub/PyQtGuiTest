@@ -5,6 +5,8 @@ import PyQt5.QtCore
 import Player
 import random
 import math
+import Simulation
+from Simulation import defense as Defense
 
 class ItemMoveSignal(QObject):
     positionMove = pyqtSignal()
@@ -64,6 +66,7 @@ class MyEllipse(QGraphicsEllipseItem):
 
         old_pos = [self.x(), self.y()]
         if p_int == 0:
+            # offense players:
             if not self.spieler.defense:
                 if self.animcounter == self.spieler.change_rotation:
                     #erste Winkelberechnung
@@ -76,12 +79,23 @@ class MyEllipse(QGraphicsEllipseItem):
 
                     self.animcounter = 0
                     # print("Rotation:\t" + str(self.rotation()))
-                    self.new_pos = self.moveForwardNextPos()
+                    self.new_pos = self.moveForward()
                     # print("Positionsdifferenz:\t" + str(self.new_pos))
 
                 """Collision detection"""
                 if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
                     self.spieler.blocked = True
+
+            else:
+                self.new_pos=[0,0]
+                self.richtungswinkel = Defense.direction()
+
+                #Rotation
+                self.setTransformOriginPoint(10,10)
+                self.setRotation(self.richtungswinkel)
+
+                self.animcounter=0
+                self.new_pos = self.moveForward()
 
         if p_int == 1 and not self.spieler.blocked:
             # print("Old Pos:\t"+ str(old_pos[0]) + " | " + str(old_pos[1]))
@@ -91,7 +105,7 @@ class MyEllipse(QGraphicsEllipseItem):
                 self.animcounter += 1
         return
 
-    def moveForwardNextPos(self):
+    def moveForward(self):
         """:returns nextposition calculated by scenes fps, players velocity and rotation"""
         distance = 1/self.scene.fps * self.spieler.velocity
         new_x = math.cos(math.radians(self.rotation())) * distance

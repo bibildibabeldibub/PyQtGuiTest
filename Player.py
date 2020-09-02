@@ -14,6 +14,10 @@ class player:
         """initialising player with ellipse, op is boolean and should be true if the player is an opponent"""
         self.blocked = blocked
         self.defense = op
+        if self.defense:
+            color=Qt.black
+        else:
+            color=Qt.blue
         self.number = number
         self.scene = scene
         self.enemy_player = None
@@ -23,37 +27,18 @@ class player:
         self.removePoly()
         self.mittlere_Bewertung = [0,0]
 
-        #Startposition (Ziel für Phase 0)
-        if not self.defense:
-            print("nothing")
+        self.check_box = QCheckBox()
+        self.check_box.toggled.connect(self.togglePoly)
+        self.check_box.setChecked(True)
+        self.check_box.setToolTip("Toggle Polygon display")
 
+        self.ellipse = MyEllipse(self, 0, 0, 20, 20, QPen(color), QBrush(color), self.scene)
 
         with open('config.json') as config_file:
             data = json.load(config_file)
             self.velocity = data['roboter-geschwindigkeit']
             self.change_rotation = data['richtungswechsel-periode']
 
-        if self.defense:
-            string = "Defense " + str(self.number)
-            self.check_box = QCheckBox(string)
-            self.check_box.toggled.connect(self.togglePoly)
-            self.check_box.setChecked(True)
-
-            self.ellipse = MyEllipse(self, 00, 00, 20, 20, QPen(Qt.black), QBrush(Qt.black), self.scene)
-            self.ellipse.setPos(20, 20)
-            self.ellipse.setToolTip(string)
-            self.ellipse.setTransformOriginPoint(10,10)
-            self.ellipse.setRotation(180)
-
-        else:
-            string = "Player " + str(self.number)
-            self.check_box = QCheckBox(string)
-            self.check_box.toggled.connect(self.togglePoly)
-            self.check_box.setChecked(True)
-
-            self.ellipse = MyEllipse(self, 0, 0, 20, 20, QPen(Qt.blue), QBrush(Qt.blue), self.scene)
-            self.ellipse.setToolTip(string)
-        self.check_box.setToolTip("Toggle Polygon display")
         #print("Center:\t" + str(self.ellipse.getCenter())+"\n\t" + str(self.ellipse.x()) + ", " + str(self.ellipse.y()))
 
 
@@ -62,10 +47,10 @@ class player:
 
     def getLocation(self):
         """:return: tuple x and y coordinates as integer"""
-        return [self.ellipse.scenePos().x()+10, self.ellipse.scenePos().y()+10]
+        return [self.ellipse.getX(), self.ellipse.getY()]
 
     def getLocationArray(self):
-        return np.array([[self.ellipse.scenePos().x()+10, self.ellipse.scenePos().y()+10]])
+        return np.array([[self.ellipse.getX(), self.ellipse.getY()]])
 
     def deleteMarker(self):
         self.scene.removeItem(self.ellipse)
@@ -116,19 +101,6 @@ class player:
     def posChange(self):
         self.positionChanged.emit()
 
-    def findEnemy(self):
-        return
-
-    def checkCoveredEnemies(self, enemy):
-        return
-
-    def applyCoveredEnemyRequest(self, enemy):
-        if enemy in self.covered_enemies:
-            return False
-        else:
-            self.covered_enemies.append(enemy)
-            return True
-
     def getRotation(self):
         return self.ellipse.rotation()
 
@@ -143,4 +115,49 @@ class player:
         print("DESTRUCTION")
         self.scene.removeItem(self.ellipse)
         self.scene.removeItem(self.polygon)
+
+
+class defensePlayer(player):
+    def __init__(self, number: int, op: bool, scene: QGraphicsScene, destination=None):
+        super().__init__(number, True, scene)
+
+        string = "Defense " + str(self.number)
+        self.check_box.setText(string)
+        self.check_box.update()
+
+        self.ellipse.setBrush(QBrush(Qt.black))
+        self.ellipse.setPen(QPen(Qt.black))
+        self.ellipse.setToolTip(string)
+        self.ellipse.setTransformOriginPoint(10,10)
+        self.ellipse.setRotation(180)
+        self.ellipse.update()
+
+    def findEnemy(self):
+        return
+
+    def checkCoveredEnemies(self, enemy):
+        return
+
+    def applyCoveredEnemyRequest(self, enemy):
+        if enemy in self.covered_enemies:
+            return False
+        else:
+            self.covered_enemies.append(enemy)
+            return True
+
+
+class offensePlayer(player):
+    def __init__(self, number: int, op: bool, scene: QGraphicsScene, blocked=False):
+        super().__init__(number, False, scene)
+
+        self.blocked = blocked
+
+        string = "Player " + str(self.number)
+        self.check_box.setText(string)
+        self.check_box.update()
+
+        self.ellipse.setToolTip(string)
+
+
+
 

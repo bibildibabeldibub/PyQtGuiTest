@@ -11,5 +11,7 @@ Movement:
     - New_Position wird nicht richtig addiert/zwischendurch auf 0 gesetzt (Y)
     - bewegung startet erst nach Drag&Drop Bewegung? (Y)
 
-
+Voronoi:
+    - Mehrere Spieler in einer Linie/Reihe
+    - Voronoi aktualisiert einen Schritt zu spät bei Tasteneingabe -> scene.update? 
 
