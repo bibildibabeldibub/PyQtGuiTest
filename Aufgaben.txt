@@ -11,7 +11,44 @@ Movement:
     - New_Position wird nicht richtig addiert/zwischendurch auf 0 gesetzt (Y)
     - bewegung startet erst nach Drag&Drop Bewegung? (Y)
 
+    vor den 45 Sekunden:
+    ->
+
+    in den 45 Sekunden:
+    -> exaktes Wissen über Gegnerformation
+    Wie Stellen sich die Verteidiger dyn. auf?
+    10 Sekunden
+
+    Aufstellungslogiken: <- Testen und bewerten
+    Wann will ich den Angreifer minimal halten: Im Mittel, Abwarten, Hart von Anfang an
+    Spieler intuitiv zwischen Gegenspieler und Tor, naiv gerade vor den gegenspieler
+
+    - Rastern und ausprobieren
+    - Fälle minimieren
+    - nach 10 Sekunden, 5 Sekunden /15 zu Stabilität
+
+    Bewertungsfunktion:
+
 Voronoi:
     - Mehrere Spieler in einer Linie/Reihe
-    - Voronoi aktualisiert einen Schritt zu spät bei Tasteneingabe -> scene.update? 
+    - Voronoi aktualisiert einen Schritt zu spät bei Tasteneingabe -> scene.update?
 
+
+Schriftlich:
+    - Paper lesen -> Schreiben von Theorie etc
+    - Abgrenzung von ähnlichen Arbeiten ?
+
+
+Als nächstes:
+    - Bewertung (Michelles BA)
+    - Rasterisierung (Einfärbung nach Bewertung)
+    - Simulation: ( 50 Wiederholungen á x Sekunden)
+        * Iterativer Prozess komplett Reset (Variable Laufzeit)
+    - Verteidiger:
+        * mögliche Position nach Zeit x -> im Mittel optimal
+    - Tests, war die Posi optimal
+
+
+Alternative:
+- Optimierung jeder für sich
+- Optimierung für Alle (später)
