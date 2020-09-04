@@ -15,7 +15,6 @@ class SoccerScene(QGraphicsScene):
     def __init__(self, fps, window=None):
         super().__init__()
         self.window = window
-        self.advance_counter = 0
         self.phase = 0
         self.attackers = []
         self.defenders = []
@@ -25,6 +24,9 @@ class SoccerScene(QGraphicsScene):
         self.advance_counter = 0
         self.threadpool = QThreadPool()
         self.animationWorker = None
+        self.raster_polygons = []
+        self.raster = self.rasterize()
+
         with open('config.json') as config_file:
             data = json.load(config_file)
             self.fps = data['aufrufe-pro-sekunde']
@@ -77,3 +79,28 @@ class SoccerScene(QGraphicsScene):
 
     def kill_animation(self):
         self.animationWorker = animation.anim_worker(self.window, self, 1/self.fps)
+
+    def rasterize(self):
+        raster = []
+        for i in range(0, int(600/20)):
+            raster.append([])
+            for j in range(0, int(900/20)):
+                raster[i].append([j*20+10-450, i*20+10-300])
+
+
+        for i in range(len(raster)):
+            for j in range(len(raster[i])):
+                p = QPolygonF(QRectF(raster[i][j][0]-10, raster[i][j][1]-10, 20, 20))
+                self.raster_polygons.append(p)
+        return raster
+
+    def show_raster(self):
+        self.shown_raster = []
+        for i in self.raster_polygons:
+            self.shown_raster.append(self.addPolygon(i, QPen(Qt.darkGreen)))
+        return
+
+    def hide_raster(self):
+        for i in self.shown_raster:
+            self.removeItem(i)
+

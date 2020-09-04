@@ -196,11 +196,15 @@ class MainWindow(QWidget):
     def add_lines(self):
         #Helferlinien
         if self.toggleLines.isChecked():
+            self.scene.show_raster()
             self.helpX = self.scene.addLine(0,-300,0,300)
             self.helpY = self.scene.addLine(-450,0,450,0)
+
         else:
             self.scene.removeItem(self.helpX)
             self.scene.removeItem(self.helpY)
+            self.scene.hide_raster()
+
 
     def delete_all_players(self):
         for op in dict_opponents:

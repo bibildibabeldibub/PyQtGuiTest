@@ -6,3 +6,6 @@ def direction(player = None, opponent = None):
     :return angle the player should move to"""
 
     return random.uniform(180-45, 180+45)
+
+def minimize_raster():
+    """Der Verteidiger teilt das Feld in ein Raster auf. """
