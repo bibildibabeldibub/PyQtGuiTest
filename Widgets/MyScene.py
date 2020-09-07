@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import json
+import math
 from Widgets import MyEllipse
 
 
@@ -26,6 +27,7 @@ class SoccerScene(QGraphicsScene):
         self.animationWorker = None
         self.raster_polygons = []
         self.raster = self.rasterize()
+        self.max_bewertung = 0
 
         with open('config.json') as config_file:
             data = json.load(config_file)
@@ -82,25 +84,53 @@ class SoccerScene(QGraphicsScene):
 
     def rasterize(self):
         raster = []
-        for i in range(0, int(600/20)):
+        raster_groesse = 10
+        rh = int(raster_groesse/2)
+        for i in range(0, int(600/raster_groesse)):
             raster.append([])
-            for j in range(0, int(900/20)):
-                raster[i].append([j*20+10-450, i*20+10-300])
+            for j in range(0, int(900/10)):
+                raster[i].append([j*raster_groesse+rh-450, i*raster_groesse+rh-300])
 
 
         for i in range(len(raster)):
             for j in range(len(raster[i])):
-                p = QPolygonF(QRectF(raster[i][j][0]-10, raster[i][j][1]-10, 20, 20))
+                p = QPolygonF(QRectF(raster[i][j][0]-rh, raster[i][j][1]-rh, raster_groesse, raster_groesse))
                 self.raster_polygons.append(p)
         return raster
 
     def show_raster(self):
         self.shown_raster = []
+        color = QColor(255,0,0)
         for i in self.raster_polygons:
-            self.shown_raster.append(self.addPolygon(i, QPen(Qt.darkGreen)))
+            rp = self.addPolygon(i)
+
+            farbwert = self.evaluate_point(i.boundingRect().x()+5, i.boundingRect().y()+5)
+            if farbwert > 1:
+                farbwert = 1
+            color.setAlphaF(farbwert)
+            rp.setPen(Qt.transparent)
+            rp.setBrush(color)
+            rp.update()
+            self.shown_raster.append(rp)
         return
 
     def hide_raster(self):
         for i in self.shown_raster:
             self.removeItem(i)
 
+    def evaluate_point(self, x: float, y: float):
+        """:returns Wert an dem Punkt"""
+        print("\n--------------------")
+        print("Mittelpunkt: " + str(x) + "|" + str(y) )
+        dx = 450 - x
+        dy = 0 - y
+        distance = math.sqrt(dx*dx+dy*dy)
+        wert = 100/distance
+        print("Distanz:" + str(distance))
+        print("Wert:" + str(wert))
+        if self.max_bewertung < wert:
+            self.max_bewertung = wert
+            self.max_x = x
+            self.max_y = y
+        print("Max-Bewertung: " + str(self.max_bewertung) + " -> " + str(self.max_x) + "|" + str(self.max_y))
+        return wert

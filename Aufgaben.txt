@@ -41,7 +41,7 @@ Schriftlich:
 
 Als nächstes:
     - Bewertung (Michelles BA)
-    - Rasterisierung (Einfärbung nach Bewertung)
+    - Rasterung (Einfärbung nach Bewertung)
     - Simulation: ( 50 Wiederholungen á x Sekunden)
         * Iterativer Prozess komplett Reset (Variable Laufzeit)
     - Verteidiger:
@@ -50,5 +50,5 @@ Als nächstes:
 
 
 Alternative:
-- Optimierung jeder für sich
-- Optimierung für Alle (später)
+- Optimierung jeder für sich (Manndeckung)
+- Optimierung für Alle (später) (Raumdeckung)
