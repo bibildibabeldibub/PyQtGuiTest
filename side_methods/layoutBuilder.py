@@ -144,6 +144,7 @@ def buildBtns(self, verticallayout = None):
 
     self.resetButton = QPushButton('reset')
     self.resetButton.clicked.connect(self.reset)
+    self.resetButton.setEnabled(False)
     verticallayout.addWidget(self.resetButton)
 
     verticallayout.addStretch(1)

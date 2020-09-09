@@ -29,8 +29,11 @@ class MainWindow(QWidget):
         with open('config.json') as config_file:
             data = json.load(config_file)
             self.fps = data['aufrufe-pro-sekunde']
+            self.repetition = data['simulation-wiederholungen']
+            self.positionierungszeit = data['positionierungszeit']
+            self.animationszeit= data['animationszeit']
 
-        self.scene = MyScene.SoccerScene(self.fps, self)
+        self.scene = MyScene.SoccerScene(self.fps, self, self.positionierungszeit, self.positionierungszeit)
         print(type(self.scene))
         self.scene.setSceneRect(-450, -300, 900, 600)
 
@@ -221,6 +224,12 @@ class MainWindow(QWidget):
         dict_players.clear()
 
     def animation(self):
+        if not self.resetButton.isEnabled():
+            self.resetButton.setEnabled(True)
+        #save setup to begin with
+        self.startsetup_attackers = self.dict_players
+        self.startsetup_defenders = self.dict_opponents
+
         if not self.animationRunning:
             print(type(self.scene))
             self.scene.start_animation()
@@ -228,6 +237,16 @@ class MainWindow(QWidget):
         else:
             self.scene.stop_animation()
             self.animationRunning = False
+
+    def testSimulation(self):
+        #save setup to begin with
+        self.startsetup_attackers = self.dict_players
+        self.startsetup_defenders = self.dict_opponents
+        self.animation()
+
+    def saveSetup(self):
+        self.pos_setup_att = self.dict_players
+        self.pos_setup_def = self.dict_opponents
 
     def reset(self):
         self.phase = 0
