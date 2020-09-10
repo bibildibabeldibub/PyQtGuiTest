@@ -12,7 +12,7 @@ class SoccerScene(QGraphicsScene):
 
     stopSignal = pyqtSignal()
 
-    def __init__(self, fps, window=None, t_pos = 45, t_move = 45, reps = 1):
+    def __init__(self, fps, window=None, t_pos = 45, t_move = 45, reps = 5):
         super().__init__()
         self.window = window
         self.t_pos = t_pos
@@ -68,7 +68,7 @@ class SoccerScene(QGraphicsScene):
         self.continue_animation()
 
         if self.advance_counter == self.fps*self.t_move:
-            """
+            """ 
             * Speichern des Ergebnisses
             * zurücksetzen der Aufstellung
             * zurücksetzen des Advancecounters

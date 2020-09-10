@@ -12,6 +12,8 @@ import PyQt5.QtCore
 from os import listdir
 from os.path import isfile, join
 from screeninfo import get_monitors
+from datetime import datetime
+import os
 
 
 
@@ -64,6 +66,7 @@ class MainWindow(QWidget):
             if isfile(join(start_formation_path, f)):
                 startpositions.append(f)
                 self.start_selector.addItem(f)
+        self.tempfile = ""
 
     def init_small(self):
         """Creating the main window, with several buttons and the field simulator for small screens"""
@@ -84,7 +87,7 @@ class MainWindow(QWidget):
     def close_function(self):
         """closes the window"""
         print("\n exit button has been activated\n")
-        exit()
+        self.close()
 
     def resizeEvent(self, event):
         """acting while window is resized"""
@@ -113,9 +116,14 @@ class MainWindow(QWidget):
         self.group_op_layout.addWidget(op.check_box)
         op.ellipse.s.positionMove.connect(self.update_info)
 
-    def save_function(self, event):
+    def save_function(self, event, tempfile = None):
         """starts file dialog for saving the player positions"""
-        filenames = QFileDialog.getSaveFileName(self, 'Save File', str(myPath))
+        filenames = []
+        if not tempfile:
+            filenames = QFileDialog.getSaveFileName(self, 'Save File', str(myPath))
+        else:
+            filenames.append(tempfile)
+
         if filenames[0] is not '':
             f = open(filenames[0], 'w')
             txt = ""
@@ -227,8 +235,6 @@ class MainWindow(QWidget):
         if not self.resetButton.isEnabled():
             self.resetButton.setEnabled(True)
         #save setup to begin with
-        self.startsetup_attackers = self.dict_players
-        self.startsetup_defenders = self.dict_opponents
 
         if not self.animationRunning:
             print(type(self.scene))
@@ -245,15 +251,25 @@ class MainWindow(QWidget):
         self.animation()
 
     def saveSetup(self):
-        self.pos_setup_att = self.dict_players
-        self.pos_setup_def = self.dict_opponents
+        t = datetime.now()
+        date = t.strftime("%d_%m_%Y_%H:%M:%S")
+        string = "temp/" + date
+        self.save_function(None, string)
+        self.tempfile = date
 
     def reset(self):
-        self.phase = 0
-        self.animationRunning = False
-        self.load_function("StartFormations/" + self.start_selector.currentText())
+        self.delete_all_players()
+        if self.tempfile:
+            self.load_function("temp/" + self.tempfile)
+        else:
+            print("Warning: tempfile does not exist!")
 
     def anzeigen(self):
         """shows the main window"""
         self.showMaximized()
         self.raise_()
+
+    def closeEvent(self, QCloseEvent):
+        if self.tempfile:
+            os.renames("temp/" + self.tempfile, "log/aufstellungen/" + self.tempfile)
+        super()
