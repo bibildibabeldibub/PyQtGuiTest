@@ -18,6 +18,7 @@ class anim_worker(QtCore.QRunnable):
         QtCore.QRunnable.__init__(self)
         self.scene = scene
         self.scene.stopSignal.connect(self.stop)
+        self.scene.continueSignal.connect(self.conti)
         # self.scene.startSignal.connect(self.run)
         self.seconds = seconds
         self.pause = True
@@ -33,13 +34,16 @@ class anim_worker(QtCore.QRunnable):
 
     def loop(self):
         while not self.pause:
-            self.counter += 1
+            # self.counter += 1
             # print(self.counter)
             self.sender.sendSignal()
             time.sleep(self.seconds)
 
     def stop(self):
         self.pause = True
+
+    def conti(self):
+        self.pause = False
 
     def __del__(self):
         print("Worker deleted")

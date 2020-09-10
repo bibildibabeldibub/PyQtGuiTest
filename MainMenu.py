@@ -35,7 +35,7 @@ class MainWindow(QWidget):
             self.positionierungszeit = data['positionierungszeit']
             self.animationszeit= data['animationszeit']
 
-        self.scene = MyScene.SoccerScene(self.fps, self, self.positionierungszeit, self.positionierungszeit)
+        self.scene = MyScene.SoccerScene(self.fps, self)
         print(type(self.scene))
         self.scene.setSceneRect(-450, -300, 900, 600)
 
@@ -231,29 +231,27 @@ class MainWindow(QWidget):
         dict_opponents.clear()
         dict_players.clear()
 
-    def animation(self):
+    def animation(self, wiederholungen = 0):
         if not self.resetButton.isEnabled():
             self.resetButton.setEnabled(True)
-        #save setup to begin with
 
         if not self.animationRunning:
             print(type(self.scene))
-            self.scene.start_animation()
+            self.scene.start_animation(self.positionierungszeit, self.animationszeit, wiederholungen)
             self.animationRunning = True
         else:
             self.scene.stop_animation()
             self.animationRunning = False
 
     def testSimulation(self):
-        #save setup to begin with
-        self.startsetup_attackers = self.dict_players
-        self.startsetup_defenders = self.dict_opponents
-        self.animation()
+        self.animation(self.repetition)
 
     def saveSetup(self):
         t = datetime.now()
         date = t.strftime("%d_%m_%Y_%H:%M:%S")
         string = "temp/" + date
+        if not os.path.exists("temp/"):
+            os.mkdir("temp/")
         self.save_function(None, string)
         self.tempfile = date
 
