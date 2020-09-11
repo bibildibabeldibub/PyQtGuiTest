@@ -40,15 +40,25 @@ Schriftlich:
 
 
 Als nächstes:
-    - Bewertung (Michelles BA)
-    - Rasterung (Einfärbung nach Bewertung)
+
+    - Bewertung (Michelles BA) (?)
+    - Rasterisierung (Einfärbung nach Bewertung) (y?)
     - Simulation: ( 50 Wiederholungen á x Sekunden)
-        * Iterativer Prozess komplett Reset (Variable Laufzeit)
+        * Laufzeiten können über config eingestellt werden (y)
+        * Speicherung der Aufstellung (y)
+        * Iterativer Prozess           (y)
+        * Speicherung der Ergebnisse    (?)
+        * Test und Bewertung der Aufstellung -> speichern (?)
+        * Reset zur aufstellung             (y)
+            -> erneute Tests                (y)
+
     - Verteidiger:
         * mögliche Position nach Zeit x -> im Mittel optimal
+
     - Tests, war die Posi optimal
 
 
 Alternative:
 - Optimierung jeder für sich (Manndeckung)
 - Optimierung für Alle (später) (Raumdeckung)
+

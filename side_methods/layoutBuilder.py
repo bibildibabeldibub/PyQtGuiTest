@@ -138,12 +138,17 @@ def buildBtns(self, verticallayout = None):
     self.voronoiButton.clicked.connect(self.vor)
     verticallayout.addWidget(self.voronoiButton)
 
-    self.anim = QPushButton('anim')
+    self.anim = QPushButton('Simple Anim')
     self.anim.clicked.connect(self.animation)
+    verticallayout.addWidget(self.anim)
+
+    self.anim = QPushButton('Experiment')
+    self.anim.clicked.connect(self.testSimulation)
     verticallayout.addWidget(self.anim)
 
     self.resetButton = QPushButton('reset')
     self.resetButton.clicked.connect(self.reset)
+    self.resetButton.setEnabled(False)
     verticallayout.addWidget(self.resetButton)
 
     verticallayout.addStretch(1)
