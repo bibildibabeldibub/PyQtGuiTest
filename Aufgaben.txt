@@ -44,12 +44,12 @@ Als nächstes:
     - Rasterisierung (Einfärbung nach Bewertung) (y?)
     - Simulation: ( 50 Wiederholungen á x Sekunden)
         * Laufzeiten können über config eingestellt werden (y)
-        * Speicherung der Aufstellung
-        * Iterativer Prozess
-        * Speicherung der Ergebnisse
-        * Test und Bewertung der Aufstellung -> speichern
-        * Reset zur aufstellung
-            -> erneute Tests
+        * Speicherung der Aufstellung (y)
+        * Iterativer Prozess           (y)
+        * Speicherung der Ergebnisse    (?)
+        * Test und Bewertung der Aufstellung -> speichern (?)
+        * Reset zur aufstellung             (y)
+            -> erneute Tests                (y)
 
     - Verteidiger:
         * mögliche Position nach Zeit x -> im Mittel optimal
