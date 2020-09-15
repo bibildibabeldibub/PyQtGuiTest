@@ -53,8 +53,11 @@ Als nächstes:
             -> erneute Tests                (y)
 
     - Verteidiger:
-        * mögliche Position nach Zeit x -> im Mittel optimal
-
+        * check, wo kann der Gegner hin (y)
+        * Möglichkeiten Bewerten
+        * Position herausfinden
+        * Dorthin laufen innerhalb t_pos
+        
     - Tests, war die Posi optimal
 
 
