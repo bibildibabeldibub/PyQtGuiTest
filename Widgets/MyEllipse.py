@@ -70,6 +70,7 @@ class MyEllipse(QGraphicsEllipseItem):
         if p_int == 0:
             # offense players:
             if not self.spieler.defense:
+                self.spieler.getPosRaster()
                 if self.animcounter == self.spieler.change_rotation:
                     #erste Winkelberechnung
                     self.new_pos = [0, 0]

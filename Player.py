@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QBrush, QPen, QPolygonF
-from PyQt5.QtCore import Qt, QLineF, QPointF, QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, QLineF, QPointF, QRectF, QObject, pyqtSignal, pyqtSlot
 import numpy as np
 from Widgets.MyEllipse import MyEllipse
 import json
@@ -103,6 +103,24 @@ class player:
 
     def getRotation(self):
         return self.ellipse.rotation()
+
+    def getPosRaster(self):
+        """:returns mögliche Positionen des Angreifers"""
+        positions = []
+
+        radius = self.velocity * self.scene.t_move
+        print("Create distance circle with radius= " + str(radius))
+        kreis = self.scene.addEllipse(self.getLocation()[0]-radius, self.getLocation()[1]-radius, radius*2, radius*2, QPen(Qt.blue), QBrush(Qt.transparent))
+        #Rasterung des Kreises in 10x10 felder
+        for i in self.scene.raster:
+            for j in i:
+                if kreis.contains(QPointF(j[0], j[1])):
+                    positions.append(j)
+                    # p = QPolygonF(QRectF(j[0]-5, j[1]-5, 10, 10))
+                    # self.scene.addPolygon(p,QPen(Qt.green),QBrush(Qt.transparent))
+
+        self.scene.removeItem(kreis)
+        return positions
 
     def __repr__(self):
         string = ''

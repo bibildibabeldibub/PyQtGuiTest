@@ -134,6 +134,7 @@ class SoccerScene(QGraphicsScene):
             self.animationWorker.__del__()
 
     def rasterize(self):
+        """:returns 2D-Array von Mittelpunkten des Rasters"""
         raster = []
         raster_groesse = 10
         rh = int(raster_groesse/2)
