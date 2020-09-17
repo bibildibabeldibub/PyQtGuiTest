@@ -90,15 +90,17 @@ class MyEllipse(QGraphicsEllipseItem):
                     self.spieler.blocked = True
 
             else:
-                self.new_pos=[0,0]
-                self.richtungswinkel = Defense.direction()
-
+            #Defense, Players
+                defcount=0
+                if defcount == 0:
+                    self.spieler.evalEnemyPositions()
+                    defcount+=1
                 #Rotation
-                self.setTransformOriginPoint(10,10)
-                self.setRotation(self.richtungswinkel)
+                # self.setTransformOriginPoint(10,10)
+                # self.setRotation(self.richtungswinkel)
 
-                self.animcounter=0
-                self.new_pos = self.moveForward()
+                # self.animcounter=0
+                # self.new_pos = self.moveForward()
 
         if p_int == 1 and not self.spieler.blocked:
             # print("Old Pos:\t"+ str(old_pos[0]) + " | " + str(old_pos[1]))

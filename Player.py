@@ -4,6 +4,8 @@ from PyQt5.QtCore import Qt, QLineF, QPointF, QRectF, QObject, pyqtSignal, pyqtS
 import numpy as np
 from Widgets.MyEllipse import MyEllipse
 import json
+from side_methods.bewertung import evaluate_point
+import time
 
 
 class player:
@@ -135,6 +137,19 @@ class player:
         self.scene.removeItem(self.polygon)
 
 
+class offensePlayer(player):
+    def __init__(self, number: int, op: bool, scene: QGraphicsScene, blocked=False):
+        super().__init__(number, False, scene)
+
+        self.blocked = blocked
+
+        string = "Player " + str(self.number)
+        self.check_box.setText(string)
+        self.check_box.update()
+
+        self.ellipse.setToolTip(string)
+
+
 class defensePlayer(player):
     def __init__(self, number: int, op: bool, scene: QGraphicsScene, destination=None):
         super().__init__(number, True, scene)
@@ -142,6 +157,8 @@ class defensePlayer(player):
         string = "Defense " + str(self.number)
         self.check_box.setText(string)
         self.check_box.update()
+
+        self.enemy = None
 
         self.ellipse.setBrush(QBrush(Qt.black))
         self.ellipse.setPen(QPen(Qt.black))
@@ -163,18 +180,40 @@ class defensePlayer(player):
             self.covered_enemies.append(enemy)
             return True
 
+    def evalEnemyPositions(self):
+        """Bewertet die Positionen des Gegners"""
+        if not self.enemy:
+            print("Kein Gegner gefunden!")
+            return
 
-class offensePlayer(player):
-    def __init__(self, number: int, op: bool, scene: QGraphicsScene, blocked=False):
-        super().__init__(number, False, scene)
+        attacker = self.enemy
+        positions = attacker.getPosRaster()
+        max_val = 0
+        worst_case_pos = []
+        worst_case_pos_str = []
+        point_val = {}
+        for i in positions:
+            val=evaluate_point(i[0], i[1])
+            point_val.update({str(i):val})
 
-        self.blocked = blocked
+        #Beachte Worstcase:
+        time.sleep(10)
+        max_val = max(point_val.values())
+        print("Worstcase-Positionen:")
+        for point, value in point_val.items():
+            if value == max_val:
+                worst_case_pos_str.append(point)
 
-        string = "Player " + str(self.number)
-        self.check_box.setText(string)
-        self.check_box.update()
+        for i in worst_case_pos_str:
+            point = i.strip('][').split(', ')
+            point[0] = int(point[0])
+            point[1] = int(point[1])
+            print(point)
+            worst_case_pos.append(point)
+            self.scene.addEllipse(point[0],point[1],10,10,QPen(Qt.red),QBrush(Qt.red))
+        #Beachte Mittlere ??
 
-        self.ellipse.setToolTip(string)
+        return
 
 
 

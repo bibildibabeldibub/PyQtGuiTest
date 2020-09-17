@@ -1,5 +1,4 @@
 import random
-import Player
 
 def direction(player = None, opponent = None):
     """:var player Player to compute direction for
@@ -8,9 +7,4 @@ def direction(player = None, opponent = None):
 
     return random.uniform(180-45, 180+45)
 
-def enemyPositions():
 
-    return []
-
-def minimize_raster():
-    """Der Verteidiger teilt das Feld in ein Raster auf. """

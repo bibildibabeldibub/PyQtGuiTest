@@ -53,11 +53,12 @@ Als nächstes:
             -> erneute Tests                (y)
 
     - Verteidiger:
-        * check, wo kann der Gegner hin (y)
+        * check, wo kann der Gegner hin -> Kreisrasterung (y)
+            * Worst-case Position (y)
         * Möglichkeiten Bewerten
         * Position herausfinden
         * Dorthin laufen innerhalb t_pos
-        
+
     - Tests, war die Posi optimal
 
 

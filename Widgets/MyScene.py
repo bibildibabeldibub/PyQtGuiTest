@@ -7,6 +7,7 @@ from PyQt5.QtCore import *
 import json
 import math
 from Widgets import MyEllipse
+from side_methods.bewertung import evaluate_point
 
 
 class SoccerScene(QGraphicsScene):
@@ -156,7 +157,7 @@ class SoccerScene(QGraphicsScene):
         for i in self.raster_polygons:
             rp = self.addPolygon(i)
 
-            farbwert = self.evaluate_point(i.boundingRect().x()+5, i.boundingRect().y()+5)
+            farbwert = evaluate_point(i.boundingRect().x()+5, i.boundingRect().y()+5)
             if farbwert > 1:
                 farbwert = 1
             color.setAlphaF(farbwert)
@@ -170,19 +171,4 @@ class SoccerScene(QGraphicsScene):
         for i in self.shown_raster:
             self.removeItem(i)
 
-    def evaluate_point(self, x: float, y: float):
-        """:returns Wert an dem Punkt"""
-        print("\n--------------------")
-        print("Mittelpunkt: " + str(x) + "|" + str(y) )
-        dx = 450 - x
-        dy = 0 - y
-        distance = math.sqrt(dx*dx+dy*dy)
-        wert = 100/distance
-        print("Distanz:" + str(distance))
-        print("Wert:" + str(wert))
-        if self.max_bewertung < wert:
-            self.max_bewertung = wert
-            self.max_x = x
-            self.max_y = y
-        print("Max-Bewertung: " + str(self.max_bewertung) + " -> " + str(self.max_x) + "|" + str(self.max_y))
-        return wert
+
