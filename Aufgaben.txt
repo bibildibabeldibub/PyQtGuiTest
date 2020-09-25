@@ -53,6 +53,7 @@ Als nächstes:
             -> erneute Tests                (y)
 
     - Verteidiger:
+        * Zuordnung (/) 
         * check, wo kann der Gegner hin -> Kreisrasterung (y)
             * Worst-case Position (y)
         * Möglichkeiten Bewerten

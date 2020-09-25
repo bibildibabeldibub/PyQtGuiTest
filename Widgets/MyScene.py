@@ -25,6 +25,7 @@ class SoccerScene(QGraphicsScene):
         self.phase = 0
         self.attackers = []
         self.defenders = []
+        self.covered_attackers = {}
         self.fps = fps
         self.animationRunning = False
         self.phase = 0

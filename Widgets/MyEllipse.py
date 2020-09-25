@@ -23,6 +23,7 @@ class MyEllipse(QGraphicsEllipseItem):
         self.ws = w
         self.hs = h
 
+        self.defcount = 0
         self.animcounter = 0
         self.richtungswinkel = 0
         scene.addItem(self)
@@ -30,6 +31,7 @@ class MyEllipse(QGraphicsEllipseItem):
         self.scene = scene
         self.pen = pen
         self.brush = brush
+        self.direction_pen = QPen(Qt.darkYellow)
 
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges, True)
@@ -68,33 +70,33 @@ class MyEllipse(QGraphicsEllipseItem):
 
         old_pos = [self.x(), self.y()]
         if p_int == 0:
-            # offense players:
             if not self.spieler.defense:
-                self.spieler.getPosRaster()
+            # offense players:
                 if self.animcounter == self.spieler.change_rotation:
-                    #erste Winkelberechnung
+                #     #erste Winkelberechnung
                     self.new_pos = [0, 0]
                     self.richtungswinkel = random.uniform(-45, 45)
-
-                    #Rotation
-                    self.setTransformOriginPoint(10, 10)
-                    self.setRotation(self.richtungswinkel)
-
-                    self.animcounter = 0
-                    # print("Rotation:\t" + str(self.rotation()))
-                    self.new_pos = self.moveForward()
-                    # print("Positionsdifferenz:\t" + str(self.new_pos))
-
-                """Collision detection"""
-                if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
-                    self.spieler.blocked = True
+                #
+                #     #Rotation
+                #     self.setTransformOriginPoint(10, 10)
+                #     self.setRotation(self.richtungswinkel)
+                #
+                #     self.animcounter = 0
+                #     # print("Rotation:\t" + str(self.rotation()))
+                #     self.new_pos = self.moveForward()
+                #     # print("Positionsdifferenz:\t" + str(self.new_pos))
+                #
+                # """Collision detection"""
+                # if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
+                #     self.spieler.blocked = True
 
             else:
             #Defense, Players
-                defcount=0
-                if defcount == 0:
+                if self.defcount == 0:
+                    self.defcount+=1
+                    self.spieler.findEnemy()
+                    print(self.scene.covered_attackers)
                     self.spieler.evalEnemyPositions()
-                    defcount+=1
                 #Rotation
                 # self.setTransformOriginPoint(10,10)
                 # self.setRotation(self.richtungswinkel)
@@ -144,14 +146,11 @@ class MyEllipse(QGraphicsEllipseItem):
         painter.setBrush(self.brush)
         painter.drawEllipse(0, 0, self.ws, self.hs)
 
-        painter.setBrush(Qt.black)
-        painter.drawEllipse(9, 9, 2, 2)
-
         #Facedirection
-        painter.setPen(Qt.yellow)
-        pen = painter.pen()
-        pen.setWidth(2)
-        painter.setPen(pen)
+        painter.setPen(self.direction_pen)
+        self.direction_pen = painter.pen()
+        self.direction_pen.setWidth(2)
+        painter.setPen(self.direction_pen)
         painter.drawLine(10, 0, 20, 10)
         painter.drawLine(10, 20, 20, 10)
 

@@ -1,11 +1,13 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QBrush, QPen, QPolygonF
+from PyQt5.QtGui import QBrush, QPen, QPolygonF, QColor
 from PyQt5.QtCore import Qt, QLineF, QPointF, QRectF, QObject, pyqtSignal, pyqtSlot
 import numpy as np
 from Widgets.MyEllipse import MyEllipse
 import json
 from side_methods.bewertung import evaluate_point
 import time
+import math
+import random
 
 
 class player:
@@ -111,6 +113,8 @@ class player:
         positions = []
 
         radius = self.velocity * self.scene.t_move
+        print(type(self))
+        print(self)
         print("Create distance circle with radius= " + str(radius))
         kreis = self.scene.addEllipse(self.getLocation()[0]-radius, self.getLocation()[1]-radius, radius*2, radius*2, QPen(Qt.blue), QBrush(Qt.transparent))
         #Rasterung des Kreises in 10x10 felder
@@ -123,6 +127,11 @@ class player:
 
         self.scene.removeItem(kreis)
         return positions
+
+    def setColor(self, color: QColor):
+        # self.ellipse.brush = QBrush(Qt.darkGreen)
+        self.ellipse.direction_pen = QPen(color)
+        self.ellipse.update()
 
     def __repr__(self):
         string = ''
@@ -159,6 +168,7 @@ class defensePlayer(player):
         self.check_box.update()
 
         self.enemy = None
+        self.att_distances = {}
 
         self.ellipse.setBrush(QBrush(Qt.black))
         self.ellipse.setPen(QPen(Qt.black))
@@ -167,11 +177,70 @@ class defensePlayer(player):
         self.ellipse.setRotation(180)
         self.ellipse.update()
 
-    def findEnemy(self):
+    def findEnemy(self, ohne: player = None):
+        """:var enemy Dieser Spieler wird  ausgelassen in der Suche (Für den Fall dass nochmal gesucht werden muss)
+            """
+        if not self.att_distances:
+            print("Generiere Distanztabelle")
+            x = self.getLocation()[0]
+            y = self.getLocation()[1]
+            print(self.scene.attackers)
+
+            for i in self.scene.attackers:
+                #get for every attacker the distance
+                dx = i.getLocation()[0] - x
+                dy = i.getLocation()[1] - y
+                distance = math.sqrt(dx*dx+dy*dy)
+                self.att_distances.update({i:distance})
+
+        print(self.att_distances)
+
+        if ohne:
+            self.att_distances.pop(ohne)
+
+        while self.att_distances:
+            distance_min = min(self.att_distances.values())
+            possible = []
+            for a,d in self.att_distances.items():
+                #finde Gegner mit geringster Distanz
+                if d == distance_min:
+                    possible.append(a)
+
+            for p in possible:
+                print(self.scene.covered_attackers)
+                if not p in self.scene.covered_attackers.keys():
+                    #Spieler wird gedeckt
+                    print("-----------------Erfolg!!!-----------------")
+                    print(type(p))
+                    self.enemy = p
+                    color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    self.enemy.setColor(color)
+                    self.setColor(color)
+                    self.scene.covered_attackers.update({p: self})
+                    return
+                else:
+                    print("Gegner bereits gedeckt")
+                    mitspieler = self.scene.covered_attackers[p]
+                    d2 = mitspieler.getCoveredDistance()
+                    if self.att_distances[p] >= d2:
+                        #Suche neuen Gegner
+                        self.att_distances.pop(p)
+                    else:
+                        #Spieler wird gedeckt
+                        self.enemy = p
+                        color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                        self.enemy.setColor(color)
+                        self.setColor(color)
+                        mitspieler.findEnemy(p)
+                        return
+
         return
 
-    def checkCoveredEnemies(self, enemy):
+    def enemyCovered(self, enemy):
         return
+
+    def getCoveredDistance(self):
+        return self.att_distances[self.enemy]
 
     def applyCoveredEnemyRequest(self, enemy):
         if enemy in self.covered_enemies:
@@ -197,7 +266,6 @@ class defensePlayer(player):
             point_val.update({str(i):val})
 
         #Beachte Worstcase:
-        time.sleep(10)
         max_val = max(point_val.values())
         print("Worstcase-Positionen:")
         for point, value in point_val.items():

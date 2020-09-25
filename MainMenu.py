@@ -99,19 +99,27 @@ class MainWindow(QWidget):
         self.load_function("StartFormations/" + self.start_selector.currentText())
         return
 
-    def add_player(self, position=(0, 0)):
+    def add_player(self, number=None, x=0.0, y=0.0):
         """adds a player to scene"""
-        p = offensePlayer(len(dict_players)+1, False, self.scene)
+        if not number:
+            number = len(dict_players)+1
+        p = offensePlayer(number, False, self.scene)
+        p.setLocation(x,y)
         dict_players.append(p)
+        self.scene.attackers.append(p)
         self.infoPlayer.appendPlayer(p)
         self.group_pl_layout.addWidget(p.check_box)
         p.ellipse.s.positionMove.connect(self.update_info)
         print(dict_players)
 
-    def add_opponent(self, event):
+    def add_opponent(self, number=None, x=0.0, y=0.0):
         """adds a opponent to scene"""
-        op = defensePlayer(len(dict_opponents) + 1, True, self.scene)
+        if not number:
+            number = len(dict_opponents) + 1
+        op = defensePlayer(number, True, self.scene)
+        op.setLocation(x, y)
         self.infoOpponents.appendPlayer(op)
+        self.scene.defenders.append(op)
         dict_opponents.append(op)
         self.group_op_layout.addWidget(op.check_box)
         op.ellipse.s.positionMove.connect(self.update_info)
@@ -168,13 +176,7 @@ class MainWindow(QWidget):
                     att = wert_tripel.split(", ")   # 3 attribute von einzelnen spielern
                     print("P"+str(len(dict_players)) + " attributes:\n")
                     print(att)
-                    p = offensePlayer(int(att[0]), False, self.scene)
-                    p.setLocation(float(att[1]), float(att[2]))
-                    self.group_pl_layout.addWidget(p.check_box)
-                    dict_players.append(p)
-                    self.infoPlayer.appendPlayer(p)
-                    print(dict_players)
-                    p.ellipse.s.positionMove.connect(self.update_info)
+                    self.add_player(int(att[0]), float(att[1]), float(att[2]))
 
             print("\nopponents: \n")
             opponents = teams[1].split("\n")
@@ -183,12 +185,7 @@ class MainWindow(QWidget):
                     att = wert_tripel.split(', ')
                     print("attributes:\n")
                     print(att)
-                    o = defensePlayer(int(att[0]), True, self.scene)
-                    dict_opponents.append(o)
-                    self.group_op_layout.addWidget(o.check_box)
-                    o.setLocation(float(att[1]), float(att[2]))
-                    self.infoOpponents.appendPlayer(o)
-                    o.ellipse.s.positionMove.connect(self.update_info)
+                    self.add_opponent(int(att[0]), float(att[1]), float(att[2]))
             print(dict_opponents)
 
     def vor(self):
