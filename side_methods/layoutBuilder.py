@@ -143,7 +143,7 @@ def buildBtns(self, verticallayout = None):
     verticallayout.addWidget(self.anim)
 
     self.anim = QPushButton('Experiment')
-    self.anim.clicked.connect(self.testSimulation)
+    self.anim.clicked.connect(self.startExperiment)
     verticallayout.addWidget(self.anim)
 
     self.resetButton = QPushButton('reset')

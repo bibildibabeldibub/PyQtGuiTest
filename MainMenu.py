@@ -13,7 +13,8 @@ from os import listdir
 from os.path import isfile, join
 from screeninfo import get_monitors
 from datetime import datetime
-import os
+import os, shutil
+from side_methods import SetupToString
 
 
 
@@ -66,7 +67,10 @@ class MainWindow(QWidget):
             if isfile(join(start_formation_path, f)):
                 startpositions.append(f)
                 self.start_selector.addItem(f)
-        self.tempfile = ""
+
+        self.temppath="log/temp/"
+        self.t = None
+        self.log = False
 
     def init_small(self):
         """Creating the main window, with several buttons and the field simulator for small screens"""
@@ -103,7 +107,7 @@ class MainWindow(QWidget):
         """adds a player to scene"""
         if not number:
             number = len(dict_players)+1
-        p = offensePlayer(number, False, self.scene)
+        p = offensePlayer(number, self.scene)
         p.setLocation(x,y)
         dict_players.append(p)
         self.scene.attackers.append(p)
@@ -116,7 +120,7 @@ class MainWindow(QWidget):
         """adds a opponent to scene"""
         if not number:
             number = len(dict_opponents) + 1
-        op = defensePlayer(number, True, self.scene)
+        op = defensePlayer(number, self.scene)
         op.setLocation(x, y)
         self.infoOpponents.appendPlayer(op)
         self.scene.defenders.append(op)
@@ -124,23 +128,13 @@ class MainWindow(QWidget):
         self.group_op_layout.addWidget(op.check_box)
         op.ellipse.s.positionMove.connect(self.update_info)
 
-    def save_function(self, event, tempfile = None):
+    def save_function(self, event):
         """starts file dialog for saving the player positions"""
-        filenames = []
-        if not tempfile:
-            filenames = QFileDialog.getSaveFileName(self, 'Save File', str(myPath))
-        else:
-            filenames.append(tempfile)
+        filenames = QFileDialog.getSaveFileName(self, 'Save File', str(myPath))
 
         if filenames[0] is not '':
             f = open(filenames[0], 'w')
-            txt = ""
-            for p in dict_players:
-                txt += str(p)
-            txt += "Opponents:\n"
-            for x in dict_opponents:
-                txt += str(x) + "\n"
-            print('\n' + txt)
+            txt = SetupToString.getString(dict_players,dict_opponents)
             f.write(txt)
             f.close()
 
@@ -213,7 +207,6 @@ class MainWindow(QWidget):
             self.scene.removeItem(self.helpY)
             self.scene.hide_raster()
 
-
     def delete_all_players(self):
         for op in dict_opponents:
             op.check_box.setParent(None)
@@ -229,6 +222,9 @@ class MainWindow(QWidget):
         dict_players.clear()
 
     def animation(self, wiederholungen = 0):
+
+        self.t = datetime.now()
+
         if not self.resetButton.isEnabled():
             self.resetButton.setEnabled(True)
 
@@ -240,24 +236,62 @@ class MainWindow(QWidget):
             self.scene.stop_animation()
             self.animationRunning = False
 
-    def testSimulation(self):
+    def startExperiment(self):
+        self.log = True
         self.animation(self.repetition)
 
-    def saveSetup(self):
-        t = datetime.now()
-        date = t.strftime("%d_%m_%Y_%H:%M:%S")
-        string = "temp/" + date
-        if not os.path.exists("temp/"):
-            os.mkdir("temp/")
-        self.save_function(None, string)
-        self.tempfile = date
+    def simulationFinished(self):
+        shutil.move(self.temppath+self.date, "log/ergebnis/" + self.date)
+
+    def saveSetup(self, situation="", wiederholung=0):
+        if not self.log:
+            print("Simple Anim, No log created")
+            return
+        print("\nStart logging -- " + situation)
+        self.date = self.t.strftime("%d_%m_%Y_%H:%M:%S")
+        path = self.temppath + self.date + "/" + "run-" + str(wiederholung)
+        new = situation+":\n"
+        new += SetupToString.getString(dict_players, dict_opponents)
+
+        #Create Folderstructure if not exists
+        if not os.path.exists("log"):
+            os.mkdir("log")
+        if not os.path.exists("log/temp"):
+            os.mkdir(self.temppath)
+        if not os.path.exists(self.temppath + self.date):
+            os.mkdir(self.temppath + self.date)
+
+        if os.path.isfile(path):
+            f = open(path, 'a')
+            t = open(path)
+            t = t.read()
+            print(t+new)
+            f.write(new)
+
+        else:
+            f = open(path, 'w')
+            f.write(new)
+
+    def createResetPoint(self):
+        """ safes Setup to reset"""
+        if not self.log:
+            return
+        if not os.path.exists("temp"):
+            os.mkdir("temp")
+        if not os.path.exists("temp/resetfile"):
+            os.mkdir("temp/resetfile")
+        r = open("temp/resetfile/"+self.date, 'w')
+        r.write(SetupToString.getString(dict_players, dict_opponents))
 
     def reset(self):
+        print("--------Reset--------")
         self.delete_all_players()
-        if self.tempfile:
-            self.load_function("temp/" + self.tempfile)
+        if os.path.isfile("temp/resetfile/" + self.date):
+            self.load_function("temp/resetfile/" + self.date)
         else:
             print("Warning: tempfile does not exist!")
+            exit()
+
 
     def anzeigen(self):
         """shows the main window"""
@@ -265,6 +299,12 @@ class MainWindow(QWidget):
         self.raise_()
 
     def closeEvent(self, QCloseEvent):
-        if self.tempfile:
-            os.renames("temp/" + self.tempfile, "log/aufstellungen/" + self.tempfile)
+        # if not os.path.exists("log/ergebnis"):
+        #     os.mkdir("log/ergebnis")
+        # if os.path.isfile(self.temppath+self.date):
+        #     os.renames("log/temp/" + self.date, "log/ergebnis/" + self.date)
+
+        # delete reset
+        if os.path.exists("temp"):
+            shutil.rmtree("temp")
         super()

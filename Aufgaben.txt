@@ -29,11 +29,6 @@ Movement:
 
     Bewertungsfunktion:
 
-Voronoi:
-    - Mehrere Spieler in einer Linie/Reihe
-    - Voronoi aktualisiert einen Schritt zu spät bei Tasteneingabe -> scene.update?
-
-
 Schriftlich:
     - Paper lesen -> Schreiben von Theorie etc
     - Abgrenzung von ähnlichen Arbeiten ?
@@ -42,25 +37,58 @@ Schriftlich:
 Als nächstes:
 
     - Bewertung (Michelles BA) (?)
-    - Rasterisierung (Einfärbung nach Bewertung) (y?)
+    - Rasterisierung (Einfärbung nach Bewertung) (d?)
     - Simulation: ( 50 Wiederholungen á x Sekunden)
-        * Laufzeiten können über config eingestellt werden (y)
-        * Speicherung der Aufstellung (y)
-        * Iterativer Prozess           (y)
-        * Speicherung der Ergebnisse    (?)
+        * Laufzeiten können über config eingestellt werden (d)
+        * Speicherung der Aufstellung (d)
+        * Iterativer Prozess           (d)
+        * Speicherung der Ergebnisse    (?) -> Speichern Positionen und Score
         * Test und Bewertung der Aufstellung -> speichern (?)
-        * Reset zur aufstellung             (y)
-            -> erneute Tests                (y)
+        * Reset zur aufstellung             (d)
+            -> erneute Tests                (d)
 
     - Verteidiger:
-        * Zuordnung (/) 
-        * check, wo kann der Gegner hin -> Kreisrasterung (y)
-            * Worst-case Position (y)
+        * Zuordnung (/) ->Problemchen mit naivem immer kürzeste Distanz -> kann zu unpassenden zuordnungen führen
+        * check, wo kann der Gegner hin -> Kreisrasterung (d)
+            * Worst-case Position (d)
         * Möglichkeiten Bewerten
-        * Position herausfinden
+        * Position herausfinden -> Variabel auf der Linie zum testen
         * Dorthin laufen innerhalb t_pos
 
-    - Tests, war die Posi optimal
+    - Raumdeckung:
+        * Algorithmus ? Dafür wollte ich Michelles Bewertung haben. -> Distanz zum Mitspieler
+
+    - Tests, war die Posi optimal:
+        * Ergebnistracking ?
+            -> nach x Sekunden Stellung und Score
+            Score: Voronoi, Abstand zum Gegenspieler, Abstand zum Tor -> Beobachtung 22,5 m (gut) 1/3 feld | alle mit Faktoren
+                ->Flanken nur wenn es okay ist vom Aufwand
+
+    - Anmelden: Titel überlegen (Link mit verwandten Arbeiten?)
+    - Logging von Rotationen?
+
+
+    Spiele anschauen?
+
+Bugs:
+    - Logging:
+        * Runs werden nicht in einzelnen Dateien gespeichert (d)
+        * Letzter Run erzeugt im nachhinein eine 10 Sekunden Log-Datei (d)
+        * Einzelne Animation möchte auch loggen -> Fehler (d)
+
+
+    -Simulation:
+        * Keine Angriffsimulation mehr -> sobald Verteidiger vorhanden ist -> Spieler wird geblockt, wovon? distance circle?
+        * Bei Reset wird Angreifer gesucht
+        * Verteidiger dreht sich nicht nach Positionierung
+        * Durch reset wird Spieler wieder zurück gedreht
+
+
+
+
+
+
+
 
 
 Alternative:

@@ -36,17 +36,25 @@ class player:
         self.check_box.setChecked(True)
         self.check_box.setToolTip("Toggle Polygon display")
 
+        self.scene.positionedSignal.connect(self.savePosition)
+        self.scene.resetSignal.connect(self.reset)
+
         self.ellipse = MyEllipse(self, 0, 0, 20, 20, QPen(color), QBrush(color), self.scene)
 
         with open('config.json') as config_file:
             data = json.load(config_file)
             self.velocity = data['roboter-geschwindigkeit']
             self.change_rotation = data['richtungswechsel-periode']
+            self.pos_distance = data['positionierungsdistanz']
 
         #print("Center:\t" + str(self.ellipse.getCenter())+"\n\t" + str(self.ellipse.x()) + ", " + str(self.ellipse.y()))
 
 
     def setLocation(self, posx, posy):
+        """
+        :param posx: X-Koordinate des Spielermittelpunkts
+        :param posy: Y-Koordinate des Spielermittelpunkts
+        """
         self.ellipse.setPos(posx-10, posy-10)
 
     def getLocation(self):
@@ -105,17 +113,14 @@ class player:
     def posChange(self):
         self.positionChanged.emit()
 
-    def getRotation(self):
-        return self.ellipse.rotation()
-
     def getPosRaster(self):
         """:returns mögliche Positionen des Angreifers"""
         positions = []
 
         radius = self.velocity * self.scene.t_move
-        print(type(self))
-        print(self)
-        print("Create distance circle with radius= " + str(radius))
+        # print(type(self))
+        # print(self)
+        # print("Create distance circle with radius= " + str(radius))
         kreis = self.scene.addEllipse(self.getLocation()[0]-radius, self.getLocation()[1]-radius, radius*2, radius*2, QPen(Qt.blue), QBrush(Qt.transparent))
         #Rasterung des Kreises in 10x10 felder
         for i in self.scene.raster:
@@ -128,10 +133,24 @@ class player:
         self.scene.removeItem(kreis)
         return positions
 
+    def getRotation(self):
+        return self.ellipse.rotation()
+
+    def setRotation(self,rotation):
+        self.ellipse.setRotation(rotation)
+
     def setColor(self, color: QColor):
         # self.ellipse.brush = QBrush(Qt.darkGreen)
         self.ellipse.direction_pen = QPen(color)
         self.ellipse.update()
+
+    def reset(self):
+        self.setLocation(self.resetPosition[0],self.resetPosition[1])
+        self.setRotation(self.resetRotation)
+
+    def savePosition(self):
+        self.resetPosition = self.getLocation()
+        self.resetRotation = self.getRotation()
 
     def __repr__(self):
         string = ''
@@ -147,12 +166,12 @@ class player:
 
 
 class offensePlayer(player):
-    def __init__(self, number: int, op: bool, scene: QGraphicsScene, blocked=False):
+    def __init__(self, number: int, scene: QGraphicsScene, blocked=False):
         super().__init__(number, False, scene)
 
         self.blocked = blocked
-
-        string = "Player " + str(self.number)
+        print(type(self))
+        string = "Attacker " + str(self.number)
         self.check_box.setText(string)
         self.check_box.update()
 
@@ -160,15 +179,18 @@ class offensePlayer(player):
 
 
 class defensePlayer(player):
-    def __init__(self, number: int, op: bool, scene: QGraphicsScene, destination=None):
+    def __init__(self, number: int, scene: QGraphicsScene, destination=None):
         super().__init__(number, True, scene)
 
+        print(type(self))
         string = "Defense " + str(self.number)
         self.check_box.setText(string)
         self.check_box.update()
 
         self.enemy = None
         self.att_distances = {}
+
+        self.enemy_critical_positions = []
 
         self.ellipse.setBrush(QBrush(Qt.black))
         self.ellipse.setPen(QPen(Qt.black))
@@ -181,10 +203,10 @@ class defensePlayer(player):
         """:var enemy Dieser Spieler wird  ausgelassen in der Suche (Für den Fall dass nochmal gesucht werden muss)
             """
         if not self.att_distances:
-            print("Generiere Distanztabelle")
+            #print("Generiere Distanztabelle")
             x = self.getLocation()[0]
             y = self.getLocation()[1]
-            print(self.scene.attackers)
+            #print(self.scene.attackers)
 
             for i in self.scene.attackers:
                 #get for every attacker the distance
@@ -210,8 +232,8 @@ class defensePlayer(player):
                 print(self.scene.covered_attackers)
                 if not p in self.scene.covered_attackers.keys():
                     #Spieler wird gedeckt
-                    print("-----------------Erfolg!!!-----------------")
-                    print(type(p))
+                    # print("-----------------Erfolg!!!-----------------")
+                    # print(type(p))
                     self.enemy = p
                     color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
                     self.enemy.setColor(color)
@@ -250,7 +272,10 @@ class defensePlayer(player):
             return True
 
     def evalEnemyPositions(self):
-        """Bewertet die Positionen des Gegners"""
+        """
+            * Bewertet die Positionen des Gegners
+            * :returns Position an die sich der Spieler bewegen soll
+        """
         if not self.enemy:
             print("Kein Gegner gefunden!")
             return
@@ -267,22 +292,36 @@ class defensePlayer(player):
 
         #Beachte Worstcase:
         max_val = max(point_val.values())
-        print("Worstcase-Positionen:")
+        #print("Worstcase-Positionen:")
         for point, value in point_val.items():
             if value == max_val:
                 worst_case_pos_str.append(point)
 
         for i in worst_case_pos_str:
+            #Umwandlung String zu Position
             point = i.strip('][').split(', ')
             point[0] = int(point[0])
             point[1] = int(point[1])
-            print(point)
+            #print(point)
             worst_case_pos.append(point)
-            self.scene.addEllipse(point[0],point[1],10,10,QPen(Qt.red),QBrush(Qt.red))
-        #Beachte Mittlere ??
+            #self.worstcase_point = self.scene.addEllipse(point[0],point[1],10,10,QPen(Qt.red),QBrush(Qt.red))
+        #print(worst_case_pos)
+        self.enemy_critical_positions = worst_case_pos
 
-        return
+        pos = self.getDefPos()
 
+        return pos
+
+    def getDefPos(self):
+        """:returns Array [x,y] wo sich der Spieler positionieren soll"""
+
+        en_current_pos = self.enemy.getLocation()
+        dxm = self.enemy_critical_positions[0][0] - en_current_pos[0] * self.pos_distance
+        dym = self.enemy_critical_positions[0][1] - en_current_pos[1] * self.pos_distance
+
+        final_pos = [en_current_pos[0]+dxm, en_current_pos[1]+dym]
+
+        return final_pos
 
 
 

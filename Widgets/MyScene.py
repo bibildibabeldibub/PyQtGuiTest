@@ -1,4 +1,3 @@
-
 from side_methods import animation
 import time
 from PyQt5.QtGui import *
@@ -14,6 +13,8 @@ class SoccerScene(QGraphicsScene):
 
     stopSignal = pyqtSignal()
     continueSignal = pyqtSignal()
+    positionedSignal = pyqtSignal()
+    resetSignal = pyqtSignal()
 
     def __init__(self, fps, window=None):
         super().__init__()
@@ -58,33 +59,40 @@ class SoccerScene(QGraphicsScene):
         *Phase 1 - Das eigentliche Spiel
         *Phase 1 wird unter verschiedenen Bedingungen beendet"""
         #eine Sekunde= frames/aufrufe pro sekunde => frames = t*(fps)
-        if self.phase == 0 and self.advance_counter == self.fps*self.t_pos:     #Phase 0 nach 45 Sekunden beendet
+
+        if self.phase == 0 and self.advance_counter == self.getSteps(self.t_pos):     #Phase 0 nach 45 Sekunden beendet
             # self.animationRunning = False
             # self.animationWorker.pause = True
             self.stop_animation()
             self.kill_animation()
             self.phase = 1
             print("Pause")
-            self.window.saveSetup()
+            self.window.saveSetup("Aufstellung nach Positionierung")
+            #self.window.createResetPoint()
+            self.positionedSignal.emit()
             time.sleep(3) ##Pause zwischen Phasen
             self.restartAnimation()
+            return
 
-        if self.phase == 1 and self.advance_counter == self.fps*self.t_move:
+        if self.phase == 1 and self.advance_counter == self.getSteps(self.t_move):
             """ 
             * Speichern des Ergebnisses
             * zurücksetzen der Aufstellung
             * zurücksetzen des Advancecounters
             * Neustart des Angriffes"""
             print("Wiederholung #"+ str(self.repetition_counter)+" abgeschlossen.")
+
+            #Bewerte die Positionierungen -> speichern
+            self.window.saveSetup("Ende", self.repetition_counter)
             self.repetition_counter += 1
             #stop nach Zeit t_move
             self.stop_animation()
             self.kill_animation()
 
-            #Bewerte die Positionierungen -> speichern
             #setze das Spielfeld zurück
             if self.repetition_counter < self.reps:
-                self.window.reset()
+                #self.window.reset()
+                self.resetSignal.emit()
                 time.sleep(2)
                 self.restartAnimation()
 
@@ -92,9 +100,30 @@ class SoccerScene(QGraphicsScene):
                 print("Fertig :)")
                 self.stop_animation()
                 self.kill_animation()
+                self.window.simulationFinished()
+                self.resetSignal.emit()
+                return
+
+        #-------------------Datenlogging-------------------
+        if self.phase==1 and self.advance_counter == self.getSteps(5):
+            self.window.saveSetup("Nach 5 Sekunden", self.repetition_counter)
+
+        if self.phase==1 and self.advance_counter == self.getSteps(10):
+            self.window.saveSetup("Nach 10 Sekunden", self.repetition_counter)
+
+        if self.phase==1 and self.advance_counter == self.getSteps(15):
+            self.window.saveSetup("Nach 15 Sekunden", self.repetition_counter)
 
     def getPhase(self):
         return self.phase
+
+    def getSteps(self, seconds):
+        """
+
+        :param seconds: Sekunden, die in Schritte umgerechnet werden sollen.
+        :return: Anzahl der Schritte
+        """
+        return self.fps * seconds
 
     def start_animation(self, t_pos, t_move, repetitions):
         self.t_move = t_move
