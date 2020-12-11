@@ -79,9 +79,9 @@ Bugs:
 
     -Simulation:
         * Keine Angriffsimulation mehr -> sobald Verteidiger vorhanden ist -> Spieler wird geblockt, wovon? distance circle?
-        * Bei Reset wird Angreifer gesucht
-        * Verteidiger dreht sich nicht nach Positionierung
-        * Durch reset wird Spieler wieder zurück gedreht
+        * Bei Reset wird Angreifer gesucht (d)
+        * Verteidiger dreht sich nicht nach Positionierung (d)
+        * Durch reset wird Spieler wieder zurück gedreht (d)
 
 
 
