@@ -14,13 +14,11 @@ from os.path import isfile, join
 from screeninfo import get_monitors
 from datetime import datetime
 import os, shutil
-from side_methods import SetupToString
+from side_methods import SetupToString, Logging
 
 
 
-dict_players: [player] = []
-dict_opponents: [player] = []
-voronoi_lines = []
+
 myPath = Path(__file__).absolute().parent / 'strats'
 
 class MainWindow(QWidget):
@@ -29,6 +27,11 @@ class MainWindow(QWidget):
         super().__init__()
 
         self.setWindowTitle("Simulator")
+
+        self.dict_players: [player] = []
+        self.dict_opponents: [player] = []
+        self.voronoi_lines = []
+
         with open('config.json') as config_file:
             data = json.load(config_file)
             self.fps = data['aufrufe-pro-sekunde']
@@ -72,6 +75,7 @@ class MainWindow(QWidget):
         self.t = None
         self.log = False
 
+
     def init_small(self):
         """Creating the main window, with several buttons and the field simulator for small screens"""
         horizontallayout = layoutBuilder.buildSmall(self)
@@ -106,25 +110,25 @@ class MainWindow(QWidget):
     def add_player(self, number=None, x=0.0, y=0.0):
         """adds a player to scene"""
         if not number:
-            number = len(dict_players)+1
+            number = len(self.dict_players)+1
         p = offensePlayer(number, self.scene)
         p.setLocation(x,y)
-        dict_players.append(p)
+        self.dict_players.append(p)
         self.scene.attackers.append(p)
         self.infoPlayer.appendPlayer(p)
         self.group_pl_layout.addWidget(p.check_box)
         p.ellipse.s.positionMove.connect(self.update_info)
-        print(dict_players)
+        print(self.dict_players)
 
     def add_opponent(self, number=None, x=0.0, y=0.0):
         """adds a opponent to scene"""
         if not number:
-            number = len(dict_opponents) + 1
+            number = len(self.dict_opponents) + 1
         op = defensePlayer(number, self.scene)
         op.setLocation(x, y)
         self.infoOpponents.appendPlayer(op)
         self.scene.defenders.append(op)
-        dict_opponents.append(op)
+        self.dict_opponents.append(op)
         self.group_op_layout.addWidget(op.check_box)
         op.ellipse.s.positionMove.connect(self.update_info)
 
@@ -134,7 +138,7 @@ class MainWindow(QWidget):
 
         if filenames[0] is not '':
             f = open(filenames[0], 'w')
-            txt = SetupToString.getString(dict_players,dict_opponents)
+            txt = SetupToString.getString(self.dict_players, self.dict_opponents)
             f.write(txt)
             f.close()
 
@@ -168,7 +172,7 @@ class MainWindow(QWidget):
             for wert_tripel in play_atts:
                 if len(wert_tripel) > 1:
                     att = wert_tripel.split(", ")   # 3 attribute von einzelnen spielern
-                    print("P"+str(len(dict_players)) + " attributes:\n")
+                    print("P"+str(len(self.dict_players)) + " attributes:\n")
                     print(att)
                     self.add_player(int(att[0]), float(att[1]), float(att[2]))
 
@@ -180,13 +184,13 @@ class MainWindow(QWidget):
                     print("attributes:\n")
                     print(att)
                     self.add_opponent(int(att[0]), float(att[1]), float(att[2]))
-            print(dict_opponents)
+            print(self.dict_opponents)
 
     def vor(self):
-        for p in dict_opponents + dict_players:
+        for p in self.dict_opponents + self.dict_players:
             p.polygon.setPolygon(QPolygonF())           ##clearing the polygons
 
-        VoronoiFunction.voronoi_function(dict_players, dict_opponents, self.field)
+        VoronoiFunction.voronoi_function(self.dict_players, self.dict_opponents, self.field)
 
     def update_info(self):
         """is triggered everytime a player changes his position"""
@@ -208,18 +212,18 @@ class MainWindow(QWidget):
             self.scene.hide_raster()
 
     def delete_all_players(self):
-        for op in dict_opponents:
+        for op in self.dict_opponents:
             op.check_box.setParent(None)
             self.infoOpponents.removePlayerInfo(op)
             op.__del__()
             # self.infoOpponents.removeInfo(op)
-        for p in dict_players:
+        for p in self.dict_players:
             p.check_box.setParent(None)
             self.infoPlayer.removePlayerInfo(p)
             p.__del__()
 
-        dict_opponents.clear()
-        dict_players.clear()
+        self.dict_opponents.clear()
+        self.dict_players.clear()
 
     def animation(self, wiederholungen = 0):
 
@@ -244,33 +248,7 @@ class MainWindow(QWidget):
         shutil.move(self.temppath+self.date, "log/ergebnis/" + self.date)
 
     def saveSetup(self, situation="", wiederholung=0):
-        if not self.log:
-            print("Simple Anim, No log created")
-            return
-        print("\nStart logging -- " + situation)
-        self.date = self.t.strftime("%d_%m_%Y_%H:%M:%S")
-        path = self.temppath + self.date + "/" + "run-" + str(wiederholung)
-        new = situation+":\n"
-        new += SetupToString.getString(dict_players, dict_opponents)
-
-        #Create Folderstructure if not exists
-        if not os.path.exists("log"):
-            os.mkdir("log")
-        if not os.path.exists("log/temp"):
-            os.mkdir(self.temppath)
-        if not os.path.exists(self.temppath + self.date):
-            os.mkdir(self.temppath + self.date)
-
-        if os.path.isfile(path):
-            f = open(path, 'a')
-            t = open(path)
-            t = t.read()
-            print(t+new)
-            f.write(new)
-
-        else:
-            f = open(path, 'w')
-            f.write(new)
+        Logging.writeLog(self, situation, wiederholung)
 
     def createResetPoint(self):
         """ safes Setup to reset"""
@@ -281,7 +259,7 @@ class MainWindow(QWidget):
         if not os.path.exists("temp/resetfile"):
             os.mkdir("temp/resetfile")
         r = open("temp/resetfile/"+self.date, 'w')
-        r.write(SetupToString.getString(dict_players, dict_opponents))
+        r.write(SetupToString.getString(self.dict_players, self.dict_opponents))
 
     def reset(self):
         print("--------Reset--------")

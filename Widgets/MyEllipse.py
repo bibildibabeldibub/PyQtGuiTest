@@ -112,7 +112,7 @@ class MyEllipse(QGraphicsEllipseItem):
                         self.setRotation(a)
 
                     #Movement während Positionierungsphase
-                    print("Positionierung = " + str(self.positioned))
+                    #print("Positionierung = " + str(self.positioned))
                     if not self.positioned:
                         self.new_pos = self.moveForward(self.destination)
                     if self.positioned:

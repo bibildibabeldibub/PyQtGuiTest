@@ -2,8 +2,8 @@
   "aufrufe-pro-sekunde" : 30,
   "roboter-geschwindigkeit" : 25,
   "richtungswechsel-periode": 1,
-  "simulation-wiederholungen": 5,
-  "positionierungszeit": 45,
+  "simulation-wiederholungen": 3,
+  "positionierungszeit": 10,
   "animationszeit": 10,
   "positionierungsdistanz": 1
 }

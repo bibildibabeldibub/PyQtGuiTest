@@ -54,6 +54,7 @@ Als nächstes:
         * Möglichkeiten Bewerten
         * Position herausfinden -> Variabel auf der Linie zum testen
         * Dorthin laufen innerhalb t_pos
+        *
 
     - Raumdeckung:
         * Algorithmus ? Dafür wollte ich Michelles Bewertung haben. -> Distanz zum Mitspieler
