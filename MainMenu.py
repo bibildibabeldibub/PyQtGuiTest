@@ -28,8 +28,8 @@ class MainWindow(QWidget):
 
         self.setWindowTitle("Simulator")
 
-        self.dict_players: [player] = []
-        self.dict_opponents: [player] = []
+        self.dict_defenders: [Player] = []
+        self.dict_attackers: [Player] = []
         self.voronoi_lines = []
 
         with open('config.json') as config_file:
@@ -110,25 +110,25 @@ class MainWindow(QWidget):
     def add_player(self, number=None, x=0.0, y=0.0):
         """adds a player to scene"""
         if not number:
-            number = len(self.dict_players)+1
+            number = len(self.dict_defenders) + 1
         p = offensePlayer(number, self.scene)
         p.setLocation(x,y)
-        self.dict_players.append(p)
+        self.dict_defenders.append(p)
         self.scene.attackers.append(p)
         self.infoPlayer.appendPlayer(p)
         self.group_pl_layout.addWidget(p.check_box)
         p.ellipse.s.positionMove.connect(self.update_info)
-        print(self.dict_players)
+        print(self.dict_defenders)
 
     def add_opponent(self, number=None, x=0.0, y=0.0):
         """adds a opponent to scene"""
         if not number:
-            number = len(self.dict_opponents) + 1
+            number = len(self.dict_attackers) + 1
         op = defensePlayer(number, self.scene)
         op.setLocation(x, y)
         self.infoOpponents.appendPlayer(op)
         self.scene.defenders.append(op)
-        self.dict_opponents.append(op)
+        self.dict_attackers.append(op)
         self.group_op_layout.addWidget(op.check_box)
         op.ellipse.s.positionMove.connect(self.update_info)
 
@@ -138,7 +138,7 @@ class MainWindow(QWidget):
 
         if filenames[0] is not '':
             f = open(filenames[0], 'w')
-            txt = SetupToString.getString(self.dict_players, self.dict_opponents)
+            txt = SetupToString.getString(self.dict_defenders, self.dict_attackers)
             f.write(txt)
             f.close()
 
@@ -172,7 +172,7 @@ class MainWindow(QWidget):
             for wert_tripel in play_atts:
                 if len(wert_tripel) > 1:
                     att = wert_tripel.split(", ")   # 3 attribute von einzelnen spielern
-                    print("P"+str(len(self.dict_players)) + " attributes:\n")
+                    print("P" + str(len(self.dict_defenders)) + " attributes:\n")
                     print(att)
                     self.add_player(int(att[0]), float(att[1]), float(att[2]))
 
@@ -184,13 +184,13 @@ class MainWindow(QWidget):
                     print("attributes:\n")
                     print(att)
                     self.add_opponent(int(att[0]), float(att[1]), float(att[2]))
-            print(self.dict_opponents)
+            print(self.dict_attackers)
 
     def vor(self):
-        for p in self.dict_opponents + self.dict_players:
+        for p in self.dict_attackers + self.dict_defenders:
             p.polygon.setPolygon(QPolygonF())           ##clearing the polygons
 
-        VoronoiFunction.voronoi_function(self.dict_players, self.dict_opponents, self.field)
+        VoronoiFunction.voronoi_function(self.dict_defenders, self.dict_attackers, self.field)
 
     def update_info(self):
         """is triggered everytime a player changes his position"""
@@ -212,20 +212,22 @@ class MainWindow(QWidget):
             self.scene.hide_raster()
 
     def delete_all_players(self):
-        for op in self.dict_opponents:
+        for op in self.dict_attackers:
             op.check_box.setParent(None)
             self.infoOpponents.removePlayerInfo(op)
             op.__del__()
             # self.infoOpponents.removeInfo(op)
-        for p in self.dict_players:
+        for p in self.dict_defenders:
             p.check_box.setParent(None)
             self.infoPlayer.removePlayerInfo(p)
             p.__del__()
 
-        self.dict_opponents.clear()
-        self.dict_players.clear()
+        self.dict_attackers.clear()
+        self.dict_defenders.clear()
 
     def animation(self, wiederholungen = 0):
+        self.infoPlayer.toggleEvaluation()
+        self.infoOpponents.toggleEvaluation()
 
         self.t = datetime.now()
 
@@ -246,6 +248,8 @@ class MainWindow(QWidget):
 
     def simulationFinished(self):
         shutil.move(self.temppath+self.date, "log/ergebnis/" + self.date)
+        self.infoPlayer.toggleEvaluation()
+        self.infoOpponents.toggleEvaluation()
 
     def saveSetup(self, situation="", wiederholung=0):
         Logging.writeLog(self, situation, wiederholung)
@@ -259,7 +263,7 @@ class MainWindow(QWidget):
         if not os.path.exists("temp/resetfile"):
             os.mkdir("temp/resetfile")
         r = open("temp/resetfile/"+self.date, 'w')
-        r.write(SetupToString.getString(self.dict_players, self.dict_opponents))
+        r.write(SetupToString.getString(self.dict_defenders, self.dict_attackers))
 
     def reset(self):
         print("--------Reset--------")

@@ -4,13 +4,13 @@ from PyQt5.QtCore import Qt, QLineF, QPointF, QRectF, QObject, pyqtSignal, pyqtS
 import numpy as np
 from Widgets.MyEllipse import MyEllipse
 import json
-from side_methods.bewertung import evaluate_point
+from side_methods.Bewertung import evaluatePoint
 import time
 import math
 import random
 
 
-class player:
+class Player:
     positionChanged = pyqtSignal()
     polygonChanged = pyqtSignal()
 
@@ -59,10 +59,10 @@ class player:
 
     def getLocation(self):
         """:return: tuple x and y coordinates as integer"""
-        return [self.ellipse.getX(), self.ellipse.getY()]
+        return [round(self.ellipse.getX(), 2), round(self.ellipse.getY(), 2)]
 
     def getLocationArray(self):
-        return np.array([[self.ellipse.getX(), self.ellipse.getY()]])
+        return np.array([[round(self.ellipse.getX(),2), round(self.ellipse.getY(),2)]])
 
     def deleteMarker(self):
         self.scene.removeItem(self.ellipse)
@@ -165,7 +165,7 @@ class player:
         self.scene.removeItem(self.polygon)
 
 
-class offensePlayer(player):
+class offensePlayer(Player):
     def __init__(self, number: int, scene: QGraphicsScene, blocked=False):
         super().__init__(number, False, scene)
 
@@ -178,7 +178,7 @@ class offensePlayer(player):
         self.ellipse.setToolTip(string)
 
 
-class defensePlayer(player):
+class defensePlayer(Player):
     def __init__(self, number: int, scene: QGraphicsScene, destination=None):
         super().__init__(number, True, scene)
 
@@ -199,7 +199,7 @@ class defensePlayer(player):
         self.ellipse.setRotation(180)
         self.ellipse.update()
 
-    def findEnemy(self, ohne: player = None):
+    def findEnemy(self, ohne: Player = None):
         """:var enemy Dieser Spieler wird  ausgelassen in der Suche (Für den Fall dass nochmal gesucht werden muss)
             """
         if not self.att_distances:
@@ -287,7 +287,7 @@ class defensePlayer(player):
         worst_case_pos_str = []
         point_val = {}
         for i in positions:
-            val=evaluate_point(i[0], i[1])
+            val = evaluatePoint(i[0], i[1])
             point_val.update({str(i):val})
 
         #Beachte Worstcase:

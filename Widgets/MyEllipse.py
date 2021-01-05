@@ -250,13 +250,13 @@ class MyEllipse(QGraphicsEllipseItem):
         painter.drawLine(10, 20, 20, 10)
 
     def getCenter(self):
-        print("Center:\t" + str(self.x()+10) + " | " + str(self.y()+10) )
-        return QPointF(self.x()+10,self.y()+10)
+        print("Center:\t" + str(round(self.x(), 2)+10) + " | " + str(round(self.y(), 2)+10))
+        return QPointF(round(self.x(), 2)+10, round(self.y(), 2)+10)
 
     def getX(self):
         """:return x value of circles center"""
-        return self.x() + 10
+        return round(self.x(), 2) + 10
 
     def getY(self):
         """:returns y value of circles center"""
-        return self.y() + 10
+        return round(self.y(), 2) + 10

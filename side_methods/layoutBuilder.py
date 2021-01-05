@@ -33,7 +33,7 @@ def buildSmall(self):
     self.textbox.resize(100, 20)
     verticallayout3.addWidget(self.textbox)
 
-    self.group_pl, self.group_op = QGroupBox("Players"), QGroupBox("Opponents")
+    self.group_pl, self.group_op = QGroupBox("Offense"), QGroupBox("Defense")
     self.group_pl_layout, self.group_op_layout = QVBoxLayout(), QVBoxLayout()
     self.group_pl.setLayout(self.group_pl_layout)
     self.group_op.setLayout(self.group_op_layout)

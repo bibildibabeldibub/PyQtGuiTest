@@ -6,7 +6,7 @@ from PyQt5.QtCore import *
 import json
 import math
 from Widgets import MyEllipse
-from side_methods.bewertung import evaluate_point
+import side_methods.Bewertung
 
 
 class SoccerScene(QGraphicsScene):
@@ -34,6 +34,7 @@ class SoccerScene(QGraphicsScene):
         self.threadpool = QThreadPool()
         self.animationWorker = None
         self.raster_polygons = []
+        self.unordered_raster = []
         self.raster = self.rasterize()
         self.max_bewertung = 0
 
@@ -167,18 +168,20 @@ class SoccerScene(QGraphicsScene):
     def rasterize(self):
         """:returns 2D-Array von Mittelpunkten des Rasters"""
         raster = []
-        raster_groesse = 10
+        raster_groesse = 10   #10 Pixel = 10 cm = 1 dm
         rh = int(raster_groesse/2)
         for i in range(0, int(600/raster_groesse)):
             raster.append([])
             for j in range(0, int(900/10)):
                 raster[i].append([j*raster_groesse+rh-450, i*raster_groesse+rh-300])
+                self.unordered_raster.append([j*raster_groesse+rh-450, i*raster_groesse+rh-300])
 
 
         for i in range(len(raster)):
             for j in range(len(raster[i])):
                 p = QPolygonF(QRectF(raster[i][j][0]-rh, raster[i][j][1]-rh, raster_groesse, raster_groesse))
                 self.raster_polygons.append(p)
+
         return raster
 
     def show_raster(self):
@@ -187,7 +190,7 @@ class SoccerScene(QGraphicsScene):
         for i in self.raster_polygons:
             rp = self.addPolygon(i)
 
-            farbwert = evaluate_point(i.boundingRect().x()+5, i.boundingRect().y()+5)
+            farbwert = side_methods.Bewertung.evaluatePoint(i.boundingRect().x() + 5, i.boundingRect().y() + 5)
             if farbwert > 1:
                 farbwert = 1
             color.setAlphaF(farbwert)
