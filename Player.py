@@ -48,6 +48,7 @@ class Player:
             self.pos_distance = data['positionierungsdistanz']
 
         #print("Center:\t" + str(self.ellipse.getCenter())+"\n\t" + str(self.ellipse.x()) + ", " + str(self.ellipse.y()))
+        #self.setRotation(-45)
 
 
     def setLocation(self, posx, posy):
@@ -176,6 +177,10 @@ class offensePlayer(Player):
         self.check_box.update()
 
         self.ellipse.setToolTip(string)
+        self.ellipse.blocked_signal.blockedSignal.connect(self.markAsBlocked)
+
+    def markedAsBlocked(self):
+        self.blocked = True
 
 
 class defensePlayer(Player):

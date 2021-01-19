@@ -11,11 +11,14 @@ from Simulation import defense as Defense
 class ItemMoveSignal(QObject):
     positionMove = pyqtSignal()
 
+class AttackerBlockedSignal(QObject):
+    blockedSignal = pyqtSignal()
+
 
 class MyEllipse(QGraphicsEllipseItem):
     oldpos = QPointF()
 
-    def __init__(self, p: Player, x, y, w, h, pen:QPen, brush:QBrush, scene: QGraphicsScene):
+    def __init__(self, p: Player, x, y, w, h, pen: QPen, brush: QBrush, scene: QGraphicsScene):
         super().__init__(x, y, w, h)
 
         self.xs = x
@@ -29,6 +32,7 @@ class MyEllipse(QGraphicsEllipseItem):
         self.richtungswinkel = 0
         scene.addItem(self)
         self.s = ItemMoveSignal()
+        self.blocked_signal = AttackerBlockedSignal()
         self.scene = scene
         self.pen = pen
         self.brush = brush
@@ -59,6 +63,9 @@ class MyEllipse(QGraphicsEllipseItem):
             if filtered_colliding_items:
                 print("Blocked!!!!\n")
                 print(filtered_colliding_items)
+                if type(self.spieler) == Player.offensePlayer:
+
+                    self.spieler.blocked = True
                 return QPointF(self.x(), self.y())
 
             self.s.positionMove.emit()
@@ -76,7 +83,7 @@ class MyEllipse(QGraphicsEllipseItem):
             if not self.spieler.defense:
                 # offense players:
                 # if self.scene.phase==0:
-                if self.scene.phase==1:
+                if self.scene.phase == 1:
                     if self.animcounter == self.scene.getSteps(self.spieler.change_rotation):
                         #erste Winkelberechnung
                         self.new_pos = [0, 0]

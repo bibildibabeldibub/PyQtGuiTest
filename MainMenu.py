@@ -32,6 +32,8 @@ class MainWindow(QWidget):
         self.dict_attackers: [Player] = []
         self.voronoi_lines = []
 
+        self.field = [[-450, -300], [-450, 300], [450, 300], [450, -300]]
+
         with open('config.json') as config_file:
             data = json.load(config_file)
             self.fps = data['aufrufe-pro-sekunde']
@@ -39,13 +41,11 @@ class MainWindow(QWidget):
             self.positionierungszeit = data['positionierungszeit']
             self.animationszeit= data['animationszeit']
 
-        self.scene = MyScene.SoccerScene(self.fps, self)
-        print(type(self.scene))
+        self.scene = MyScene.SoccerScene(self.fps, self.field, self)
         self.scene.setSceneRect(-450, -300, 900, 600)
 
         print(get_monitors()[0].width)
         self.animationRunning = False
-        self.field = [[-450, -300], [-450, 300], [450, 300], [450, -300]]
 
         if get_monitors()[0] == None:
             monitor_width = 0
@@ -58,10 +58,6 @@ class MainWindow(QWidget):
             self.init_big()
         else:
             print("Screen width = 0 ?? How u display this?")
-
-        field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]),
-                 QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
-        self.scene.addPolygon(field_poly)
 
         start_formation_path = 'StartFormations/'
         "load all startpositions"

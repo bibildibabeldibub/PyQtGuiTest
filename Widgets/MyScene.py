@@ -16,7 +16,7 @@ class SoccerScene(QGraphicsScene):
     positionedSignal = pyqtSignal()
     resetSignal = pyqtSignal()
 
-    def __init__(self, fps, window=None):
+    def __init__(self, fps, field, window=None):
         super().__init__()
         self.window = window
         self.t_pos = 0
@@ -37,6 +37,14 @@ class SoccerScene(QGraphicsScene):
         self.unordered_raster = []
         self.raster = self.rasterize()
         self.max_bewertung = 0
+        self.field = field
+
+        field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]), QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
+        self.addPolygon(field_poly, QPen(Qt.black))
+        goal_att_poly = QPolygonF(QPolygon([QPoint(-450, -75), QPoint(-450, 75), QPoint(-475, 75), QPoint(-475, -75)]))
+        goal_def_poly = QPolygonF(QPolygon([QPoint(450, -75), QPoint(450, 75), QPoint(475, 75), QPoint(475, -75)]))
+        self.addPolygon(goal_att_poly, QPen(Qt.black))
+        self.addPolygon(goal_def_poly, QPen(Qt.black))
 
     def add_attacker(self, player):
         if player not in self.defenders and player not in self.attackers:
