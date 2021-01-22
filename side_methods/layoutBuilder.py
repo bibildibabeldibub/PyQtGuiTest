@@ -43,10 +43,10 @@ def buildSmall(self):
     verticallayout3.addLayout(groups_layout)
 
     self.tabWidget = QTabWidget()
-    self.infoPlayer = InfoBox(self.scene)
-    self.infoOpponents = InfoBox(self.scene)
-    self.tabWidget.addTab(self.infoPlayer, "Player")
-    self.tabWidget.addTab(self.infoOpponents, "Opponents")
+    self.infoAttackers = InfoBox(self.scene)
+    self.infoDefenders = InfoBox(self.scene)
+    self.tabWidget.addTab(self.infoAttackers, "Attackers")
+    self.tabWidget.addTab(self.infoDefenders, "Defenders")
 
     verticallayout3.addWidget(self.tabWidget)
 
@@ -94,10 +94,10 @@ def buildBig(self):
     verticallayout3.addLayout(groups_layout)
 
     self.tabWidget = QTabWidget()
-    self.infoPlayer = InfoBox(self.scene)
-    self.infoOpponents = InfoBox(self.scene)
-    self.tabWidget.addTab(self.infoPlayer, "Player")
-    self.tabWidget.addTab(self.infoOpponents, "Opponents")
+    self.infoAttackers = InfoBox(self.scene)
+    self.infoDefenders = InfoBox(self.scene)
+    self.tabWidget.addTab(self.infoAttackers, "Attackers")
+    self.tabWidget.addTab(self.infoDefenders, "Defenders")
 
     verticallayout3.addWidget(self.tabWidget)
 
@@ -115,11 +115,11 @@ def buildBtns(self, verticallayout = None):
         verticallayout = QVBoxLayout
 
     self.addplayer = QPushButton('add offense')
-    self.addplayer.clicked.connect(self.add_player)
+    self.addplayer.clicked.connect(self.addAttacker)
     verticallayout.addWidget(self.addplayer)
 
     self.addopponent = QPushButton('add defense')
-    self.addopponent.clicked.connect(self.add_opponent)
+    self.addopponent.clicked.connect(self.addDefender)
     verticallayout.addWidget(self.addopponent)
 
     self.posbut = QPushButton("remove all players")
@@ -145,6 +145,10 @@ def buildBtns(self, verticallayout = None):
     self.anim = QPushButton('Experiment')
     self.anim.clicked.connect(self.startExperiment)
     verticallayout.addWidget(self.anim)
+
+    self.settest = QPushButton('Test Set')
+    self.settest.clicked.connect(self.testSet)
+    verticallayout.addWidget(self.settest)
 
     self.resetButton = QPushButton('reset')
     self.resetButton.clicked.connect(self.reset)

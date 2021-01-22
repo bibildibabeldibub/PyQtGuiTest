@@ -14,14 +14,14 @@ class Player:
     positionChanged = pyqtSignal()
     polygonChanged = pyqtSignal()
 
-    def __init__(self, number: int, op: bool, scene: QGraphicsScene, blocked=False):
+    def __init__(self, number: int, op: bool, scene: QGraphicsScene, posx, posy, blocked=False):
         """initialising player with ellipse, op is boolean and should be true if the player is an opponent"""
         self.blocked = blocked
         self.defense = op
         if self.defense:
-            color=Qt.black
+            color = Qt.black
         else:
-            color=Qt.blue
+            color = Qt.blue
         self.number = number
         self.scene = scene
         self.enemy_player = None
@@ -40,6 +40,7 @@ class Player:
         self.scene.resetSignal.connect(self.reset)
 
         self.ellipse = MyEllipse(self, 0, 0, 20, 20, QPen(color), QBrush(color), self.scene)
+        self.setLocation(posx, posy)
 
         with open('config.json') as config_file:
             data = json.load(config_file)
@@ -146,12 +147,18 @@ class Player:
         self.ellipse.update()
 
     def reset(self):
-        self.setLocation(self.resetPosition[0],self.resetPosition[1])
+        self.setLocation(self.resetPosition[0], self.resetPosition[1])
         self.setRotation(self.resetRotation)
 
     def savePosition(self):
         self.resetPosition = self.getLocation()
         self.resetRotation = self.getRotation()
+
+    def __dict__(self):
+        return {
+            "posx": self.getLocation()[0],
+            "posy": self.getLocation()[1]
+        }
 
     def __repr__(self):
         string = ''
@@ -167,11 +174,14 @@ class Player:
 
 
 class offensePlayer(Player):
-    def __init__(self, number: int, scene: QGraphicsScene, blocked=False):
-        super().__init__(number, False, scene)
+    def __init__(self, number: int, scene: QGraphicsScene, posx=-20, posy=0, blocked=False):
+        super().__init__(number, False, scene, posx, posy)
 
         self.blocked = blocked
         print(type(self))
+        self.scene.addAttacker(self)
+
+
         string = "Attacker " + str(self.number)
         self.check_box.setText(string)
         self.check_box.update()
@@ -179,15 +189,15 @@ class offensePlayer(Player):
         self.ellipse.setToolTip(string)
         self.ellipse.blocked_signal.blockedSignal.connect(self.markAsBlocked)
 
-    def markedAsBlocked(self):
+    def markAsBlocked(self):
         self.blocked = True
 
 
 class defensePlayer(Player):
-    def __init__(self, number: int, scene: QGraphicsScene, destination=None):
-        super().__init__(number, True, scene)
+    def __init__(self, number: int, scene: QGraphicsScene, posx=20, posy=0, destination=None):
+        super().__init__(number, True, scene, posx, posy)
 
-        print(type(self))
+        self.scene.addDefender(self)
         string = "Defense " + str(self.number)
         self.check_box.setText(string)
         self.check_box.update()

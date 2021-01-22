@@ -7,6 +7,7 @@ import json
 import math
 from Widgets import MyEllipse
 import side_methods.Bewertung
+from Widgets.Aufstellung import TestSetUp
 
 
 class SoccerScene(QGraphicsScene):
@@ -46,13 +47,15 @@ class SoccerScene(QGraphicsScene):
         self.addPolygon(goal_att_poly, QPen(Qt.black))
         self.addPolygon(goal_def_poly, QPen(Qt.black))
 
-    def add_attacker(self, player):
+    def addAttacker(self, player):
         if player not in self.defenders and player not in self.attackers:
             self.attackers.append(player)
+            self.window.appendPlayer(player)
 
-    def add_defender(self, player):
+    def addDefender(self, player):
         if player not in self.defenders and player not in self.attackers:
             self.defenders.append(player)
+            self.window.appendPlayer(player)
 
     def advance(self):
         self.animation_control()
@@ -72,8 +75,8 @@ class SoccerScene(QGraphicsScene):
         if self.phase == 0 and self.advance_counter == self.getSteps(self.t_pos):     #Phase 0 nach 45 Sekunden beendet
             # self.animationRunning = False
             # self.animationWorker.pause = True
-            self.stop_animation()
-            self.kill_animation()
+            self.stopAnimation()
+            self.killAnimation()
             self.phase = 1
             print("Pause")
             self.window.saveSetup("Aufstellung nach Positionierung")
@@ -95,8 +98,8 @@ class SoccerScene(QGraphicsScene):
             self.window.saveSetup("Ende", self.repetition_counter)
             self.repetition_counter += 1
             #stop nach Zeit t_move
-            self.stop_animation()
-            self.kill_animation()
+            self.stopAnimation()
+            self.killAnimation()
 
             #setze das Spielfeld zurück
             if self.repetition_counter < self.reps:
@@ -107,8 +110,8 @@ class SoccerScene(QGraphicsScene):
 
             if self.repetition_counter == self.reps:
                 print("Fertig :)")
-                self.stop_animation()
-                self.kill_animation()
+                self.stopAnimation()
+                self.killAnimation()
                 self.window.simulationFinished()
                 self.resetSignal.emit()
                 return
@@ -134,7 +137,7 @@ class SoccerScene(QGraphicsScene):
         """
         return self.fps * seconds
 
-    def start_animation(self, t_pos, t_move, repetitions):
+    def startAnimation(self, t_pos, t_move, repetitions):
         self.t_move = t_move
         self.t_pos = t_pos
         self.reps = repetitions
@@ -159,17 +162,17 @@ class SoccerScene(QGraphicsScene):
             self.animationRunning = True
             self.threadpool.start(self.animationWorker)
 
-    def stop_animation(self):
+    def stopAnimation(self):
         print("Stop animation")
         self.stopSignal.emit()
         self.animationRunning = False
 
-    def continue_animation(self):
+    def continueAnimation(self):
         print("continue Animation")
         self.continueSignal.emit()
         self.animationRunning = True
 
-    def kill_animation(self):
+    def killAnimation(self):
         if self.animationWorker:
             self.animationWorker.__del__()
 
@@ -212,4 +215,6 @@ class SoccerScene(QGraphicsScene):
         for i in self.shown_raster:
             self.removeItem(i)
 
-
+    def testSet(self):
+        aufstellung = TestSetUp(self)
+        print(json.dumps(aufstellung.__dict__(), sort_keys=True, indent=4))

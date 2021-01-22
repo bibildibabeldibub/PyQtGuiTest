@@ -103,30 +103,28 @@ class MainWindow(QWidget):
         self.load_function("StartFormations/" + self.start_selector.currentText())
         return
 
-    def add_player(self, number=None, x=0.0, y=0.0):
+    def addAttacker(self, number=None, x=None, y=None):
         """adds a player to scene"""
         if not number:
-            number = len(self.dict_defenders) + 1
-        p = offensePlayer(number, self.scene)
-        p.setLocation(x,y)
-        self.dict_defenders.append(p)
-        self.scene.attackers.append(p)
-        self.infoPlayer.appendPlayer(p)
-        self.group_pl_layout.addWidget(p.check_box)
-        p.ellipse.s.positionMove.connect(self.update_info)
-        print(self.dict_defenders)
+            number = len(self.dict_attackers) + 1
+        offensePlayer(number, self.scene, x, y)
 
-    def add_opponent(self, number=None, x=0.0, y=0.0):
+    def addDefender(self, number=None, x=None, y=None):
         """adds a opponent to scene"""
         if not number:
-            number = len(self.dict_attackers) + 1
-        op = defensePlayer(number, self.scene)
-        op.setLocation(x, y)
-        self.infoOpponents.appendPlayer(op)
-        self.scene.defenders.append(op)
-        self.dict_attackers.append(op)
-        self.group_op_layout.addWidget(op.check_box)
-        op.ellipse.s.positionMove.connect(self.update_info)
+            number = len(self.dict_defenders) + 1
+        defensePlayer(number, self.scene, x, y)
+
+    def appendPlayer(self, player):
+        if isinstance(player, offensePlayer):
+            self.dict_attackers.append(player)
+            self.infoAttackers.appendPlayer(player)
+            self.group_pl_layout.addWidget(player.check_box)
+        elif isinstance(player, defensePlayer):
+            self.infoDefenders.appendPlayer(player)
+            self.dict_defenders.append(player)
+            self.group_op_layout.addWidget(player.check_box)
+        player.ellipse.s.positionMove.connect(self.update_info)
 
     def save_function(self, event):
         """starts file dialog for saving the player positions"""
@@ -170,7 +168,7 @@ class MainWindow(QWidget):
                     att = wert_tripel.split(", ")   # 3 attribute von einzelnen spielern
                     print("P" + str(len(self.dict_defenders)) + " attributes:\n")
                     print(att)
-                    self.add_player(int(att[0]), float(att[1]), float(att[2]))
+                    self.addAttacker(int(att[0]), float(att[1]), float(att[2]))
 
             print("\nopponents: \n")
             opponents = teams[1].split("\n")
@@ -179,7 +177,7 @@ class MainWindow(QWidget):
                     att = wert_tripel.split(', ')
                     print("attributes:\n")
                     print(att)
-                    self.add_opponent(int(att[0]), float(att[1]), float(att[2]))
+                    self.addDefender(int(att[0]), float(att[1]), float(att[2]))
             print(self.dict_attackers)
 
     def vor(self):
@@ -192,8 +190,8 @@ class MainWindow(QWidget):
         """is triggered everytime a player changes his position"""
 
         self.vor()
-        self.infoPlayer.updateInfo()
-        self.infoOpponents.updateInfo()
+        self.infoAttackers.updateInfo()
+        self.infoDefenders.updateInfo()
 
     def add_lines(self):
         #Helferlinien
@@ -210,20 +208,19 @@ class MainWindow(QWidget):
     def delete_all_players(self):
         for op in self.dict_attackers:
             op.check_box.setParent(None)
-            self.infoOpponents.removePlayerInfo(op)
+            self.infoDefenders.removePlayerInfo(op)
             op.__del__()
-            # self.infoOpponents.removeInfo(op)
         for p in self.dict_defenders:
             p.check_box.setParent(None)
-            self.infoPlayer.removePlayerInfo(p)
+            self.infoAttackers.removePlayerInfo(p)
             p.__del__()
 
         self.dict_attackers.clear()
         self.dict_defenders.clear()
 
-    def animation(self, wiederholungen = 0):
-        self.infoPlayer.toggleEvaluation()
-        self.infoOpponents.toggleEvaluation()
+    def animation(self, wiederholungen=0):
+        self.infoAttackers.toggleEvaluation()
+        self.infoDefenders.toggleEvaluation()
 
         self.t = datetime.now()
 
@@ -232,20 +229,38 @@ class MainWindow(QWidget):
 
         if not self.animationRunning:
             print(type(self.scene))
-            self.scene.start_animation(self.positionierungszeit, self.animationszeit, wiederholungen)
+            self.scene.startAnimation(self.positionierungszeit, self.animationszeit, wiederholungen)
             self.animationRunning = True
         else:
-            self.scene.stop_animation()
+            self.scene.stopAnimation()
             self.animationRunning = False
 
     def startExperiment(self):
         self.log = True
         self.animation(self.repetition)
 
+    def testSet(self):
+        # dialog = QMessageBox()
+        # dialog.setWindowTitle("Strategy deleting")
+        # dialog.setIcon(QMessageBox.Warning)
+        # dialog.setText("Continuing will delete actual strategy")
+        # dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        # val = dialog.exec_()
+        #
+        # if val == 1024:
+        #     filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
+        #
+        # else:
+        #     exit(619)
+
+        self.delete_all_players()
+        self.scene.testSet()
+
+
     def simulationFinished(self):
         shutil.move(self.temppath+self.date, "log/ergebnis/" + self.date)
-        self.infoPlayer.toggleEvaluation()
-        self.infoOpponents.toggleEvaluation()
+        self.infoAttackers.toggleEvaluation()
+        self.infoDefenders.toggleEvaluation()
 
     def saveSetup(self, situation="", wiederholung=0):
         Logging.writeLog(self, situation, wiederholung)

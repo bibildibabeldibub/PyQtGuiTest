@@ -1,5 +1,6 @@
 import os
 from side_methods import LinesToPolygon, SetupToString, Bewertung
+from datetime import datetime
 
 
 def writeLog(app, situation, wiederholung):
@@ -35,4 +36,12 @@ def writeLog(app, situation, wiederholung):
     else:
         f = open(path, 'w')
         f.write(new)
+
+class JsonLogger(object):
+    def __init__(self):
+        date = datetime.now()
+        self.path = date.strftime("%d_%m_%Y_%H_%M_%S")
+        if not os.path.exists("log"):
+            os.mkdir("log")
+
 

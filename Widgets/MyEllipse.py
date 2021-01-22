@@ -80,7 +80,7 @@ class MyEllipse(QGraphicsEllipseItem):
         old_pos = [self.x(), self.y()]
         if p_int == 0:
 
-            if not self.spieler.defense:
+            if isinstance(self.spieler, Player.offensePlayer):
                 # offense players:
                 # if self.scene.phase==0:
                 if self.scene.phase == 1:
@@ -102,9 +102,9 @@ class MyEllipse(QGraphicsEllipseItem):
                 # if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
                 #     self.spieler.blocked = True
 
-            elif self.spieler.defense:
+            elif isinstance(self.spieler, Player.defensePlayer):
             #Defense, Players
-                if self.scene.phase == 0:
+                if self.scene.phase is 0:
                     #Positionierungsphase
 
                     if self.find_enemies:
