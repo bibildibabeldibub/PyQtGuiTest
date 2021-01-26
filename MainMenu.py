@@ -267,17 +267,6 @@ class MainWindow(QWidget):
     def saveSetup(self, situation="", wiederholung=0):
         Logging.writeLog(self, situation, wiederholung)
 
-    def createResetPoint(self):
-        """ safes Setup to reset"""
-        if not self.log:
-            return
-        if not os.path.exists("temp"):
-            os.mkdir("temp")
-        if not os.path.exists("temp/resetfile"):
-            os.mkdir("temp/resetfile")
-        r = open("temp/resetfile/"+self.date, 'w')
-        r.write(SetupToString.getString(self.dict_defenders, self.dict_attackers))
-
     def reset(self):
         print("--------Reset--------")
         self.delete_all_players()
