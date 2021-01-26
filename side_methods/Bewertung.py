@@ -5,6 +5,7 @@ from PyQt5.QtCore import QPointF, QPoint
 from copy import deepcopy
 import math
 
+
 def evaluatePoint(x: float, y: float):
         """:returns Wert an dem Punkt"""
         # print("\n--------------------")
@@ -17,19 +18,11 @@ def evaluatePoint(x: float, y: float):
         # print("Wert:" + str(wert))
         return wert
 
+
 def evaluateScene(scene: Widgets.MyScene.SoccerScene):
     remaining_raster = scene.unordered_raster
-    resd = evaluateTeam(scene.defenders, remaining_raster)
-    remaining_raster = resd[0]
-    score_def = resd[1]
-
-    resa = evaluateTeam(scene.attackers, remaining_raster)
-    remaining_raster = resa[0]
-    score_att = resa[1]
-
-    text = "\nAngreifer Punktzahl:       " + str(score_att)
-    text += "\nVerteidiger Punktzahl:     " + str(score_def)
-    return text
+    all_scores = evaluateTeam(scene.defenders, remaining_raster)
+    return all_scores
 
 
 
@@ -53,6 +46,12 @@ def evaluatePlayer(raster, player: Player):
     :return: remaining raster and score of the player
     """
     score = 0
+    scores = {
+        "ohne": 0,
+        "schussweg": 0,
+        "spieler": 0,
+        "beides": 0
+    }
     count = 0
     raster_2 = deepcopy(raster)
     for squaredm in raster:
@@ -62,28 +61,31 @@ def evaluatePlayer(raster, player: Player):
             raster_2.remove(squaredm)
             count += 1
 
-    #Angreifer Bonus/Malus ?
-    if type(player) == Player.defensePlayer:
-        if player.enemy:
-            check = checkShootCovered(player)
-            if check:
-                if check == 0:
-                    score += 0
-                print("Schussbahn blockiert")
-                score += 500                    #->Wert muss noch ausbalanciert werden/getestet max = 1672,43 
-            else:
-                print("FREIE SCHUSSBAHN!!!!! ")
+    scores["ohne"] = score
 
-            if player.enemy.blocked:
-                score += 250
+    #Angreifer Bonus/Malus ?
+    if player.enemy:
+        check = checkShootCovered(player)
+        if check:
+            print("Schussbahn blockiert")
+            scores["schussweg"] = score + 500           #->Wert muss noch ausbalanciert werden/getestet max = 1672,43
         else:
-            print("no enemy")
+            print("FREIE SCHUSSBAHN!!!!! ")
+
+        if player.enemy.blocked:
+            scores["spieler"] = score + 250
+
+        if player.enemy.blocked and check:
+            scores["beides"] = score + 500 + 250
+
+    else:
+        print("no enemy")
     #print("Count:       " + str(count))
 
 
 
 
-    return [raster_2, score]
+    return scores
 
 
 def checkShootCovered(d: Player):

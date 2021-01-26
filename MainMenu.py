@@ -4,8 +4,8 @@ from PyQt5.QtGui import QPolygon
 from pathlib import Path
 from Player import *
 import VoronoiFunction
-from side_methods import animation, layoutBuilder
 from Widgets import MyScene
+from Widgets.InfoBox import InfoBox
 import json
 import time
 import PyQt5.QtCore
@@ -14,7 +14,7 @@ from os.path import isfile, join
 from screeninfo import get_monitors
 from datetime import datetime
 import os, shutil
-from side_methods import SetupToString, Logging
+from side_methods import SetupToString, Logging, animation, layoutBuilder
 
 
 
@@ -41,11 +41,11 @@ class MainWindow(QWidget):
             self.positionierungszeit = data['positionierungszeit']
             self.animationszeit= data['animationszeit']
 
-        self.scene = MyScene.SoccerScene(self.fps, self.field, self)
-        self.scene.setSceneRect(-450, -300, 900, 600)
-
         print(get_monitors()[0].width)
         self.animationRunning = False
+
+        self.scene = MyScene.SoccerScene(self.fps, self.field, self)
+        self.scene.setSceneRect(-450, -300, 900, 600)
 
         if get_monitors()[0] == None:
             monitor_width = 0
@@ -70,6 +70,8 @@ class MainWindow(QWidget):
         self.temppath="log/temp/"
         self.t = None
         self.log = False
+
+
 
 
     def init_small(self):
@@ -258,7 +260,7 @@ class MainWindow(QWidget):
 
 
     def simulationFinished(self):
-        shutil.move(self.temppath+self.date, "log/ergebnis/" + self.date)
+        #shutil.move(self.temppath+self.date, "log/ergebnis/" + self.date)
         self.infoAttackers.toggleEvaluation()
         self.infoDefenders.toggleEvaluation()
 

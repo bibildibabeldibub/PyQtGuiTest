@@ -41,7 +41,21 @@ class JsonLogger(object):
     def __init__(self):
         date = datetime.now()
         self.path = date.strftime("%d_%m_%Y_%H_%M_%S")
+        self.path = "log/" + self.path + ".json"
+
         if not os.path.exists("log"):
             os.mkdir("log")
 
+    def getText(self):
+        file = open(self.path, 'r')
+        text = file.read()
+        return text
 
+    def writeText(self, text):
+        file = open(self.path, 'w')
+        file.write(text)
+        file.close()
+
+    def clearFile(self):
+        file = open(self.path, 'w')
+        file.close()

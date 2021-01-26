@@ -1,18 +1,41 @@
 
 import Player
 import random
+import json
+from side_methods import Bewertung
+from side_methods.Logging import JsonLogger
 
 class TestSetUp(object):
     def __init__(self, scene):
         self.scene = scene
         self.angreifer = OffenseTeam(self.scene, 4)
         self.verteidiger = DefenseTeam(self.scene, 4)
+        self.score = 0
+        self.scores = {}
+        self.Logger = JsonLogger()
+        self.score_run = 0
 
     def __dict__(self):
         return {
             "Angreifer": self.angreifer.__dict__(),
-            "Verteidiger": self.verteidiger.__dict__()
+            "Verteidiger": self.verteidiger.__dict__(),
+            "Scores": self.scores
         }
+
+    def setScore(self, score):
+        self.score = score
+
+    def getScore(self):
+        return self.score
+
+    def evaluateAll(self):
+        run = "run-" + str(self.score_run)
+        self.scores.update({run: Bewertung.evaluateScene(self.scene)})
+        self.score_run += 1
+
+    def writeLog(self):
+        self.Logger.writeText(json.dumps(self))
+
 
 class Team(object):
     def __init__(self):

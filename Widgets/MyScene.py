@@ -3,6 +3,7 @@ import time
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from Widgets import Aufstellung
 import json
 import math
 from Widgets import MyEllipse
@@ -39,6 +40,9 @@ class SoccerScene(QGraphicsScene):
         self.raster = self.rasterize()
         self.max_bewertung = 0
         self.field = field
+        self.setup = None
+        self.setup_total = 10
+        self.setup_count = 0
 
         field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]), QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
         self.addPolygon(field_poly, QPen(Qt.black))
@@ -95,11 +99,14 @@ class SoccerScene(QGraphicsScene):
             print("Wiederholung #"+ str(self.repetition_counter)+" abgeschlossen.")
 
             #Bewerte die Positionierungen -> speichern
-            self.window.saveSetup("Ende", self.repetition_counter)
+            #self.window.saveSetup("Ende", self.repetition_counter)
             self.repetition_counter += 1
             #stop nach Zeit t_move
             self.stopAnimation()
             self.killAnimation()
+
+            # Bewerte Situation
+            self.setup.evaluateAll()
 
             #setze das Spielfeld zurück
             if self.repetition_counter < self.reps:
@@ -108,23 +115,31 @@ class SoccerScene(QGraphicsScene):
                 time.sleep(2)
                 self.restartAnimation()
 
+            # schreibe das Log, Starte mit neuer Aufstellung
             if self.repetition_counter == self.reps:
                 print("Fertig :)")
+                self.setup.writeLog()
                 self.stopAnimation()
                 self.killAnimation()
-                self.window.simulationFinished()
                 self.resetSignal.emit()
-                return
+                if self.setup_count < self.setup_total:
+                    self.setup = Aufstellung.TestSetUp(self)
+                    self.restartAnimation()
+                else:
+                    self.window.simulationFinished()
 
-        #-------------------Datenlogging-------------------
-        if self.phase==1 and self.advance_counter == self.getSteps(5):
-            self.window.saveSetup("Nach 5 Sekunden", self.repetition_counter)
+                    return
 
-        if self.phase==1 and self.advance_counter == self.getSteps(10):
-            self.window.saveSetup("Nach 10 Sekunden", self.repetition_counter)
 
-        if self.phase==1 and self.advance_counter == self.getSteps(15):
-            self.window.saveSetup("Nach 15 Sekunden", self.repetition_counter)
+        #-------------------Datenlogging------------------- ALT
+        # if self.phase==1 and self.advance_counter == self.getSteps(5):
+        #     self.window.saveSetup("Nach 5 Sekunden", self.repetition_counter)
+        #
+        # if self.phase==1 and self.advance_counter == self.getSteps(10):
+        #     self.window.saveSetup("Nach 10 Sekunden", self.repetition_counter)
+        #
+        # if self.phase==1 and self.advance_counter == self.getSteps(15):
+        #     self.window.saveSetup("Nach 15 Sekunden", self.repetition_counter)
 
     def getPhase(self):
         return self.phase
@@ -138,6 +153,7 @@ class SoccerScene(QGraphicsScene):
         return self.fps * seconds
 
     def startAnimation(self, t_pos, t_move, repetitions):
+        self.setup = TestSetUp(self)
         self.t_move = t_move
         self.t_pos = t_pos
         self.reps = repetitions
@@ -154,6 +170,7 @@ class SoccerScene(QGraphicsScene):
     def restartAnimation(self):
         print("Restart Animation")
         self.advance_counter = 0
+        self.repetition_counter = 0
         if not self.animationRunning:
             self.animationWorker = animation.anim_worker(self.window, self, 1/self.fps)
             self.animationWorker.sender.advanceSignal.connect(self.advance)

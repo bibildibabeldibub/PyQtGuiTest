@@ -178,7 +178,6 @@ class offensePlayer(Player):
         super().__init__(number, False, scene, posx, posy)
 
         self.blocked = blocked
-        print(type(self))
         self.scene.addAttacker(self)
 
 
