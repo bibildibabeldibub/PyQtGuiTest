@@ -8,6 +8,7 @@ from side_methods.Logging import JsonLogger
 class TestSetUp(object):
     def __init__(self, scene):
         self.scene = scene
+        self.scene.positionedSignal.connect(self.lockSetup)
         self.angreifer = OffenseTeam(self.scene, 4)
         self.verteidiger = DefenseTeam(self.scene, 4)
         self.score = 0
@@ -15,12 +16,24 @@ class TestSetUp(object):
         self.Logger = JsonLogger()
         self.score_run = 0
 
+        self.lockedAttackers = None
+        self.lockedDefenders = None
+        self.locked = False
+
     def __dict__(self):
-        return {
-            "Angreifer": self.angreifer.__dict__(),
-            "Verteidiger": self.verteidiger.__dict__(),
-            "Scores": self.scores
-        }
+        if self.locked:
+            return {
+
+                "Attacker": self.lockedAttackers.__dict__(),
+                "Defender": self.lockedDefenders.__dict__(),
+                "Scores": self.scores
+            }
+        else:
+            return {
+                "Attacker": self.angreifer.__dict__(),
+                "Defender": self.verteidiger.__dict__(),
+                "Scores": self.scores
+            }
 
     def setScore(self, score):
         self.score = score
@@ -34,8 +47,12 @@ class TestSetUp(object):
         self.score_run += 1
 
     def writeLog(self):
-        self.Logger.writeText(json.dumps(self))
+        self.Logger.writeText(json.dumps(self.__dict__(), indent=4))
 
+    def lockSetup(self):
+        self.lockedAttackers = self.angreifer.__dict__()
+        self.lockedDefenders = self.verteidiger.__dict__()
+        self.locked = True
 
 class Team(object):
     def __init__(self):

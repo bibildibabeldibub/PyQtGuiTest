@@ -83,52 +83,48 @@ class SoccerScene(QGraphicsScene):
             self.killAnimation()
             self.phase = 1
             print("Pause")
-            self.window.saveSetup("Aufstellung nach Positionierung")
-            #self.window.createResetPoint()
             self.positionedSignal.emit()
             time.sleep(3) ##Pause zwischen Phasen
             self.restartAnimation()
             return
 
-        if self.phase == 1 and self.advance_counter == self.getSteps(self.t_move):
-            """ 
+        if self.phase == 1 and self.advance_counter >= self.getSteps(self.t_move):
+            """ Nach Abschluss der Simulationszeit
             * Speichern des Ergebnisses
             * zurücksetzen der Aufstellung
             * zurücksetzen des Advancecounters
             * Neustart des Angriffes"""
-            print("Wiederholung #"+ str(self.repetition_counter)+" abgeschlossen.")
+            print("Wiederholung #" + str(self.repetition_counter)+" abgeschlossen.")
 
-            #Bewerte die Positionierungen -> speichern
-            #self.window.saveSetup("Ende", self.repetition_counter)
             self.repetition_counter += 1
-            #stop nach Zeit t_move
-            self.stopAnimation()
-            self.killAnimation()
+            if self.setup:
+                self.setup.evaluateAll()
 
-            # Bewerte Situation
-            self.setup.evaluateAll()
-
-            #setze das Spielfeld zurück
-            if self.repetition_counter < self.reps:
-                #self.window.reset()
-                self.resetSignal.emit()
-                time.sleep(2)
-                self.restartAnimation()
-
-            # schreibe das Log, Starte mit neuer Aufstellung
-            if self.repetition_counter == self.reps:
-                print("Fertig :)")
                 self.setup.writeLog()
-                self.stopAnimation()
-                self.killAnimation()
+
+            if self.repetition_counter <= self.reps:
+                """ Aufstellung braucht noch durchläufe
+                * Zurücksetzen der Spieler
+                * Neustart der Simulation
+                """
+
                 self.resetSignal.emit()
-                if self.setup_count < self.setup_total:
-                    self.setup = Aufstellung.TestSetUp(self)
+                self.restartAnimation()
+            else:
+                """Wiederholungen einer Aufstellung sind fertig
+                * Neue Aufstellung -> falls Setup count
+                * zurücksetzen des repetition counts
+                * Neustarten der Simulation"""
+                self.setup_count += 1
+                if self.setup_count <= self.setup_total:
+                    self.setup = TestSetUp(self)
+                    self.repetition_counter = 0
                     self.restartAnimation()
                 else:
-                    self.window.simulationFinished()
+                    print("Test fertig")
 
-                    return
+
+
 
 
         #-------------------Datenlogging------------------- ALT
@@ -153,7 +149,6 @@ class SoccerScene(QGraphicsScene):
         return self.fps * seconds
 
     def startAnimation(self, t_pos, t_move, repetitions):
-        self.setup = TestSetUp(self)
         self.t_move = t_move
         self.t_pos = t_pos
         self.reps = repetitions
@@ -170,14 +165,17 @@ class SoccerScene(QGraphicsScene):
     def restartAnimation(self):
         print("Restart Animation")
         self.advance_counter = 0
-        self.repetition_counter = 0
-        if not self.animationRunning:
-            self.animationWorker = animation.anim_worker(self.window, self, 1/self.fps)
-            self.animationWorker.sender.advanceSignal.connect(self.advance)
-            print("Start animation in Scene")
 
-            self.animationRunning = True
-            self.threadpool.start(self.animationWorker)
+        if self.animationRunning:
+            self.stopAnimation()
+            self.killAnimation()
+
+        self.animationWorker = animation.anim_worker(self.window, self, 1/self.fps)
+        self.animationWorker.sender.advanceSignal.connect(self.advance)
+        print("Start animation in Scene")
+
+        self.animationRunning = True
+        self.threadpool.start(self.animationWorker)
 
     def stopAnimation(self):
         print("Stop animation")
@@ -234,4 +232,6 @@ class SoccerScene(QGraphicsScene):
 
     def testSet(self):
         aufstellung = TestSetUp(self)
-        print(json.dumps(aufstellung.__dict__(), sort_keys=True, indent=4))
+        print(json.dumps(aufstellung.__dict__(), indent=4))
+        aufstellung.writeLog()
+
