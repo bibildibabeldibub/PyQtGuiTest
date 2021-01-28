@@ -3,7 +3,7 @@
   "roboter-geschwindigkeit" : 25,
   "richtungswechsel-periode": 1,
   "simulation-wiederholungen": 3,
-  "positionierungszeit": 10,
+  "positionierungszeit": 45,
   "animationszeit": 10,
   "positionierungsdistanz": 1
 }

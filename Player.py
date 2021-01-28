@@ -180,13 +180,17 @@ class offensePlayer(Player):
         self.blocked = blocked
         self.scene.addAttacker(self)
 
-
         string = "Attacker " + str(self.number)
         self.check_box.setText(string)
         self.check_box.update()
 
         self.ellipse.setToolTip(string)
         self.ellipse.blocked_signal.blockedSignal.connect(self.markAsBlocked)
+
+        self.scene.resetSignal.connect(self.unmarkAsBlocked)
+
+    def unmarkAsBlocked(self):
+        self.blocked = False
 
     def markAsBlocked(self):
         self.blocked = True
@@ -209,7 +213,7 @@ class defensePlayer(Player):
         self.ellipse.setBrush(QBrush(Qt.black))
         self.ellipse.setPen(QPen(Qt.black))
         self.ellipse.setToolTip(string)
-        self.ellipse.setTransformOriginPoint(10,10)
+        self.ellipse.setTransformOriginPoint(10, 10)
         self.ellipse.setRotation(180)
         self.ellipse.update()
 
@@ -227,48 +231,51 @@ class defensePlayer(Player):
                 dx = i.getLocation()[0] - x
                 dy = i.getLocation()[1] - y
                 distance = math.sqrt(dx*dx+dy*dy)
-                self.att_distances.update({i:distance})
+                self.att_distances.update({i: distance})
 
         print(self.att_distances)
 
-        if ohne:
-            self.att_distances.pop(ohne)
+        """Distanztabelle sortieren"""
+        self.att_distances = {k: v for k, v in sorted(self.att_distances.items(), key=lambda item: item[1])}
+
+        print(self.att_distances)
 
         while self.att_distances:
-            distance_min = min(self.att_distances.values())
-            possible = []
-            for a,d in self.att_distances.items():
-                #finde Gegner mit geringster Distanz
-                if d == distance_min:
-                    possible.append(a)
 
-            for p in possible:
-                print(self.scene.covered_attackers)
-                if not p in self.scene.covered_attackers.keys():
-                    #Spieler wird gedeckt
-                    # print("-----------------Erfolg!!!-----------------")
-                    # print(type(p))
-                    self.enemy = p
-                    color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    self.enemy.setColor(color)
-                    self.setColor(color)
-                    self.scene.covered_attackers.update({p: self})
-                    return
-                else:
-                    print("Gegner bereits gedeckt")
-                    mitspieler = self.scene.covered_attackers[p]
-                    d2 = mitspieler.getCoveredDistance()
-                    if self.att_distances[p] >= d2:
-                        #Suche neuen Gegner
-                        self.att_distances.pop(p)
-                    else:
-                        #Spieler wird gedeckt
-                        self.enemy = p
-                        color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                        self.enemy.setColor(color)
-                        self.setColor(color)
-                        mitspieler.findEnemy(p)
-                        return
+            objective = list(self.att_distances.keys())[0]
+            if objective in self.scene.covered_attackers:
+                """nächster Gegenspieler wird bereits gedeckt"""
+                print("Gegenspieler bereits Gedeckt !!!!")
+                self.att_distances.pop(objective)
+            else:
+                """Gegenspieler ist noch nicht gedeckt"""
+                print("Neuer Eintrag:")
+                self.enemy = objective
+                print({objective: self})
+                self.scene.covered_attackers.update({objective: self})
+                color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                self.enemy.setColor(color)
+                self.setColor(color)
+                self.att_distances.pop(objective)
+                return
+
+            # for p in possible:
+            #     print("Gedeckte Angreifer:")
+            #     print(self.scene.covered_attackers)
+            #     if not p in self.scene.covered_attackers.keys():
+            #         #Spieler wird gedeckt
+            #         # print("-----------------Erfolg!!!-----------------")
+            #         # print(type(p))
+            #         self.enemy = p
+            #         color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            #         self.enemy.setColor(color)
+            #         self.setColor(color)
+            #         self.scene.covered_attackers.update({p: self})
+            #         return
+            #     else:
+            #         print("Gegner bereits gedeckt")
+            #         mitspieler = self.scene.covered_attackers[p]
+            #         d2 = mitspieler.getCoveredDistance()
 
         return
 

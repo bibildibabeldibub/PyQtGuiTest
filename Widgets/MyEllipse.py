@@ -5,8 +5,6 @@ import PyQt5.QtCore
 import Player
 import random
 import math
-import Simulation
-from Simulation import defense as Defense
 
 class ItemMoveSignal(QObject):
     positionMove = pyqtSignal()
@@ -103,9 +101,8 @@ class MyEllipse(QGraphicsEllipseItem):
                 #     self.spieler.blocked = True
 
             elif isinstance(self.spieler, Player.defensePlayer):
-            #Defense, Players
                 if self.scene.phase is 0:
-                    #Positionierungsphase
+                    # Positionierungsphase
 
                     if self.find_enemies:
                         #Initiale Positionsermittlung für Startaufstellung
@@ -115,7 +112,6 @@ class MyEllipse(QGraphicsEllipseItem):
                         self.destination = self.spieler.evalEnemyPositions()
                         self.setTransformOriginPoint(10, 10)
                         a = self.getAngle(self.destination[0], self.destination[1])
-                        #print(a)
                         self.setRotation(a)
 
                     #Movement während Positionierungsphase

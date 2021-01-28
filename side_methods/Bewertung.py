@@ -4,6 +4,7 @@ import Player
 from PyQt5.QtCore import QPointF, QPoint
 from copy import deepcopy
 import math
+import json
 
 
 def evaluatePoint(x: float, y: float):
@@ -22,28 +23,48 @@ def evaluatePoint(x: float, y: float):
 def evaluateScene(scene: Widgets.MyScene.SoccerScene):
     remaining_raster = scene.unordered_raster
     all_scores = evaluateTeam(scene.defenders, remaining_raster)
+    print("Scene Evaluation: ")
+    print(all_scores)
     return all_scores
 
 
 
 def evaluateTeam(team, raster):
-    score = 0
-    for p in team:
-        res = evaluatePlayer(raster, p)
-        raster = res[0]
-        score += res[1]
-        #print(str(p) + ":       " + str(res[1]))
-    #print("Gesamt: \t" + str(score))
+    scores = {
+        "ohne": 0,
+        "schussweg": 0,
+        "spieler": 0,
+        "beides": 0
+    }
+    remaining_raster = raster
 
-    return [raster, score]
+    ohne = 0
+    schussweg = 0
+    spieler = 0
+    beides = 0
+
+    for p in team:
+        scoresnew = evaluatePlayer(remaining_raster, p)
+        ohne += scoresnew["ohne"]
+        schussweg += scoresnew["schussweg"]
+        spieler += scoresnew["spieler"]
+        beides += scoresnew["beides"]
+
+    scores["ohne"] = ohne
+    scores["schussweg"] = schussweg
+    scores["spieler"] = spieler
+    scores["beides"] = beides
+
+    print(json.dumps(scores, indent=4))
+
+    return scores
 
 
 def evaluatePlayer(raster, player: Player):
     """
-
     :param raster: raster of the field with possible areas
     :param defender: player to be scored
-    :return: remaining raster and score of the player
+    :return: scores of the player
     """
     score = 0
     scores = {
@@ -52,39 +73,39 @@ def evaluatePlayer(raster, player: Player):
         "spieler": 0,
         "beides": 0
     }
-    count = 0
+
     raster_2 = deepcopy(raster)
     for squaredm in raster:
         if player.polygon.contains(QPointF(squaredm[0], squaredm[1])):
             #print(squaredm)
             score += evaluatePoint(squaredm[0], squaredm[1])
             raster_2.remove(squaredm)
-            count += 1
+
 
     scores["ohne"] = score
 
     #Angreifer Bonus/Malus ?
     if player.enemy:
         check = checkShootCovered(player)
-        if check:
+        if check and check != 0:
             print("Schussbahn blockiert")
-            scores["schussweg"] = score + 500           #->Wert muss noch ausbalanciert werden/getestet max = 1672,43
+            scores["schussweg"] = score + 500 #->Wert muss noch ausbalanciert werden/getestet max = 1672,43
         else:
             print("FREIE SCHUSSBAHN!!!!! ")
+            scores["schussweg"] = score
 
         if player.enemy.blocked:
             scores["spieler"] = score + 250
+        else:
+            scores["spieler"] = score
 
-        if player.enemy.blocked and check:
+        if player.enemy.blocked and check and check != 0:
             scores["beides"] = score + 500 + 250
-
+        else:
+            scores["beides"] = score
     else:
         print("no enemy")
     #print("Count:       " + str(count))
-
-
-
-
     return scores
 
 

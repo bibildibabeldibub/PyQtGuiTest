@@ -21,9 +21,11 @@ class SoccerScene(QGraphicsScene):
     def __init__(self, fps, field, window=None):
         super().__init__()
         self.window = window
-        self.t_pos = 0
-        self.t_move = 0
-        self.reps = 0
+        with open('config.json') as config_file:
+            data = json.load(config_file)
+            self.reps = data['simulation-wiederholungen']
+            self.t_pos = data['positionierungszeit']
+            self.t_move = data['animationszeit']
         self.repetition_counter = 0
         self.phase = 0
         self.attackers = []
@@ -96,6 +98,8 @@ class SoccerScene(QGraphicsScene):
             * Neustart des Angriffes"""
             print("Wiederholung #" + str(self.repetition_counter)+" abgeschlossen.")
 
+            time.sleep(2)
+
             self.repetition_counter += 1
             if self.setup:
                 self.setup.evaluateAll()
@@ -117,7 +121,10 @@ class SoccerScene(QGraphicsScene):
                 * Neustarten der Simulation"""
                 self.setup_count += 1
                 if self.setup_count <= self.setup_total:
+                    self.window.delete_all_players()
+                    self.covered_attackers = {}
                     self.setup = TestSetUp(self)
+                    self.phase = 0
                     self.repetition_counter = 0
                     self.restartAnimation()
                 else:
@@ -148,10 +155,7 @@ class SoccerScene(QGraphicsScene):
         """
         return self.fps * seconds
 
-    def startAnimation(self, t_pos, t_move, repetitions):
-        self.t_move = t_move
-        self.t_pos = t_pos
-        self.reps = repetitions
+    def startAnimation(self):
         self.repetition_counter = 0
         self.advance_counter = 0
         if not self.animationRunning:
@@ -232,6 +236,6 @@ class SoccerScene(QGraphicsScene):
 
     def testSet(self):
         aufstellung = TestSetUp(self)
-        print(json.dumps(aufstellung.__dict__(), indent=4))
         aufstellung.writeLog()
+        self.startAnimation()
 

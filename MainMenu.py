@@ -231,7 +231,7 @@ class MainWindow(QWidget):
 
         if not self.animationRunning:
             print(type(self.scene))
-            self.scene.startAnimation(self.positionierungszeit, self.animationszeit, wiederholungen)
+            self.scene.startAnimation()
             self.animationRunning = True
         else:
             self.scene.stopAnimation()
@@ -242,25 +242,10 @@ class MainWindow(QWidget):
         self.animation(self.repetition)
 
     def testSet(self):
-        # dialog = QMessageBox()
-        # dialog.setWindowTitle("Strategy deleting")
-        # dialog.setIcon(QMessageBox.Warning)
-        # dialog.setText("Continuing will delete actual strategy")
-        # dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        # val = dialog.exec_()
-        #
-        # if val == 1024:
-        #     filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
-        #
-        # else:
-        #     exit(619)
 
         self.delete_all_players()
         self.scene.testSet()
 
-
-    def simulationFinished(self):
-        #shutil.move(self.temppath+self.date, "log/ergebnis/" + self.date)
         self.infoAttackers.toggleEvaluation()
         self.infoDefenders.toggleEvaluation()
 

@@ -24,8 +24,8 @@ class TestSetUp(object):
         if self.locked:
             return {
 
-                "Attacker": self.lockedAttackers.__dict__(),
-                "Defender": self.lockedDefenders.__dict__(),
+                "Attacker": self.lockedAttackers,
+                "Defender": self.lockedDefenders,
                 "Scores": self.scores
             }
         else:
@@ -63,10 +63,7 @@ class Team(object):
 
         for k in self.spieler.keys():
             o = self.spieler[k].__dict__()
-            print(o)
             player_position_dictionary.update({k: o})
-
-        print(player_position_dictionary)
 
         return player_position_dictionary
 
