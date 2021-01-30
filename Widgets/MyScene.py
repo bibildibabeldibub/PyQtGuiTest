@@ -103,7 +103,6 @@ class SoccerScene(QGraphicsScene):
             self.repetition_counter += 1
             if self.setup:
                 self.setup.evaluateAll()
-
                 self.setup.writeLog()
 
             if self.repetition_counter <= self.reps:
@@ -111,11 +110,10 @@ class SoccerScene(QGraphicsScene):
                 * Zurücksetzen der Spieler
                 * Neustart der Simulation
                 """
-
                 self.resetSignal.emit()
                 self.restartAnimation()
             else:
-                """Wiederholungen einer Aufstellung sind fertig
+                """Wiederholungen einer Aufstellung sind abgeschlossen
                 * Neue Aufstellung -> falls Setup count
                 * zurücksetzen des repetition counts
                 * Neustarten der Simulation"""
@@ -123,26 +121,12 @@ class SoccerScene(QGraphicsScene):
                 if self.setup_count <= self.setup_total:
                     self.window.delete_all_players()
                     self.covered_attackers = {}
-                    self.setup = TestSetUp(self)
+                    self.resetSetup()
                     self.phase = 0
                     self.repetition_counter = 0
                     self.restartAnimation()
                 else:
                     print("Test fertig")
-
-
-
-
-
-        #-------------------Datenlogging------------------- ALT
-        # if self.phase==1 and self.advance_counter == self.getSteps(5):
-        #     self.window.saveSetup("Nach 5 Sekunden", self.repetition_counter)
-        #
-        # if self.phase==1 and self.advance_counter == self.getSteps(10):
-        #     self.window.saveSetup("Nach 10 Sekunden", self.repetition_counter)
-        #
-        # if self.phase==1 and self.advance_counter == self.getSteps(15):
-        #     self.window.saveSetup("Nach 15 Sekunden", self.repetition_counter)
 
     def getPhase(self):
         return self.phase
@@ -235,7 +219,17 @@ class SoccerScene(QGraphicsScene):
             self.removeItem(i)
 
     def testSet(self):
-        aufstellung = TestSetUp(self)
-        aufstellung.writeLog()
+        self.setup = TestSetUp(self)
+        self.setup.writeLog()
         self.startAnimation()
+
+    def resetSetup(self):
+        self.deleteAllPlayers()
+        self.window.delete_all_players()
+        del self.setup
+        self.setup = TestSetUp(self)
+
+    def deleteAllPlayers(self):
+        self.attackers.clear()
+        self.defenders.clear()
 

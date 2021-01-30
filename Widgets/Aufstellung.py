@@ -7,13 +7,14 @@ from side_methods.Logging import JsonLogger
 
 class TestSetUp(object):
     def __init__(self, scene):
+        print("SetUp Creation")
         self.scene = scene
         self.scene.positionedSignal.connect(self.lockSetup)
         self.angreifer = OffenseTeam(self.scene, 4)
         self.verteidiger = DefenseTeam(self.scene, 4)
         self.score = 0
         self.scores = {}
-        self.Logger = JsonLogger()
+        self.logger = JsonLogger()
         self.score_run = 0
 
         self.lockedAttackers = None
@@ -47,12 +48,18 @@ class TestSetUp(object):
         self.score_run += 1
 
     def writeLog(self):
-        self.Logger.writeText(json.dumps(self.__dict__(), indent=4))
+        self.logger.writeText(json.dumps(self.__dict__(), indent=4))
 
     def lockSetup(self):
         self.lockedAttackers = self.angreifer.__dict__()
         self.lockedDefenders = self.verteidiger.__dict__()
         self.locked = True
+
+    def __del__(self):
+        print("SetUp Deletion")
+        del self.logger
+        self.verteidiger.__del__()
+        self.scene.deleteAllPlayers()
 
 class Team(object):
     def __init__(self):
@@ -66,6 +73,9 @@ class Team(object):
             player_position_dictionary.update({k: o})
 
         return player_position_dictionary
+
+    def __del__(self):
+        self.spieler.clear()
 
 
 class OffenseTeam(Team):

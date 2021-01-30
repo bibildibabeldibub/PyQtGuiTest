@@ -45,6 +45,7 @@ def evaluateTeam(team, raster):
 
     for p in team:
         scoresnew = evaluatePlayer(remaining_raster, p)
+        print(scoresnew["ohne"])
         ohne += scoresnew["ohne"]
         schussweg += scoresnew["schussweg"]
         spieler += scoresnew["spieler"]
@@ -67,6 +68,7 @@ def evaluatePlayer(raster, player: Player):
     :return: scores of the player
     """
     score = 0
+    score_both = 0
     scores = {
         "ohne": 0,
         "schussweg": 0,
@@ -89,22 +91,28 @@ def evaluatePlayer(raster, player: Player):
         check = checkShootCovered(player)
         if check and check != 0:
             print("Schussbahn blockiert")
-            scores["schussweg"] = score + 500 #->Wert muss noch ausbalanciert werden/getestet max = 1672,43
+            score_both = score + score/2
+            scores["schussweg"] = score + score/2 #->Wert muss noch ausbalanciert werden/getestet max = 1672,43
+        elif check == 0:
+            print("Enemy in own half")
+            scores["schussweg"] = score
+            score_both = score
         else:
             print("FREIE SCHUSSBAHN!!!!! ")
-            scores["schussweg"] = score
+            scores["schussweg"] = score/2
+            score_both = score/2
 
         if player.enemy.blocked:
             scores["spieler"] = score + 250
+            score_both += 250
         else:
             scores["spieler"] = score
 
-        if player.enemy.blocked and check and check != 0:
-            scores["beides"] = score + 500 + 250
-        else:
-            scores["beides"] = score
+        scores["beides"] = score_both
     else:
         print("no enemy")
+        for k in scores.keys():
+            scores[k] = score
     #print("Count:       " + str(count))
     return scores
 

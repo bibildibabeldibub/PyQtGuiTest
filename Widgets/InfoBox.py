@@ -89,7 +89,6 @@ class InfoBox(QWidget):
     def removePlayerInfo(self, p):
         for i in range(self.infos.count()):
             widget = self.infos.widget(i)
-            print(widget)
             if widget:
                 if widget.p == p:
                     self.infos.removeWidget(widget)
