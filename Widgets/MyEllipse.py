@@ -27,6 +27,7 @@ class MyEllipse(QGraphicsEllipseItem):
         self.find_enemies = True
         self.animcounter = 0
 
+
         self.richtungswinkel = 0
         scene.addItem(self)
         self.s = ItemMoveSignal()
@@ -45,6 +46,7 @@ class MyEllipse(QGraphicsEllipseItem):
         self.spieler = p
         self.new_pos = [0, 0]
         self.positioned = False
+        self.destination = [self.xs, self.ys]
         # self.setRotation(45)
 
     def itemChange(self, change, value):
@@ -117,7 +119,11 @@ class MyEllipse(QGraphicsEllipseItem):
                     #Movement während Positionierungsphase
                     #print("Positionierung = " + str(self.positioned))
                     if not self.positioned:
-                        self.new_pos = self.moveForward(self.destination)
+                        # self.new_pos = self.moveForward(self.destination)
+                        self.spieler.setLocation(self.destination[0], self.destination[1])
+                        self.positioned = True
+                        #self.spieler.setLocation(self.destination[0], self.destination[1])
+
                     if self.positioned:
                         angle = self.getAngle(self.spieler.enemy.getLocation()[0], self.spieler.enemy.getLocation()[1])
                         self.setTransformOriginPoint(10, 10)
@@ -133,9 +139,9 @@ class MyEllipse(QGraphicsEllipseItem):
         if p_int == 1 and not self.spieler.blocked:
             # print("Old Pos:\t"+ str(old_pos[0]) + " | " + str(old_pos[1]))
             # print("New Pos:\t" + str(old_pos[0]+self.new_pos[0]) + " | " + str(old_pos[1]+self.new_pos[1]))
-            if not self.spieler.defense:
+            if not isinstance(self.spieler, Player.defensePlayer):
                 #Angreifer
-                if self.scene.phase==1:
+                if self.scene.phase == 1:
                     self.setPos(old_pos[0]+self.new_pos[0], old_pos[1]+self.new_pos[1])
                     self.animcounter += 1
             else:

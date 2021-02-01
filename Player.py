@@ -17,11 +17,6 @@ class Player:
     def __init__(self, number: int, op: bool, scene: QGraphicsScene, posx, posy, blocked=False):
         """initialising player with ellipse, op is boolean and should be true if the player is an opponent"""
         self.blocked = blocked
-        self.defense = op
-        if self.defense:
-            color = Qt.black
-        else:
-            color = Qt.blue
         self.number = number
         self.scene = scene
         self.enemy_player = None
@@ -39,7 +34,7 @@ class Player:
         self.scene.positionedSignal.connect(self.savePosition)
         self.scene.resetSignal.connect(self.reset)
 
-        self.ellipse = MyEllipse(self, 0, 0, 20, 20, QPen(color), QBrush(color), self.scene)
+        self.ellipse = MyEllipse(self, 0, 0, 20, 20, QPen(Qt.red), QBrush(Qt.red), self.scene)
         self.setLocation(posx, posy)
 
         with open('config.json') as config_file:
@@ -138,12 +133,16 @@ class Player:
     def getRotation(self):
         return self.ellipse.rotation()
 
-    def setRotation(self,rotation):
+    def setRotation(self, rotation):
         self.ellipse.setRotation(rotation)
 
-    def setColor(self, color: QColor):
-        # self.ellipse.brush = QBrush(Qt.darkGreen)
+    def setDirectionColor(self, color: QColor):
         self.ellipse.direction_pen = QPen(color)
+        self.ellipse.update()
+
+    def setColor(self, color: QColor):
+        self.ellipse.brush = QBrush(color)
+        self.ellipse.pen = QPen(color)
         self.ellipse.update()
 
     def reset(self):
@@ -184,6 +183,8 @@ class offensePlayer(Player):
         self.check_box.setText(string)
         self.check_box.update()
 
+        self.setColor(Qt.black)
+        self.ellipse.setPen(QPen(Qt.black))
         self.ellipse.setToolTip(string)
         self.ellipse.blocked_signal.blockedSignal.connect(self.markAsBlocked)
 
@@ -210,8 +211,7 @@ class defensePlayer(Player):
 
         self.enemy_critical_positions = []
 
-        self.ellipse.setBrush(QBrush(Qt.black))
-        self.ellipse.setPen(QPen(Qt.black))
+        self.setColor(Qt.blue)
         self.ellipse.setToolTip(string)
         self.ellipse.setTransformOriginPoint(10, 10)
         self.ellipse.setRotation(180)
@@ -254,8 +254,8 @@ class defensePlayer(Player):
                 print({objective: self})
                 self.scene.covered_attackers.update({objective: self})
                 color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                self.enemy.setColor(color)
-                self.setColor(color)
+                self.enemy.setDirectionColor(color)
+                self.setDirectionColor(color)
                 self.att_distances.pop(objective)
                 return
 
@@ -337,8 +337,8 @@ class defensePlayer(Player):
         """:returns Array [x,y] wo sich der Spieler positionieren soll"""
 
         en_current_pos = self.enemy.getLocation()
-        dxm = self.enemy_critical_positions[0][0] - en_current_pos[0] * self.pos_distance
-        dym = self.enemy_critical_positions[0][1] - en_current_pos[1] * self.pos_distance
+        dxm = round(self.enemy_critical_positions[0][0] - en_current_pos[0] * self.pos_distance, 2)
+        dym = round(self.enemy_critical_positions[0][1] - en_current_pos[1] * self.pos_distance, 2)
 
         final_pos = [en_current_pos[0]+dxm, en_current_pos[1]+dym]
 
