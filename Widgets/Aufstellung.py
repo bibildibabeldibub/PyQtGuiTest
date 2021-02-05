@@ -2,24 +2,29 @@
 import Player
 import random
 import json
+from datetime import datetime
 from side_methods import Bewertung
 from side_methods.Logging import JsonLogger
 
 class TestSetUp(object):
-    def __init__(self, scene):
-        print("SetUp Creation")
+    def __init__(self, scene, number=0):
+        print("SetUp Creation: " + str(number))
         self.scene = scene
         self.scene.positionedSignal.connect(self.lockSetup)
+        self.number = number
         self.angreifer = OffenseTeam(self.scene, 4)
         self.verteidiger = DefenseTeam(self.scene, 4)
         self.score = 0
         self.scores = {}
-        self.logger = JsonLogger()
         self.score_run = 0
 
         self.lockedAttackers = None
         self.lockedDefenders = None
         self.locked = False
+
+        self.logger = JsonLogger(self, self.scene.date)
+        self.writeLog()
+        self.changeStrategy("base")
 
     def __dict__(self):
         if self.locked:
@@ -55,11 +60,18 @@ class TestSetUp(object):
         self.lockedDefenders = self.verteidiger.__dict__()
         self.locked = True
 
+    def changeStrategy(self, x: str):
+        """
+        :param x: Name der Strategie
+        :return:
+        """
+        self.logger.setFile(x)
+        self.scores = {}
+        self.score_run = 0
+
     def __del__(self):
         print("SetUp Deletion")
-        del self.logger
-        self.verteidiger.__del__()
-        self.scene.deleteAllPlayers()
+
 
 class Team(object):
     def __init__(self):

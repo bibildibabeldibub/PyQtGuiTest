@@ -23,8 +23,8 @@ def evaluatePoint(x: float, y: float):
 def evaluateScene(scene: Widgets.MyScene.SoccerScene):
     remaining_raster = scene.unordered_raster
     all_scores = evaluateTeam(scene.defenders, remaining_raster)
-    print("Scene Evaluation: ")
-    print(all_scores)
+    # print("Scene Evaluation: ")
+    # print(all_scores)
     return all_scores
 
 
@@ -45,7 +45,6 @@ def evaluateTeam(team, raster):
 
     for p in team:
         scoresnew = evaluatePlayer(remaining_raster, p)
-        print(scoresnew["ohne"])
         ohne += scoresnew["ohne"]
         schussweg += scoresnew["schussweg"]
         spieler += scoresnew["spieler"]
@@ -67,6 +66,7 @@ def evaluatePlayer(raster, player: Player):
     :param defender: player to be scored
     :return: scores of the player
     """
+
     score = 0
     score_both = 0
     scores = {
@@ -76,13 +76,9 @@ def evaluatePlayer(raster, player: Player):
         "beides": 0
     }
 
-    raster_2 = deepcopy(raster)
     for squaredm in raster:
         if player.polygon.contains(QPointF(squaredm[0], squaredm[1])):
-            #print(squaredm)
             score += evaluatePoint(squaredm[0], squaredm[1])
-            raster_2.remove(squaredm)
-
 
     scores["ohne"] = score
 
@@ -90,15 +86,15 @@ def evaluatePlayer(raster, player: Player):
     if player.enemy:
         check = checkShootCovered(player)
         if check and check != 0:
-            print("Schussbahn blockiert")
+            # print("Schussbahn blockiert")
             score_both = score + score/2
             scores["schussweg"] = score + score/2 #->Wert muss noch ausbalanciert werden/getestet max = 1672,43
         elif check == 0:
-            print("Enemy in own half")
+            # print("Enemy in own half")
             scores["schussweg"] = score
             score_both = score
         else:
-            print("FREIE SCHUSSBAHN!!!!! ")
+            # print("FREIE SCHUSSBAHN!!!!! ")
             scores["schussweg"] = score/2
             score_both = score/2
 
@@ -114,6 +110,7 @@ def evaluatePlayer(raster, player: Player):
         for k in scores.keys():
             scores[k] = score
     #print("Count:       " + str(count))
+
     return scores
 
 
@@ -124,6 +121,7 @@ def checkShootCovered(d: Player):
     :return: True wenn der Schussweg blockiert ist, andernfalls nicht
 
     """
+
     #erstmal zum mittelpunkt des Tores (450, 0) ODER gerade Schüsse in Rotationsrichtung
     y_oberer_pfosten = -75
     y_unterer_pfosten = 75
@@ -132,7 +130,7 @@ def checkShootCovered(d: Player):
         p1 = o.getLocation()
 
         if p1[0] <= 0:
-            print("Gegner in eigener Hälfte -> Schuss nicht gefährlich")
+            # print("Gegner in eigener Hälfte -> Schuss nicht gefährlich")
             return 0
 
         if p1[0] > 0:
@@ -168,11 +166,11 @@ def checkShootCovered(d: Player):
                 return False
 
             if verdeckt >= 0.5*schusswinkel:
-                print("Schussbahn verdeckt")
+                # print("Schussbahn verdeckt")
                 return True
             else:
                 return False
 
     else:
-        print("kein Gegenspieler")
+        # print("kein Gegenspieler")
         return False

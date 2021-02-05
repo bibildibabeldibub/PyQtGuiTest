@@ -33,7 +33,7 @@ print(block)
 print("Beides :\n\t")
 print(beides)
 
-#zur Darstellung mehrerer Daten wird 
+#zur Darstellung mehrerer Daten wird
 
 fig1, ax1 = plt.subplots()
 ax1.set_title('Basic Plot')

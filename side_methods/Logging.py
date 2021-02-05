@@ -37,25 +37,44 @@ def writeLog(app, situation, wiederholung):
         f = open(path, 'w')
         f.write(new)
 
-class JsonLogger(object):
-    def __init__(self):
-        date = datetime.now()
-        self.path = date.strftime("%d_%m_%Y_%H_%M_%S")
-        self.path = "log/" + self.path + ".json"
 
-        if not os.path.exists("log"):
-            os.mkdir("log")
+class JsonLogger(object):
+    def __init__(self, aufstellung, date, strat="start"):
+
+        self.date = date
+
+        self.aufstellung = aufstellung
+        self.path = "log"
+        if not os.path.exists(self.path):
+            os.mkdir(self.path)
+
+        self.path = os.path.join(self.path, self.date)
+        if not os.path.exists(self.path):
+            os.mkdir(self.path)
+
+        self.path = os.path.join(self.path, "aufstellung_" + str(self.aufstellung.number))
+        if not os.path.exists(self.path):
+            os.mkdir(self.path)
+
+        self.file = strat
+
 
     def getText(self):
-        file = open(self.path, 'r')
+        file = open(os.path.join(self.path, self.file), 'r')
         text = file.read()
         return text
 
     def writeText(self, text):
-        file = open(self.path, 'w')
+        file = open(os.path.join(self.path, self.file), 'w')
         file.write(text)
         file.close()
 
     def clearFile(self):
-        file = open(self.path, 'w')
+        file = open(os.path.join(self.path, self.file), 'w')
         file.close()
+
+    def setFile(self, file):
+        self.file = file
+
+    def __del__(self):
+        super()

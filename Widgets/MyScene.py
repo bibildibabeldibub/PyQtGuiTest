@@ -1,5 +1,6 @@
 from side_methods import animation
 import time
+from datetime import datetime
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -9,6 +10,7 @@ import math
 from Widgets import MyEllipse
 import side_methods.Bewertung
 from Widgets.Aufstellung import TestSetUp
+import gc
 
 
 class SoccerScene(QGraphicsScene):
@@ -16,7 +18,7 @@ class SoccerScene(QGraphicsScene):
     stopSignal = pyqtSignal()
     continueSignal = pyqtSignal()
     positionedSignal = pyqtSignal()
-    resetSignal = pyqtSignal()
+    resetSignal = pyqtSignal(str)
 
     def __init__(self, fps, field, window=None):
         super().__init__()
@@ -26,11 +28,13 @@ class SoccerScene(QGraphicsScene):
             self.reps = data['simulation-wiederholungen']
             self.t_pos = data['positionierungszeit']
             self.t_move = data['animationszeit']
+
+        self.refreshDate()
         self.repetition_counter = 0
         self.phase = 0
         self.attackers = []
         self.defenders = []
-        self.covered_attackers = {}
+        self.covered_attackers = []
         self.fps = fps
         self.animationRunning = False
         self.phase = 0
@@ -40,11 +44,12 @@ class SoccerScene(QGraphicsScene):
         self.raster_polygons = []
         self.unordered_raster = []
         self.raster = self.rasterize()
-        self.max_bewertung = 0
         self.field = field
         self.setup = None
         self.setup_total = 10
         self.setup_count = 0
+        self.strat_count = 0
+        self.compare = False
 
         field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]), QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
         self.addPolygon(field_poly, QPen(Qt.black))
@@ -86,7 +91,7 @@ class SoccerScene(QGraphicsScene):
             self.phase = 1
             print("Pause")
             self.positionedSignal.emit()
-            time.sleep(3) ##Pause zwischen Phasen
+            time.sleep(1) ##Pause zwischen Phasen
             self.restartAnimation()
             return
 
@@ -98,35 +103,66 @@ class SoccerScene(QGraphicsScene):
             * Neustart des Angriffes"""
             print("Wiederholung #" + str(self.repetition_counter)+" abgeschlossen.")
 
-            time.sleep(2)
+            self.stopAnimation()
+            self.killAnimation()
 
+            time.sleep(2)
             self.repetition_counter += 1
-            if self.setup:
-                self.setup.evaluateAll()
-                self.setup.writeLog()
+
+            print(self.attackers)
+            self.setup.evaluateAll()
+            self.setup.writeLog()
+            print(self.attackers)
+
+            time.sleep(1)
 
             if self.repetition_counter <= self.reps:
                 """ Aufstellung braucht noch durchläufe
                 * Zurücksetzen der Spieler
                 * Neustart der Simulation
                 """
-                self.resetSignal.emit()
+
+                self.resetSignal.emit("")
                 self.restartAnimation()
             else:
                 """Wiederholungen einer Aufstellung sind abgeschlossen
-                * Neue Aufstellung -> falls Setup count
-                * zurücksetzen des repetition counts
-                * Neustarten der Simulation"""
-                self.setup_count += 1
-                if self.setup_count <= self.setup_total:
-                    self.window.delete_all_players()
-                    self.covered_attackers = {}
-                    self.resetSetup()
-                    self.phase = 0
-                    self.repetition_counter = 0
-                    self.restartAnimation()
+                * Neustart mit komplett neuer Aufstellung oder mit neuer Strategie
+                """
+
+                if self.compare:
+                    """Neustart der Aufstellung mit anderer Strategie"""
+                    print("Vergleichmodus aktiv")
+
+                    if self.strat_count < 1:
+                        print("Ändere Strategie")
+                        self.resetSignal.emit("Strat")
+                        self.setup.changeStrategy("naiv")
+                        self.covered_attackers = []
+                        self.phase = 0
+                        self.repetition_counter = 0
+                        self.strat_count += 1
+
+                    elif self.setup_count <= self.setup_total:
+                        """Start mit neuer Aufstellung
+                        * Strategie wird im Setup constructor wieder zurückgesetzt
+                        """
+                        self.resetSetup()
+
+                    else:
+                        """Fertig"""
+                        print("Fertig!")
+
                 else:
-                    print("Test fertig")
+                    print("Ohne Vergelcih")
+                    if self.setup_count <= self.setup_total:
+                        """Neue Aufstellung"""
+                        print("Reset")
+                        self.resetSetup()
+                    else:
+                        print("Test fertig")
+                        return
+
+                self.restartAnimation()
 
     def getPhase(self):
         return self.phase
@@ -160,7 +196,6 @@ class SoccerScene(QGraphicsScene):
 
         self.animationWorker = animation.anim_worker(self.window, self, 1/self.fps)
         self.animationWorker.sender.advanceSignal.connect(self.advance)
-        print("Start animation in Scene")
 
         self.animationRunning = True
         self.threadpool.start(self.animationWorker)
@@ -218,18 +253,33 @@ class SoccerScene(QGraphicsScene):
         for i in self.shown_raster:
             self.removeItem(i)
 
-    def testSet(self):
+    def testSet(self, compare: bool):
+        self.refreshDate()
         self.setup = TestSetUp(self)
-        self.setup.writeLog()
+        self.compare = compare
         self.startAnimation()
 
-    def resetSetup(self):
-        self.deleteAllPlayers()
-        self.window.delete_all_players()
-        del self.setup
-        self.setup = TestSetUp(self)
+    def refreshDate(self):
+        self.date = datetime.now()
+        self.date = self.date.strftime("%d_%m_%Y_%H_%M_%S")
 
-    def deleteAllPlayers(self):
+    def resetSetup(self):
+        """
+        * Löscht das aktuelle setup und erstellt ein neues
+        * Setzt Stati zurück
+        """
+        self.strat_count = 0
+        self.phase = 0
+        self.repetition_counter = 0
+        self.clearPlayers()
+        gc.collect()
+
+        self.covered_attackers = []
+        self.setup = TestSetUp(self, self.setup_count)
+        self.setup_count += 1
+
+    def clearPlayers(self):
+        self.window.deleteAllPlayers()
         self.attackers.clear()
         self.defenders.clear()
 

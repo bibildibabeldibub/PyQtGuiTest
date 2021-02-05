@@ -19,7 +19,6 @@ class Player:
         self.blocked = blocked
         self.number = number
         self.scene = scene
-        self.enemy_player = None
         self.covered_enemies = []
         self.vertices = []
         self.polygon = self.scene.addPolygon(QPolygonF(), QPen(Qt.red))
@@ -167,7 +166,7 @@ class Player:
         return string
 
     def __del__(self):
-        print("DESTRUCTION")
+        print("Spieler gelöscht")
         self.scene.removeItem(self.ellipse)
         self.scene.removeItem(self.polygon)
 
@@ -202,6 +201,7 @@ class defensePlayer(Player):
         super().__init__(number, True, scene, posx, posy)
 
         self.scene.addDefender(self)
+        self.scene.resetSignal.connect(self.clearEnemy)
         string = "Defense " + str(self.number)
         self.check_box.setText(string)
         self.check_box.update()
@@ -217,65 +217,29 @@ class defensePlayer(Player):
         self.ellipse.setRotation(180)
         self.ellipse.update()
 
+    def clearEnemy(self, value=None):
+        if value and value == "Strat":
+            #print("Gegenspieler vergessen! ")
+            self.enemy = None
+            self.ellipse.find_enemies = True
+
     def findEnemy(self, ohne: Player = None):
         """:var enemy Dieser Spieler wird  ausgelassen in der Suche (Für den Fall dass nochmal gesucht werden muss)
             """
-        if not self.att_distances:
-            #print("Generiere Distanztabelle")
-            x = self.getLocation()[0]
-            y = self.getLocation()[1]
-            #print(self.scene.attackers)
 
-            for i in self.scene.attackers:
-                #get for every attacker the distance
-                dx = i.getLocation()[0] - x
-                dy = i.getLocation()[1] - y
-                distance = math.sqrt(dx*dx+dy*dy)
-                self.att_distances.update({i: distance})
+        #print("Gegenspieler Suchen! ")
 
-        print(self.att_distances)
-
-        """Distanztabelle sortieren"""
-        self.att_distances = {k: v for k, v in sorted(self.att_distances.items(), key=lambda item: item[1])}
-
-        print(self.att_distances)
-
-        while self.att_distances:
-
-            objective = list(self.att_distances.keys())[0]
-            if objective in self.scene.covered_attackers:
-                """nächster Gegenspieler wird bereits gedeckt"""
-                print("Gegenspieler bereits Gedeckt !!!!")
-                self.att_distances.pop(objective)
-            else:
-                """Gegenspieler ist noch nicht gedeckt"""
-                print("Neuer Eintrag:")
-                self.enemy = objective
-                print({objective: self})
-                self.scene.covered_attackers.update({objective: self})
+        for x in self.scene.attackers:
+            if not x in self.scene.covered_attackers:
+                self.enemy = x
+                self.scene.covered_attackers.append(x)
                 color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
                 self.enemy.setDirectionColor(color)
                 self.setDirectionColor(color)
-                self.att_distances.pop(objective)
                 return
 
-            # for p in possible:
-            #     print("Gedeckte Angreifer:")
-            #     print(self.scene.covered_attackers)
-            #     if not p in self.scene.covered_attackers.keys():
-            #         #Spieler wird gedeckt
-            #         # print("-----------------Erfolg!!!-----------------")
-            #         # print(type(p))
-            #         self.enemy = p
-            #         color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-            #         self.enemy.setColor(color)
-            #         self.setColor(color)
-            #         self.scene.covered_attackers.update({p: self})
-            #         return
-            #     else:
-            #         print("Gegner bereits gedeckt")
-            #         mitspieler = self.scene.covered_attackers[p]
-            #         d2 = mitspieler.getCoveredDistance()
+        print("------- Kein Gegner gefunden ?! --------")
+        print(self.scene.attackers)
 
         return
 

@@ -150,6 +150,10 @@ def buildBtns(self, verticallayout = None):
     self.settest.clicked.connect(self.testSet)
     verticallayout.addWidget(self.settest)
 
+    self.compare = QCheckBox('Compare strategies')
+    self.compare.toggled.connect(self.toggleCompare)
+    verticallayout.addWidget(self.compare)
+
     self.resetButton = QPushButton('reset')
     self.resetButton.clicked.connect(self.reset)
     self.resetButton.setEnabled(False)

@@ -25,10 +25,9 @@ class anim_worker(QtCore.QRunnable):
         self.mainWindow = window
         self.sender = SignalSender()
         self.counter = 0
-        print(self)
 
     def run(self):
-        print("start loop")
+        # print("start loop")
         self.pause = False
         self.loop()
 
@@ -46,7 +45,7 @@ class anim_worker(QtCore.QRunnable):
         self.pause = False
 
     def __del__(self):
-        print("Worker deleted")
+        #print("Worker deleted")
         super()
 
     def __repr__(self):

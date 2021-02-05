@@ -70,6 +70,7 @@ class MainWindow(QWidget):
         self.temppath="log/temp/"
         self.t = None
         self.log = False
+        self.comparison = False
 
 
 
@@ -88,7 +89,7 @@ class MainWindow(QWidget):
 
     def click_function(self):
         """test function for buttpn clickking"""
-        self.delete_all_players()
+        self.deleteAllPlayers()
 
     def close_function(self):
         """closes the window"""
@@ -101,7 +102,7 @@ class MainWindow(QWidget):
     def selectionchange(self, i):
         print(i)
         print(self.start_selector.currentText())
-        self.delete_all_players()
+        self.deleteAllPlayers()
         self.load_function("StartFormations/" + self.start_selector.currentText())
         return
 
@@ -156,7 +157,7 @@ class MainWindow(QWidget):
         elif val == 1023: filenames = [file]
         else: return
 
-        self.delete_all_players()
+        self.deleteAllPlayers()
         if filenames[0] is not '':
             f = open(filenames[0], 'r')
             txt = f.read()
@@ -207,7 +208,7 @@ class MainWindow(QWidget):
             self.scene.removeItem(self.helpY)
             self.scene.hide_raster()
 
-    def delete_all_players(self):
+    def deleteAllPlayers(self):
         for op in self.dict_attackers:
             op.check_box.setParent(None)
             self.infoDefenders.removePlayerInfo(op)
@@ -243,18 +244,22 @@ class MainWindow(QWidget):
 
     def testSet(self):
 
-        self.delete_all_players()
-        self.scene.testSet()
+        self.deleteAllPlayers()
+        self.scene.testSet(self.comparison)
+        self.compare.setEnabled(False)
 
         self.infoAttackers.toggleEvaluation()
         self.infoDefenders.toggleEvaluation()
+
+    def toggleCompare(self):
+        self.comparison = self.compare.checkState()
 
     def saveSetup(self, situation="", wiederholung=0):
         Logging.writeLog(self, situation, wiederholung)
 
     def reset(self):
         print("--------Reset--------")
-        self.delete_all_players()
+        self.deleteAllPlayers()
         if os.path.isfile("temp/resetfile/" + self.date):
             self.load_function("temp/resetfile/" + self.date)
         else:
