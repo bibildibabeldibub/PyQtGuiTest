@@ -24,7 +24,7 @@ class TestSetUp(object):
 
         self.logger = JsonLogger(self, self.scene.date)
         self.writeLog()
-        self.changeStrategy("base")
+        self.changeStrategy()
 
     def __dict__(self):
         if self.locked:
@@ -60,12 +60,15 @@ class TestSetUp(object):
         self.lockedDefenders = self.verteidiger.__dict__()
         self.locked = True
 
-    def changeStrategy(self, x: str):
+    def changeStrategy(self):
+        """Ändert das Logfile der Aufstellung
+        * Setzt Zähler zurück, damit die Daten korrekt geloggt werden.
         """
-        :param x: Name der Strategie
-        :return:
-        """
-        self.logger.setFile(x)
+
+        strat = self.scene.getCurrentStrat()
+        file = strat.split(".")
+        file = file[0]
+        self.logger.setFile(file)
         self.scores = {}
         self.score_run = 0
 
@@ -104,6 +107,7 @@ class DefenseTeam(Team):
         super().__init__()
         self.scene = scene
         self.length = length
+
         x_count = 1
         for i in range(self.length):
             if i % 2 == 0:

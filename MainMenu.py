@@ -59,20 +59,19 @@ class MainWindow(QWidget):
         else:
             print("Screen width = 0 ?? How u display this?")
 
-        start_formation_path = 'StartFormations/'
-        "load all startpositions"
-        startpositions = []
-        for f in listdir(start_formation_path):
-            if isfile(join(start_formation_path, f)):
-                startpositions.append(f)
-                self.start_selector.addItem(f)
+        self.strat_path = 'Strategies/'
+        "Laden der Strategien in die Selektorboxen"
+        strats = []
+        for f in listdir(self.strat_path):
+            if isfile(join(self.strat_path, f)):
+                strats.append(f)
+                self.strat_selector1.addItem(f)
+                self.strat_selector2.addItem(f)
 
         self.temppath="log/temp/"
         self.t = None
         self.log = False
         self.comparison = False
-
-
 
 
     def init_small(self):
@@ -99,11 +98,12 @@ class MainWindow(QWidget):
     def resizeEvent(self, event):
         """acting while window is resized"""
 
-    def selectionchange(self, i):
-        print(i)
-        print(self.start_selector.currentText())
-        self.deleteAllPlayers()
-        self.load_function("StartFormations/" + self.start_selector.currentText())
+    def selectionChange1(self, i):
+        print(self.strat_selector1.currentText())
+        return
+
+    def selectionChange2(self, i):
+        print(self.strat_selector2.currentText())
         return
 
     def addAttacker(self, number=None, x=None, y=None):
@@ -155,7 +155,8 @@ class MainWindow(QWidget):
         if val == 1024:
             filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
         elif val == 1023: filenames = [file]
-        else: return
+        else:
+            return
 
         self.deleteAllPlayers()
         if filenames[0] is not '':
@@ -244,12 +245,47 @@ class MainWindow(QWidget):
 
     def testSet(self):
 
-        self.deleteAllPlayers()
-        self.scene.testSet(self.comparison)
-        self.compare.setEnabled(False)
+        if self.strat_selector1.currentText() == "Strategie 1":
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Strategie 1 nicht gewählt!")
+            msg.setInformativeText("Bitte wählen Sie eine Strategie aus.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+            return
+
+        if self.comparison:
+            if self.strat_selector1.currentText() == self.strat_selector2.currentText():
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Warning)
+                msg.setText("Strategie 1 und Strategie 2 können während des Vergleichsmodus nicht identisch sein!")
+                msg.setInformativeText("Bitte wählen Sie unterschiedliche Strategien oder deaktivieren Sie den Vergleichsmodus.")
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec_()
+                return
+            elif self.strat_selector2.currentText() == "Strategie 2":
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Warning)
+                msg.setText("Strategie 2 nicht gewählt!")
+                msg.setInformativeText("Bitte wählen Sie eine Strategie aus.")
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec_()
+                return
 
         self.infoAttackers.toggleEvaluation()
         self.infoDefenders.toggleEvaluation()
+
+        self.scene.setStrats()
+        self.scene.appendStrats(self.strat_selector1.currentText())
+        self.scene.appendStrats(self.strat_selector2.currentText())
+        self.deleteAllPlayers()
+        self.compare.setEnabled(False)
+        self.settest.setEnabled(False)
+        self.strat_selector1.setEnabled(False)
+        self.strat_selector2.setEnabled(False)
+
+        self.scene.testSet(self.comparison)
+
 
     def toggleCompare(self):
         self.comparison = self.compare.checkState()

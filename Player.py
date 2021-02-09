@@ -261,6 +261,12 @@ class defensePlayer(Player):
             * Bewertet die Positionen des Gegners
             * :returns Position an die sich der Spieler bewegen soll
         """
+        file = self.scene.getCurrentStrat()
+
+        if file.endswith('.json'):
+            pos = self.scene.defend_positions.pop()
+            return [pos['x'], pos['y']]
+
         if not self.enemy:
             print("Kein Gegner gefunden!")
             return

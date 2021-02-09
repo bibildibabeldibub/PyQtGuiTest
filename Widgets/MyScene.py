@@ -28,6 +28,7 @@ class SoccerScene(QGraphicsScene):
             self.reps = data['simulation-wiederholungen']
             self.t_pos = data['positionierungszeit']
             self.t_move = data['animationszeit']
+            self.setup_total = data['setups']
 
         self.refreshDate()
         self.repetition_counter = 0
@@ -46,10 +47,11 @@ class SoccerScene(QGraphicsScene):
         self.raster = self.rasterize()
         self.field = field
         self.setup = None
-        self.setup_total = 10
         self.setup_count = 0
         self.strat_count = 0
+        self.strats = []
         self.compare = False
+        self.defend_positions = []
 
         field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]), QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
         self.addPolygon(field_poly, QPen(Qt.black))
@@ -136,7 +138,7 @@ class SoccerScene(QGraphicsScene):
                     if self.strat_count < 1:
                         print("Ändere Strategie")
                         self.resetSignal.emit("Strat")
-                        self.setup.changeStrategy("naiv")
+                        self.setup.changeStrategy()
                         self.covered_attackers = []
                         self.phase = 0
                         self.repetition_counter = 0
@@ -152,6 +154,13 @@ class SoccerScene(QGraphicsScene):
                         """Fertig"""
                         print("Fertig!")
 
+                        self.advance_counter = 0
+                        self.phase = 0
+                        self.repetition_counter = 0
+                        self.strat_count = 0
+
+                        return
+
                 else:
                     print("Ohne Vergelcih")
                     if self.setup_count <= self.setup_total:
@@ -160,6 +169,10 @@ class SoccerScene(QGraphicsScene):
                         self.resetSetup()
                     else:
                         print("Test fertig")
+                        self.advance_counter = 0
+                        self.phase = 0
+                        self.repetition_counter = 0
+                        self.strat_count = 0
                         return
 
                 self.restartAnimation()
@@ -256,6 +269,10 @@ class SoccerScene(QGraphicsScene):
     def testSet(self, compare: bool):
         self.refreshDate()
         self.setup = TestSetUp(self)
+        file = self.strats[0]
+        file = file.split('.')
+        file = file[0]
+        self.setup.changeStrategy()
         self.compare = compare
         self.startAnimation()
 
@@ -276,10 +293,31 @@ class SoccerScene(QGraphicsScene):
 
         self.covered_attackers = []
         self.setup = TestSetUp(self, self.setup_count)
+        self.setup.changeStrategy()
         self.setup_count += 1
 
     def clearPlayers(self):
         self.window.deleteAllPlayers()
         self.attackers.clear()
         self.defenders.clear()
+
+    def getCurrentStrat(self):
+        return self.strats[self.strat_count]
+
+    def setStrats(self, ls=None):
+        if ls:
+            for x in ls:
+                self.strats.append(x)
+        else:
+            self.strats = []
+
+    def appendStrats(self, strat: str):
+        if strat.endswith('.json'):
+            filename = "Strategies/"+strat
+            with open(filename, 'r') as file:
+                data = file.read()
+            obj = json.loads(data)
+            for pos in obj.keys():
+                self.defend_positions.append(obj[pos])
+        self.strats.append(strat)
 

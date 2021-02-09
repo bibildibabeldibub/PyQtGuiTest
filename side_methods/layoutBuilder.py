@@ -9,14 +9,9 @@ from Widgets.MyScene import SoccerScene
 from Widgets import MyScene
 
 def buildSmall(self):
+    """Layout Erstellung des Frontends, bei kleineren Bildschirmen"""
     horizontallayout = QHBoxLayout()
     verticallayout = QVBoxLayout()
-
-    self.start_selector = QComboBox()
-    self.start_selector.addItem("Auswählen")
-    self.start_selector.currentIndexChanged.connect(self.selectionchange)
-
-    verticallayout.addWidget(self.start_selector)
 
     verticallayout = buildBtns(self, verticallayout)
 
@@ -57,16 +52,9 @@ def buildSmall(self):
     return horizontallayout
 
 def buildBig(self):
-    """Creating the main window, with several buttons and the field simulator for huge screens """
+    """Layout Erstellung des Frontends, bei größeren Bildschirmen"""
     horizontallayout = QHBoxLayout()
     verticallayout = QVBoxLayout()
-
-    """Setup ComboBox"""
-    self.start_selector = QComboBox()
-    self.start_selector.addItem("Auswählen")
-    self.start_selector.currentIndexChanged.connect(self.selectionchange)
-
-    verticallayout.addWidget(self.start_selector)
 
     verticallayout = buildBtns(self, verticallayout)
 
@@ -110,54 +98,69 @@ def buildBig(self):
     return(horizontallayout)
 
 def buildBtns(self, verticallayout = None):
+    """Erstellung der Menü-Buttons"""
 
     if not verticallayout:
-        verticallayout = QVBoxLayout
+        verticallayout = QVBoxLayout()
 
-    self.addplayer = QPushButton('add offense')
-    self.addplayer.clicked.connect(self.addAttacker)
-    verticallayout.addWidget(self.addplayer)
 
-    self.addopponent = QPushButton('add defense')
-    self.addopponent.clicked.connect(self.addDefender)
-    verticallayout.addWidget(self.addopponent)
+    self.strat_selector1 = QComboBox()
+    self.strat_selector1.addItem("Strategie 1")
+    self.strat_selector1.currentIndexChanged.connect(self.selectionChange1)
+
+    verticallayout.addWidget(self.strat_selector1)
+
+    self.strat_selector2 = QComboBox()
+    self.strat_selector2.addItem("Strategie 2")
+    self.strat_selector2.currentIndexChanged.connect(self.selectionChange2)
+
+    verticallayout.addWidget(self.strat_selector2)
+
+    # self.addplayer = QPushButton('add offense')
+    # self.addplayer.clicked.connect(self.addAttacker)
+    # verticallayout.addWidget(self.addplayer)
+    #
+    # self.addopponent = QPushButton('add defense')
+    # self.addopponent.clicked.connect(self.addDefender)
+    # verticallayout.addWidget(self.addopponent)
 
     self.posbut = QPushButton("remove all players")
     self.posbut.clicked.connect(self.click_function)
     verticallayout.addWidget(self.posbut)
 
-    self.saveButton = QPushButton('save strat')
-    self.saveButton.clicked.connect(self.save_function)
-    verticallayout.addWidget(self.saveButton)
+    # self.saveButton = QPushButton('save strat')
+    # self.saveButton.clicked.connect(self.save_function)
+    # verticallayout.addWidget(self.saveButton)
+    #
+    # self.loadButton = QPushButton('load strat')
+    # self.loadButton.clicked.connect(self.load_function)
+    # verticallayout.addWidget(self.loadButton)
+    #
+    # self.voronoiButton = QPushButton('Voronoi')
+    # self.voronoiButton.clicked.connect(self.vor)
+    # verticallayout.addWidget(self.voronoiButton)
 
-    self.loadButton = QPushButton('load strat')
-    self.loadButton.clicked.connect(self.load_function)
-    verticallayout.addWidget(self.loadButton)
-
-    self.voronoiButton = QPushButton('Voronoi')
-    self.voronoiButton.clicked.connect(self.vor)
-    verticallayout.addWidget(self.voronoiButton)
-
-    self.anim = QPushButton('Simple Anim')
-    self.anim.clicked.connect(self.animation)
-    verticallayout.addWidget(self.anim)
-
-    self.anim = QPushButton('Experiment')
-    self.anim.clicked.connect(self.startExperiment)
-    verticallayout.addWidget(self.anim)
+    # self.anim = QPushButton('Simple Anim')
+    # self.anim.clicked.connect(self.animation)
+    # verticallayout.addWidget(self.anim)
+    #
+    # self.anim = QPushButton('Experiment')
+    # self.anim.clicked.connect(self.startExperiment)
+    # verticallayout.addWidget(self.anim)
 
     self.settest = QPushButton('Test Set')
     self.settest.clicked.connect(self.testSet)
+    self.settest.setToolTip('Startet eine Reihe von Tests zur Bewertung der in Strategie 1 ausgewählten Strategie')
     verticallayout.addWidget(self.settest)
 
     self.compare = QCheckBox('Compare strategies')
     self.compare.toggled.connect(self.toggleCompare)
     verticallayout.addWidget(self.compare)
-
-    self.resetButton = QPushButton('reset')
-    self.resetButton.clicked.connect(self.reset)
-    self.resetButton.setEnabled(False)
-    verticallayout.addWidget(self.resetButton)
+    #
+    # self.resetButton = QPushButton('reset')
+    # self.resetButton.clicked.connect(self.reset)
+    # self.resetButton.setEnabled(False)
+    # verticallayout.addWidget(self.resetButton)
 
     verticallayout.addStretch(1)
 
