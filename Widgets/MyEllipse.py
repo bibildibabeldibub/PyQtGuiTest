@@ -118,7 +118,7 @@ class MyEllipse(QGraphicsEllipseItem):
 
                     #Movement während Positionierungsphase
                     #print("Positionierung = " + str(self.positioned))
-                    if not self.positioned:
+                    if not self.spieler.getLocation() == self.destination:
                         # self.new_pos = self.moveForward(self.destination)
                         self.spieler.setLocation(self.destination[0], self.destination[1])
                         self.positioned = True

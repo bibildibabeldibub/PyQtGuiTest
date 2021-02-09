@@ -118,7 +118,7 @@ class SoccerScene(QGraphicsScene):
 
             time.sleep(1)
 
-            if self.repetition_counter <= self.reps:
+            if self.repetition_counter < self.reps:
                 """ Aufstellung braucht noch durchläufe
                 * Zurücksetzen der Spieler
                 * Neustart der Simulation
@@ -140,14 +140,17 @@ class SoccerScene(QGraphicsScene):
                         self.resetSignal.emit("Strat")
                         self.setup.changeStrategy()
                         self.covered_attackers = []
+                        self.loadDefPositions(self.strats[1])
                         self.phase = 0
                         self.repetition_counter = 0
                         self.strat_count += 1
 
-                    elif self.setup_count <= self.setup_total:
+                    elif self.setup_count < self.setup_total:
                         """Start mit neuer Aufstellung
                         * Strategie wird im Setup constructor wieder zurückgesetzt
                         """
+
+                        self.loadDefPositions(self.strats[0])
                         self.resetSetup()
 
                     else:
@@ -312,6 +315,10 @@ class SoccerScene(QGraphicsScene):
             self.strats = []
 
     def appendStrats(self, strat: str):
+        self.loadDefPositions(strat)
+        self.strats.append(strat)
+
+    def loadDefPositions(self, strat):
         if strat.endswith('.json'):
             filename = "Strategies/"+strat
             with open(filename, 'r') as file:
@@ -319,5 +326,3 @@ class SoccerScene(QGraphicsScene):
             obj = json.loads(data)
             for pos in obj.keys():
                 self.defend_positions.append(obj[pos])
-        self.strats.append(strat)
-
