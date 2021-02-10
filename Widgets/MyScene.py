@@ -138,12 +138,12 @@ class SoccerScene(QGraphicsScene):
                     if self.strat_count < 1:
                         print("Ändere Strategie")
                         self.resetSignal.emit("Strat")
-                        self.setup.changeStrategy()
                         self.covered_attackers = []
-                        self.loadDefPositions(self.strats[1])
+                        self.strat_count += 1
+                        self.loadDefPositions(self.strats[self.strat_count])
+                        self.setup.changeStrategy()
                         self.phase = 0
                         self.repetition_counter = 0
-                        self.strat_count += 1
 
                     elif self.setup_count < self.setup_total:
                         """Start mit neuer Aufstellung
