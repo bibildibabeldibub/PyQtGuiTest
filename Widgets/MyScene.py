@@ -255,7 +255,7 @@ class SoccerScene(QGraphicsScene):
         for i in self.raster_polygons:
             rp = self.addPolygon(i)
 
-            farbwert = side_methods.Bewertung.evaluatePoint(i.boundingRect().x() + 5, i.boundingRect().y() + 5)
+            farbwert = self.bewerter.evaluatePoint(i.boundingRect().x() + 5, i.boundingRect().y() + 5)
             if farbwert > 1:
                 farbwert = 1
             color.setAlphaF(farbwert)
@@ -293,11 +293,12 @@ class SoccerScene(QGraphicsScene):
         self.repetition_counter = 0
         self.clearPlayers()
         gc.collect()
+        self.setup.stopBewerter()
 
         self.covered_attackers = []
+        self.setup_count += 1
         self.setup = TestSetUp(self, self.setup_count)
         self.setup.changeStrategy()
-        self.setup_count += 1
 
     def clearPlayers(self):
         self.window.deleteAllPlayers()

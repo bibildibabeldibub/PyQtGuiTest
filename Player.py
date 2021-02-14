@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QLineF, QPointF, QRectF, QObject, pyqtSignal, pyqtS
 import numpy as np
 from Widgets.MyEllipse import MyEllipse
 import json
-from side_methods.Bewertung import evaluatePoint
+from side_methods.Bewertung import Bewerter
 import time
 import math
 import random
@@ -273,12 +273,12 @@ class defensePlayer(Player):
 
         attacker = self.enemy
         positions = attacker.getPosRaster()
-        max_val = 0
+        bewerter = Bewerter()
         worst_case_pos = []
         worst_case_pos_str = []
         point_val = {}
         for i in positions:
-            val = evaluatePoint(i[0], i[1])
+            val = bewerter.evaluatePoint(i[0], i[1])
             point_val.update({str(i):val})
 
         #Beachte Worstcase:
@@ -293,7 +293,7 @@ class defensePlayer(Player):
             point = i.strip('][').split(', ')
             point[0] = int(point[0])
             point[1] = int(point[1])
-            #print(point)
+
             worst_case_pos.append(point)
             #self.worstcase_point = self.scene.addEllipse(point[0],point[1],10,10,QPen(Qt.red),QBrush(Qt.red))
         #print(worst_case_pos)
@@ -310,7 +310,14 @@ class defensePlayer(Player):
         dxm = round(self.enemy_critical_positions[0][0] - en_current_pos[0] * self.pos_distance, 2)
         dym = round(self.enemy_critical_positions[0][1] - en_current_pos[1] * self.pos_distance, 2)
 
-        final_pos = [en_current_pos[0]+dxm, en_current_pos[1]+dym]
+        final_x = en_current_pos[0]+dxm
+        final_y = en_current_pos[1]+dym
+
+        if final_x < 0:
+            """Verschiebung der Finalen Position in eigene Hälfte (nach Strahlensatz)"""
+            final_pos = [0, final_y - (final_y * final_x/(final_x - 450))]
+        else:
+            final_pos = [final_x, final_y]
 
         return final_pos
 

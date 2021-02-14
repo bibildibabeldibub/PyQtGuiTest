@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import Player
-from side_methods.Bewertung import evaluatePlayer
 
 
 class InfoLabel(QLabel):
@@ -34,8 +33,6 @@ class InfoLabel(QLabel):
         self.l1.setText("Flächeninhalt:\n  " + str(self.p.area()))
         self.l2.setText("Position:\n  " + str(self.p.getLocation()))
         self.l3.setText(str(self.p))
-        # if self.eval and self.update_count == 0:
-        #     self.l4.setText("Punktzahl:\n " + str(evaluatePlayer(self.parent().parent().scene.unordered_raster, self.p)[1]))
         self.l1.update()
         self.l2.update()
         self.l3.update()

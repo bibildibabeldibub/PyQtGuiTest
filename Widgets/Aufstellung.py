@@ -22,6 +22,7 @@ class TestSetUp(object):
         self.lockedDefenders = None
         self.locked = False
 
+        self.bewerter = Bewertung.Bewerter()
         self.logger = JsonLogger(self, self.scene.date)
         self.writeLog()
         self.changeStrategy()
@@ -49,7 +50,7 @@ class TestSetUp(object):
 
     def evaluateAll(self):
         run = "run-" + str(self.score_run)
-        self.scores.update({run: Bewertung.evaluateScene(self.scene)})
+        self.scores.update({run: self.bewerter.evaluateScene(self.scene)})
         self.score_run += 1
 
     def writeLog(self):
@@ -72,8 +73,11 @@ class TestSetUp(object):
         self.scores = {}
         self.score_run = 0
 
+    def stopBewerter(self):
+        del self.bewerter
+
     def __del__(self):
-        print("SetUp Deletion")
+        print("SetUp Deletion: " + str(self.number))
 
 
 class Team(object):
