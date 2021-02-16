@@ -10,8 +10,6 @@ import math
 from Widgets import MyEllipse
 import side_methods.Bewertung
 from Widgets.Aufstellung import TestSetUp
-import gc
-
 
 class SoccerScene(QGraphicsScene):
 
@@ -134,6 +132,7 @@ class SoccerScene(QGraphicsScene):
                 if self.compare:
                     """Neustart der Aufstellung mit anderer Strategie"""
                     print("Vergleichmodus aktiv")
+                    print(datetime.now().strftime("%d_%m_%Y_%H_%M_%S"))
 
                     if self.strat_count < 1:
                         print("Ändere Strategie")
@@ -292,7 +291,7 @@ class SoccerScene(QGraphicsScene):
         self.phase = 0
         self.repetition_counter = 0
         self.clearPlayers()
-        gc.collect()
+        # gc.collect()
         self.setup.stopBewerter()
 
         self.covered_attackers = []
