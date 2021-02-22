@@ -12,6 +12,7 @@ class Bewerter(object):
         super().__init__()
         self.team = None
         self.scene = None
+        self.remaining_raster = None
 
     def evaluatePoint(self, x: float, y: float):
             """:returns Wert an dem Punkt"""
@@ -26,9 +27,9 @@ class Bewerter(object):
             return wert
 
     def evaluateScene(self, scene: Widgets.MyScene.SoccerScene):
-        remaining_raster = scene.unordered_raster
+        self.remaining_raster = scene.unordered_raster
         self.scene = scene
-        score_ohne = self.evaluateDefense(scene.defenders, remaining_raster)
+        score_ohne = self.evaluateDefense(scene.defenders, self.remaining_raster)
 
         print(score_ohne)
 
@@ -60,10 +61,10 @@ class Bewerter(object):
                 score_both += score/16
 
         scores = {
-            "ohne": round(score),
-            "schussweg": round(schussweg),
-            "spieler": round(score_blocked),
-            "beides": round(score_both)
+            "ohne": round(score, 2),
+            "schussweg": round(schussweg, 2),
+            "spieler": round(score_blocked, 2),
+            "beides": round(score_both, 2)
         }
 
         return scores

@@ -194,8 +194,8 @@ class MainWindow(QWidget):
         """is triggered everytime a player changes his position"""
 
         self.vor()
-        self.infoAttackers.updateInfo()
-        self.infoDefenders.updateInfo()
+        # self.infoAttackers.updateInfo()
+        # self.infoDefenders.updateInfo()
 
     def add_lines(self):
         #Helferlinien

@@ -6,7 +6,6 @@ import Player
 class InfoLabel(QLabel):
     def __init__(self, p: Player.Player):
         super().__init__()
-        self.update_count = 0
         layout = QVBoxLayout()
         self.p = p
 
@@ -37,13 +36,6 @@ class InfoLabel(QLabel):
         self.l2.update()
         self.l3.update()
         self.l4.update()
-        self.update_count += 1
-        if self.update_count >= 30:
-            self.update_count = 0
-
-    def toggleEval(self):
-        self.eval = not self.eval
-
 
 
 class InfoBox(QWidget):
