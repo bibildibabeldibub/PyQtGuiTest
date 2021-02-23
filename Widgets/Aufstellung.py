@@ -50,7 +50,12 @@ class TestSetUp(object):
 
     def evaluateAll(self):
         run = "run-" + str(self.score_run)
-        self.scores.update({run: self.bewerter.evaluateScene(self.scene)})
+        bewertung = self.bewerter.evaluateScene(self.scene)
+        endpositionen = {"Attacker": self.angreifer.__dict__(),
+                         "Defender": self.verteidiger.__dict__()}
+
+        bewertung.update(endpositionen)
+        self.scores.update({run: bewertung})
         self.score_run += 1
 
     def writeLog(self):

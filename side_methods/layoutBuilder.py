@@ -132,9 +132,13 @@ def buildBtns(self, verticallayout = None):
     # self.saveButton.clicked.connect(self.save_function)
     # verticallayout.addWidget(self.saveButton)
     #
-    # self.loadButton = QPushButton('load strat')
-    # self.loadButton.clicked.connect(self.load_function)
-    # verticallayout.addWidget(self.loadButton)
+    self.loadButton = QPushButton('Lade Aufstellung')
+    self.loadButton.clicked.connect(self.load_function)
+    verticallayout.addWidget(self.loadButton)
+
+    self.load_final_positions = QPushButton('Lade Endposition')
+    self.load_final_positions.clicked.connect(self.load_endpositions)
+    verticallayout.addWidget(self.load_final_positions)
     #
     # self.voronoiButton = QPushButton('Voronoi')
     # self.voronoiButton.clicked.connect(self.vor)

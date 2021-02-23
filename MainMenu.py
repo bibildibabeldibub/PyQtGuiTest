@@ -162,27 +162,43 @@ class MainWindow(QWidget):
         if filenames[0] is not '':
             f = open(filenames[0], 'r')
             txt = f.read()
-            if txt == '':
-                return
-            teams = txt.split("Opponents:\n")
-            print(teams[0])
-            play_atts = teams[0].split("\n")
-            for wert_tripel in play_atts:
-                if len(wert_tripel) > 1:
-                    att = wert_tripel.split(", ")   # 3 attribute von einzelnen spielern
-                    print("P" + str(len(self.dict_defenders)) + " attributes:\n")
-                    print(att)
-                    self.addAttacker(int(att[0]), float(att[1]), float(att[2]))
+            jdata = json.loads(txt)
+            attacker = jdata["Attacker"]
+            defender = jdata["Defender"]
 
-            print("\nopponents: \n")
-            opponents = teams[1].split("\n")
-            for wert_tripel in opponents:
-                if len(wert_tripel) > 1:
-                    att = wert_tripel.split(', ')
-                    print("attributes:\n")
-                    print(att)
-                    self.addDefender(int(att[0]), float(att[1]), float(att[2]))
-            print(self.dict_attackers)
+            for k in attacker.keys():
+                self.addAttacker(int(k), attacker[k]["posx"], attacker[k]["posy"])
+
+            for k in defender.keys():
+                self.addDefender(int(k), defender[k]["posx"], defender[k]["posy"])
+
+    def load_endpositions(self, file=None):
+        """deleting actual players, starts file dialog for loading player positions"""
+        if(not file):
+            filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
+        else:
+            filenames = [file]
+
+        input_dialog = QInputDialog()
+        num, ok = QInputDialog.getInt(input_dialog, "Wiederholungsauswahl", "Zahl der Wiederholung, die angezeigt werden soll:")
+        if not ok:
+            exit("Fehler bei Woederholungsauswahl")
+
+        num = "run-" + str(num)
+        self.deleteAllPlayers()
+        if filenames[0] is not '':
+            f = open(filenames[0], 'r')
+            txt = f.read()
+            jdata = json.loads(txt)
+            attacker = jdata["Scores"][num]["Attacker"]
+            defender = jdata["Scores"][num]["Defender"]
+
+            for k in attacker.keys():
+                self.addAttacker(int(k), attacker[k]["posx"], attacker[k]["posy"])
+
+            for k in defender.keys():
+                self.addDefender(int(k), defender[k]["posx"], defender[k]["posy"])
+
 
     def vor(self):
         for p in self.dict_attackers + self.dict_defenders:
@@ -192,10 +208,7 @@ class MainWindow(QWidget):
 
     def update_info(self):
         """is triggered everytime a player changes his position"""
-
         self.vor()
-        # self.infoAttackers.updateInfo()
-        # self.infoDefenders.updateInfo()
 
     def add_lines(self):
         #Helferlinien
