@@ -2,7 +2,7 @@ import os
 import json
 import datetime
 import matplotlib.pyplot as plt
-import numpy as np
+from scipy import stats
 
 logdir = "log"
 ohne_base = []
@@ -59,31 +59,42 @@ for date in os.listdir(logdir):
                             block_naiv.append(scores[k]["spieler"])
                             beides_naiv.append(scores[k]["beides"])
 
+p_wert_ohne = stats.ttest_ind(ohne_base, ohne_naiv)[1]
 print(len(ohne_naiv))
 print(len(ohne_base))
+print("P-Wert:" + str(p_wert_ohne))
+
+p_wert_schuss = stats.ttest_ind(schuss_base, schuss_naiv)[1]
 print(len(schuss_naiv))
 print(len(schuss_base))
+print("P-Wert:" + str(p_wert_schuss))
+
+p_wert_block = stats.ttest_ind(block_base, block_naiv)[1]
 print(len(block_naiv))
 print(len(block_base))
+print("P-Wert:" + str(p_wert_block))
+
+p_wert_beides = stats.ttest_ind(beides_base, beides_naiv)[1]
 print(len(beides_naiv))
 print(len(beides_base))
+print("P-Wert:" + str(p_wert_beides))
 #zur Darstellung mehrerer Daten wird
 
 
 fig1, ax1 = plt.subplots()
-ax1.set_title('Ohne Bonus/Malus')
+ax1.set_title('Ohne Bonus/Malus :  ' + str(p_wert_ohne))
 ax1.boxplot([ohne_base, ohne_naiv])
 
 fig2, ax2 = plt.subplots()
-ax2.set_title('Schussweg Malus')
+ax2.set_title('Schussweg Malus :  ' + str(p_wert_schuss))
 ax2.boxplot([schuss_base, schuss_naiv])
 
 fig3, ax3 = plt.subplots()
-ax3.set_title('Blockierung Bonus')
+ax3.set_title('Blockierung Bonus :  ' + str(p_wert_block))
 ax3.boxplot([block_base, block_naiv])
 
 fig4, ax4 = plt.subplots()
-ax4.set_title('Bonus und Malus')
+ax4.set_title('Bonus und Malus :  ' + str(p_wert_beides))
 ax4.boxplot([beides_base, beides_naiv])
 
 plt.show()
