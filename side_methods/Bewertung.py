@@ -119,6 +119,7 @@ class Bewerter(object):
         schatten = []
 
         for d in self.scene.defenders:
+            print(d)
             x_defender = d.getLocation()[0]
             y_defender = d.getLocation()[1]
             y_oberer_bauch = y_defender - 10
@@ -138,7 +139,7 @@ class Bewerter(object):
                     """Schatten schneidet oberen Pfosten"""
                     tor_schatten_oben = y_oberer_pfosten
                     tor_schatten_unten = y_unterer_schatten
-            if y_oberer_pfosten < y_oberer_schatten < y_unterer_pfosten:
+            elif y_oberer_pfosten < y_oberer_schatten < y_unterer_pfosten:
                 if y_unterer_schatten < y_unterer_pfosten:
                     """Beide Schattengrenzen innerhalb des Tores"""
                     tor_schatten_oben = y_oberer_schatten
@@ -150,6 +151,8 @@ class Bewerter(object):
             else:
                 """Schatten liegt unter dem Tor"""
                 continue
+
+            print([tor_schatten_oben, tor_schatten_unten])
 
             if len(schatten) == 0:
                 schatten.append([tor_schatten_oben, tor_schatten_unten])
