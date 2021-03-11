@@ -15,6 +15,7 @@ from screeninfo import get_monitors
 from datetime import datetime
 import os, shutil
 from side_methods import SetupToString, Logging, animation, layoutBuilder
+import random
 
 
 
@@ -110,12 +111,20 @@ class MainWindow(QWidget):
         """adds a player to scene"""
         if not number:
             number = len(self.dict_attackers) + 1
+        if not x and x != 0:
+            x = random.uniform(-450, 0)
+        if not y and y != 0:
+            y = random.uniform(-300, 300)
         offensePlayer(number, self.scene, x, y)
 
     def addDefender(self, number=None, x=None, y=None):
         """adds a opponent to scene"""
         if not number:
             number = len(self.dict_defenders) + 1
+        if not x and x != 0:
+            x = random.uniform(0, 450)
+        if not y and y != 0:
+            y = random.uniform(-300, 300)
         defensePlayer(number, self.scene, x, y)
 
     def appendPlayer(self, player):
@@ -142,12 +151,13 @@ class MainWindow(QWidget):
     def load_function(self, file = None):
         """deleting actual players, starts file dialog for loading player positions"""
         if(not file):
-            dialog = QMessageBox()
-            dialog.setWindowTitle("Strategy deleting")
-            dialog.setIcon(QMessageBox.Warning)
-            dialog.setText("Continuing will delete actual strategy")
-            dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            val = dialog.exec_()
+            # dialog = QMessageBox()
+            # dialog.setWindowTitle("Strategy deleting")
+            # dialog.setIcon(QMessageBox.Warning)
+            # dialog.setText("Continuing will delete actual strategy")
+            # dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            # val = dialog.exec_()
+            val = 1024
         else: val = 1023
 
         print(file)
@@ -169,7 +179,9 @@ class MainWindow(QWidget):
             for k in attacker.keys():
                 self.addAttacker(int(k), attacker[k]["posx"], attacker[k]["posy"])
 
+            print("Verteidiger:")
             for k in defender.keys():
+                print(str(k) + ", " + str(defender[k]["posx"]) + ", " + str(defender[k]["posy"]))
                 self.addDefender(int(k), defender[k]["posx"], defender[k]["posy"])
 
     def load_endpositions(self, file=None):
@@ -210,16 +222,16 @@ class MainWindow(QWidget):
         """is triggered everytime a player changes his position"""
         self.vor()
 
-    def add_lines(self):
+    def addLines(self):
         #Helferlinien
         if self.toggleLines.isChecked():
-            self.scene.show_raster()
-            self.helpX = self.scene.addLine(0,-300,0,300)
-            self.helpY = self.scene.addLine(-450,0,450,0)
+            self.scene.showRaster()
+            #self.helpX = self.scene.addLine(0,-300,0,300)
+            #self.helpY = self.scene.addLine(-450,0,450,0)
 
         else:
-            self.scene.removeItem(self.helpX)
-            self.scene.removeItem(self.helpY)
+            # self.scene.removeItem(self.helpX)
+            # self.scene.removeItem(self.helpY)
             self.scene.hide_raster()
 
     def deleteAllPlayers(self):
@@ -299,6 +311,8 @@ class MainWindow(QWidget):
 
         self.scene.testSet(self.comparison)
 
+    def bewerten(self):
+        self.scene.bewertung()
 
     def toggleCompare(self):
         self.comparison = self.compare.checkState()
