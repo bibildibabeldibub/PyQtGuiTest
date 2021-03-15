@@ -116,15 +116,15 @@ def buildBtns(self, verticallayout = None):
 
     verticallayout.addWidget(self.strat_selector2)
 
-    # self.addplayer = QPushButton('add offense')
-    # self.addplayer.clicked.connect(self.addAttacker)
-    # verticallayout.addWidget(self.addplayer)
-    #
-    # self.addopponent = QPushButton('add defense')
-    # self.addopponent.clicked.connect(self.addDefender)
-    # verticallayout.addWidget(self.addopponent)
+    self.addplayer = QPushButton('Angreifer')
+    self.addplayer.clicked.connect(self.addAttacker)
+    verticallayout.addWidget(self.addplayer)
 
-    self.posbut = QPushButton("remove all players")
+    self.addopponent = QPushButton('Verteidiger')
+    self.addopponent.clicked.connect(self.addDefender)
+    verticallayout.addWidget(self.addopponent)
+
+    self.posbut = QPushButton("Alle Spieler entfernen")
     self.posbut.clicked.connect(self.click_function)
     verticallayout.addWidget(self.posbut)
 
@@ -139,10 +139,10 @@ def buildBtns(self, verticallayout = None):
     self.load_final_positions = QPushButton('Lade Endposition')
     self.load_final_positions.clicked.connect(self.load_endpositions)
     verticallayout.addWidget(self.load_final_positions)
-    #
-    # self.voronoiButton = QPushButton('Voronoi')
-    # self.voronoiButton.clicked.connect(self.vor)
-    # verticallayout.addWidget(self.voronoiButton)
+
+    self.voronoiButton = QPushButton('Voronoi')
+    self.voronoiButton.clicked.connect(self.vor)
+    verticallayout.addWidget(self.voronoiButton)
 
     # self.anim = QPushButton('Simple Anim')
     # self.anim.clicked.connect(self.animation)
@@ -152,7 +152,7 @@ def buildBtns(self, verticallayout = None):
     # self.anim.clicked.connect(self.startExperiment)
     # verticallayout.addWidget(self.anim)
 
-    self.settest = QPushButton('Test Set')
+    self.settest = QPushButton('Strategien Testen')
     self.settest.clicked.connect(self.testSet)
     self.settest.setToolTip('Startet eine Reihe von Tests zur Bewertung der in Strategie 1 ausgewählten Strategie')
     verticallayout.addWidget(self.settest)
@@ -160,11 +160,11 @@ def buildBtns(self, verticallayout = None):
     self.compare = QCheckBox('Compare strategies')
     self.compare.toggled.connect(self.toggleCompare)
     verticallayout.addWidget(self.compare)
-    #
-    # self.resetButton = QPushButton('reset')
-    # self.resetButton.clicked.connect(self.reset)
-    # self.resetButton.setEnabled(False)
-    # verticallayout.addWidget(self.resetButton)
+
+    self.bewertungButton = QPushButton('Bewerten')
+    self.bewertungButton.clicked.connect(self.bewerten)
+    self.bewertungButton.setEnabled(True)
+    verticallayout.addWidget(self.bewertungButton)
 
     verticallayout.addStretch(1)
 
@@ -172,8 +172,8 @@ def buildBtns(self, verticallayout = None):
     self.closeButton.clicked.connect(self.close_function)
     verticallayout.addWidget(self.closeButton)
 
-    self.toggleLines = QCheckBox('Linien')
-    self.toggleLines.toggled.connect(self.add_lines)
+    self.toggleLines = QCheckBox('Priorisierung')
+    self.toggleLines.toggled.connect(self.addLines)
     verticallayout.addWidget(self.toggleLines)
 
     return verticallayout

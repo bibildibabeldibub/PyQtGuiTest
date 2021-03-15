@@ -3,6 +3,21 @@ import json
 import datetime
 import matplotlib.pyplot as plt
 from scipy import stats
+import statistics
+import math
+
+def mittelwert(liste):
+    n = 0
+    s = 0
+    for x in liste:
+        s += x
+        n += 1
+
+    return s/n
+
+def standardabweichung(liste):
+    v = statistics.variance(liste)
+    return math.sqrt(v)
 
 logdir = "log"
 ohne_base = []
@@ -23,6 +38,8 @@ minimum_first_file = [""]
 
 for date in os.listdir(logdir):
     date_path = os.path.join(logdir, date)
+    if date == 'excluded':
+        continue
     for setup in os.listdir(date_path):
         setup_path = os.path.join(date_path, setup)
         for strat in os.listdir(setup_path):
@@ -59,51 +76,150 @@ for date in os.listdir(logdir):
                             block_naiv.append(scores[k]["spieler"])
                             beides_naiv.append(scores[k]["beides"])
 
-p_wert_ohne = stats.ttest_ind(ohne_base, ohne_naiv)[1]
-print(len(ohne_naiv))
 print(len(ohne_base))
-print("P-Wert:" + str(p_wert_ohne))
+print(len(ohne_naiv))
 
-p_wert_schuss = stats.ttest_ind(schuss_base, schuss_naiv)[1]
-print(len(schuss_naiv))
-print(len(schuss_base))
-print("P-Wert:" + str(p_wert_schuss))
+print("Shapiro-Wilk-Test: Base-Ohne (W, P)")
+sw_ob = stats.shapiro(ohne_base)
+print(type(sw_ob))
+print(sw_ob)
+print("\n")
 
-p_wert_block = stats.ttest_ind(block_base, block_naiv)[1]
-print(len(block_naiv))
-print(len(block_base))
-print("P-Wert:" + str(p_wert_block))
+print("Shapiro-Wilk-Test: Naiv-Ohne (W, P)")
+sw_on = stats.shapiro(ohne_naiv)
+print(sw_on)
+print("\n")
 
-p_wert_beides = stats.ttest_ind(beides_base, beides_naiv)[1]
-print(len(beides_naiv))
-print(len(beides_base))
-print("P-Wert:" + str(p_wert_beides))
-#zur Darstellung mehrerer Daten wird
+print("Shapiro-Wilk-Test: Base-Schussweg (W, P)")
+sw_sb = stats.shapiro(schuss_base)
+print(sw_sb)
+print("\n")
+
+print("Shapiro-Wilk-Test: Naiv-Schussweg (W, P)")
+sw_sn = stats.shapiro(schuss_naiv)
+print(sw_sn)
+print("\n")
+
+print("Shapiro-Wilk-Test: Base-Spielerblock (W, P)")
+sw_bb = stats.shapiro(block_base)
+print(sw_bb)
+print("\n")
+
+print("Shapiro-Wilk-Test: Naiv-Spielerblock (W, P)")
+sw_bn = stats.shapiro(block_naiv)
+print(sw_bn)
+print("\n")
+
+print("Shapiro-Wilk-Test: Base-Beides (W, P)")
+sw_bothb = stats.shapiro(beides_base)
+print(sw_bothb)
+print("\n")
+
+print("Shapiro-Wilk-Test: Naiv-Beides (W, P)")
+sw_bothn = stats.shapiro(beides_naiv)
+print(sw_bothn)
+print("\n")
+
+parts = []
+
+fig1, axes1 = plt.subplots(ncols=2, sharey='all')
+fig1.canvas.set_window_title("Ohne Bonus/Malus")
+axes1[0].set_title("Base SW-Test(W): " + str(round(sw_ob[0], 3)))
+axes1[0].set_ylabel("Bewertung")
+parts.append(axes1[0].violinplot(ohne_base, showextrema=True, showmeans=True, showmedians=True))
+axes1[1].set_title("Naiv SW-Test(W): " + str(round(sw_on[0], 3)))
+parts.append(axes1[1].violinplot(ohne_naiv, showextrema=True, showmeans=True, showmedians=True))
+
+fig2, axes2 = plt.subplots(ncols=2, sharey='all')
+fig2.canvas.set_window_title("Schussweg Malus")
+axes2[0].set_title("Base SW-Test(W): " + str(round(sw_sb[0], 3)))
+axes2[0].set_ylabel("Bewertung")
+parts.append(axes2[0].violinplot(schuss_base, showextrema=True, showmeans=True, showmedians=True))
+axes2[1].set_title("Naiv SW-Test(W): " + str(round(sw_sn[0], 3)))
+parts.append(axes2[1].violinplot(schuss_naiv, showextrema=True, showmeans=True, showmedians=True))
+
+fig3, axes3 = plt.subplots(ncols=2, sharey='all')
+fig3.canvas.set_window_title("Block Bonus")
+axes3[0].set_title("Base SW-Test(W): " + str(round(sw_bb[0], 3)))
+axes3[0].set_ylabel("Bewertung")
+parts.append(axes3[0].violinplot(block_base, showextrema=True, showmeans=True, showmedians=True))
+axes3[1].set_title("Naiv SW-Test(W): " + str(round(sw_bn[0], 3)))
+parts.append(axes3[1].violinplot(block_naiv, showextrema=True, showmeans=True, showmedians=True))
+
+fig4, axes4 = plt.subplots(ncols=2, sharey='all')
+fig4.canvas.set_window_title("Beides")
+axes4[0].set_title("Base SW-Test(W): " + str(round(sw_bothb[0], 3)))
+axes4[0].set_ylabel("Bewertung")
+parts.append(axes4[0].violinplot(beides_base, showextrema=True, showmeans=True, showmedians=True))
+axes4[1].set_title("Naiv SW-Test(W): " + str(round(sw_bothn[0], 3)))
+parts.append(axes4[1].violinplot(beides_naiv, showextrema=True, showmeans=True, showmedians=True))
 
 
-fig1, ax1 = plt.subplots()
-ax1.set_title('Ohne Bonus/Malus :  ' + str(p_wert_ohne))
-ax1.boxplot([ohne_base, ohne_naiv])
+for p in parts:
+    for pc in p['bodies']:
+        pc.set_edgecolor('black')
 
-fig2, ax2 = plt.subplots()
-ax2.set_title('Schussweg Malus :  ' + str(p_wert_schuss))
-ax2.boxplot([schuss_base, schuss_naiv])
+# val = stats.ttest_ind(ohne_base, ohne_naiv, equal_var=False)
+# t_wert_ohne = val[0]
+# p_wert_ohne = val[1]
+# # print(len(ohne_naiv))
+# # print(len(ohne_base))
+# print("Ohne:")
+# print("\tP-Wert:" + str(p_wert_ohne))
+# print("\tT-Wert:" + str(t_wert_ohne))
+# print("\tMittelwert-base:" + str(mittelwert(ohne_base)))
+# print("\tMittelwert-naiv:" + str(mittelwert(ohne_naiv)))
+# print("\tStandardabweichung-base:" + str(standardabweichung(ohne_base)))
+# print("\tStandardabweichung-naiv:" + str(standardabweichung(ohne_naiv)))
+#
+# val = stats.ttest_ind(schuss_base, schuss_naiv, equal_var=False)
+# t_wert_schuss = val[0]
+# p_wert_schuss = val[1]
+# # print(len(schuss_naiv))
+# # print(len(schuss_base))
+# print("Schussweg")
+# print("\tP-Wert:" + str(p_wert_schuss))
+# print("\tT-Wert:" + str(t_wert_schuss))
+# print("\tMittelwert-base:" + str(mittelwert(schuss_base)))
+# print("\tMittelwert-naiv:" + str(mittelwert(schuss_naiv)))
+# print("\tStandardabweichung-base:" + str(standardabweichung(schuss_base)))
+# print("\tStandardabweichung-naiv:" + str(standardabweichung(schuss_naiv)))
+#
+# val = stats.ttest_ind(block_base, block_naiv, equal_var=False)
+# t_wert_block = val[0]
+# p_wert_block = val[1]
+# # print(len(block_naiv))
+# # print(len(block_base))
+# print("Spielerblockierung:")
+# print("\tP-Wert:" + str(p_wert_block))
+# print("\tT-Wert:" + str(t_wert_block))
+# print("\tMittelwert-base:" + str(mittelwert(block_base)))
+# print("\tMittelwert-naiv:" + str(mittelwert(block_naiv)))
+# print("\tStandardabweichung-base:" + str(standardabweichung(block_base)))
+# print("\tStandardabweichung-naiv:" + str(standardabweichung(block_naiv)))
+#
+# val = stats.ttest_ind(beides_base, beides_naiv, equal_var=False)
+# t_wert_beides = val[0]
+# p_wert_beides = val[1]
+# # print(len(beides_naiv))
+# # print(len(beides_base))
+# print("Beides:")
+# print("\tP-Wert:" + str(p_wert_beides))
+# print("\tT-Wert:" + str(t_wert_beides))
+# print("\tMittelwert-base:" + str(mittelwert(beides_base)))
+# print("\tMittelwert-naiv:" + str(mittelwert(beides_naiv)))
+# print("\tStandardabweichung-base:" + str(standardabweichung(beides_base)))
+# print("\tStandardabweichung-naiv:" + str(standardabweichung(beides_naiv)))
 
-fig3, ax3 = plt.subplots()
-ax3.set_title('Blockierung Bonus :  ' + str(p_wert_block))
-ax3.boxplot([block_base, block_naiv])
 
-fig4, ax4 = plt.subplots()
-ax4.set_title('Bonus und Malus :  ' + str(p_wert_beides))
-ax4.boxplot([beides_base, beides_naiv])
-
+plt.subplots_adjust(bottom=0.15, wspace=0.05)
 plt.show()
-
 
 if not os.path.exists('plots'):
     os.mkdir('plots')
-t = datetime.datetime.now()
-t = t.strftime("%d_%m_%Y-%H_%M_%S")
+# t = datetime.datetime.now()
+# t = t.strftime("%d_%m_%Y-%H_%M_%S")
+t = 'violinplots'
 
 if not os.path.isdir(os.path.join("plots", t)):
     os.mkdir(os.path.join("plots", t))

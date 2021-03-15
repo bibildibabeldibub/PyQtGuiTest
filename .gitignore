@@ -3,4 +3,4 @@ venv
 /strats
 __pycache__/
 *.pyc
-/log/
+/log/excluded/

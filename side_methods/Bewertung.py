@@ -125,6 +125,10 @@ class Bewerter(object):
             y_oberer_bauch = y_defender - 10
             y_unterer_bauch = y_defender + 10
 
+            if x_attacker >= x_defender:
+                'Angreifer ist auf gleicher oder näher am Tor als Verteidiger'
+                continue
+
             y_oberer_schatten = (y_oberer_bauch - y_attacker) * (450 - x_attacker) / (x_defender - x_attacker) + y_attacker
             y_unterer_schatten = (y_unterer_bauch - y_attacker) * (450 - x_attacker) / (x_defender - x_attacker) + y_attacker
 
@@ -195,6 +199,8 @@ class Bewerter(object):
                     pos += 1
 
                 if pos_dif and pos+1 < len(schatten):
+                    print(pos_dif)
+                    print(pos)
                     for p in range(pos, pos_dif):
                         """Entfernen überschatteter Schattenelemente
                         pos ist das bearbeite Element 

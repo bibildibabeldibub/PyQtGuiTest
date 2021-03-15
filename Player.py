@@ -21,7 +21,7 @@ class Player:
         self.scene = scene
         self.covered_enemies = []
         self.vertices = []
-        self.polygon = self.scene.addPolygon(QPolygonF(), QPen(Qt.red))
+        self.polygon = self.scene.addPolygon(QPolygonF(), QPen(QColor(0, 0, 255, 255)))
         self.removePoly()
         self.mittlere_Bewertung = [0,0]
 
@@ -313,8 +313,10 @@ class defensePlayer(Player):
         final_x = en_current_pos[0]+dxm
         final_y = en_current_pos[1]+dym
 
+        # final_pos = [final_x, final_y]
         if final_x < 0:
             """Verschiebung der Finalen Position in eigene Hälfte (nach Strahlensatz)"""
+            print("X-Positionierung: " + str(final_x))
             final_pos = [0, final_y - (final_y * final_x/(final_x - 450))]
         else:
             final_pos = [final_x, final_y]

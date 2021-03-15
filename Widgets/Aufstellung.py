@@ -50,9 +50,11 @@ class TestSetUp(object):
 
     def evaluateAll(self):
         run = "run-" + str(self.score_run)
-        bewertung = self.bewerter.evaluateScene(self.scene)
         endpositionen = {"Attacker": self.angreifer.__dict__(),
                          "Defender": self.verteidiger.__dict__()}
+
+        self.writeLog()
+        bewertung = self.bewerter.evaluateScene(self.scene)
 
         bewertung.update(endpositionen)
         self.scores.update({run: bewertung})
@@ -64,6 +66,7 @@ class TestSetUp(object):
     def lockSetup(self):
         self.lockedAttackers = self.angreifer.__dict__()
         self.lockedDefenders = self.verteidiger.__dict__()
+        print(json.dumps(self.lockedDefenders, indent=4))
         self.locked = True
 
     def changeStrategy(self):
