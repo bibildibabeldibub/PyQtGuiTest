@@ -66,6 +66,8 @@ class MainWindow(QWidget):
         for f in listdir(self.strat_path):
             if isfile(join(self.strat_path, f)):
                 strats.append(f)
+                if f == "__init__.py":
+                    continue
                 self.strat_selector1.addItem(f)
                 self.strat_selector2.addItem(f)
 

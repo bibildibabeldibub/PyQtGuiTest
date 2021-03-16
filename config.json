@@ -6,6 +6,7 @@
   "positionierungszeit": 2,
   "animationszeit": 10,
   "positionierungsdistanz": 1,
-  "setups": 100
+  "setups": 100,
+  "test": true
 }
 

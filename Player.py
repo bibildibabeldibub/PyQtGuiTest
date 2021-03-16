@@ -4,10 +4,13 @@ from PyQt5.QtCore import Qt, QLineF, QPointF, QRectF, QObject, pyqtSignal, pyqtS
 import numpy as np
 from Widgets.MyEllipse import MyEllipse
 import json
-from side_methods.Bewertung import Bewerter
+
 import time
 import math
 import random
+import os
+import Strategies
+import importlib
 
 
 class Player:
@@ -267,61 +270,14 @@ class defensePlayer(Player):
             pos = self.scene.defend_positions.pop()
             return [pos['x'], pos['y']]
 
+        mod = file[:-3]
+        mod = 'Strategies.' + mod
+        mod = importlib.import_module(mod)
         if not self.enemy:
             print("Kein Gegner gefunden!")
             return
 
-        attacker = self.enemy
-        positions = attacker.getPosRaster()
-        bewerter = Bewerter()
-        worst_case_pos = []
-        worst_case_pos_str = []
-        point_val = {}
-        for i in positions:
-            val = bewerter.evaluatePoint(i[0], i[1])
-            point_val.update({str(i):val})
-
-        #Beachte Worstcase:
-        max_val = max(point_val.values())
-        #print("Worstcase-Positionen:")
-        for point, value in point_val.items():
-            if value == max_val:
-                worst_case_pos_str.append(point)
-
-        for i in worst_case_pos_str:
-            #Umwandlung String zu Position
-            point = i.strip('][').split(', ')
-            point[0] = int(point[0])
-            point[1] = int(point[1])
-
-            worst_case_pos.append(point)
-            #self.worstcase_point = self.scene.addEllipse(point[0],point[1],10,10,QPen(Qt.red),QBrush(Qt.red))
-        #print(worst_case_pos)
-        self.enemy_critical_positions = worst_case_pos
-
-        pos = self.getDefPos()
-
+        pos = mod.eval(self.enemy)
         return pos
-
-    def getDefPos(self):
-        """:returns Array [x,y] wo sich der Spieler positionieren soll"""
-
-        en_current_pos = self.enemy.getLocation()
-        dxm = round(self.enemy_critical_positions[0][0] - en_current_pos[0] * self.pos_distance, 2)
-        dym = round(self.enemy_critical_positions[0][1] - en_current_pos[1] * self.pos_distance, 2)
-
-        final_x = en_current_pos[0]+dxm
-        final_y = en_current_pos[1]+dym
-
-        # final_pos = [final_x, final_y]
-        if final_x < 0:
-            """Verschiebung der Finalen Position in eigene Hälfte (nach Strahlensatz)"""
-            print("X-Positionierung: " + str(final_x))
-            final_pos = [0, final_y - (final_y * final_x/(final_x - 450))]
-        else:
-            final_pos = [final_x, final_y]
-
-        return final_pos
-
 
 
