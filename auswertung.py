@@ -34,16 +34,26 @@ beides_second = []
 strats = []
 
 minimum_first_ohne = 32000
-minimum_first_file_ohne = [""]
-
 minimum_second_ohne = 32000
-minimum_second_file_ohne = [""]
+minimum_first_beides = 32000
+minimum_second_beides = 32000
 
 maximum_first_ohne = 0
-maximum_first_file_ohne = [""]
+maximum_second_ohne = 0
+maximum_first_beides = 0
+maximum_second_beides = 0
 
-max_second_ohne = 0
-max_second_file_ohne = [""]
+
+minimum_first_file_ohne = [""]
+minimum_second_file_ohne = [""]
+minimum_first_file_beides = [""]
+minimum_second_file_beides = [""]
+
+maximum_first_file_ohne = [""]
+maximum_second_file_ohne = [""]
+maximum_first_file_beides = [""]
+maximum_second_file_beides = [""]
+
 
 directories = os.listdir(logdir)
 directories.remove("excluded")
@@ -86,29 +96,65 @@ for date in os.listdir(logdir):
 
                 for k in scores.keys():
                     if strats.index(strat) == 0:
+                        '''Strategie 1'''
                         ohne_first.append(scores[k]["ohne"])
+                        '''Sammeln von Extrema'''
+                        #Minimum ohne
                         if scores[k]["ohne"] < minimum_first_ohne:
                             minimum_first_ohne = scores[k]["ohne"]
                             minimum_first_file_ohne = [file_path + "/" + str(k)]
                         elif scores[k]["ohne"] == minimum_first_ohne:
                             minimum_first_file_ohne.append(file_path + "/" + str(k))
-
+                        #Maximum ohne
                         if scores[k]["ohne"] > maximum_first_ohne:
                             maximum_first_ohne = scores[k]["ohne"]
                             maximum_first_file_ohne = [file_path + "/" + str(k)]
-                        elif scores[k]["ohne"] == minimum_first_ohne:
+                        elif scores[k]["ohne"] == maximum_first_ohne:
                             maximum_first_file_ohne.append(file_path + "/" + str(k))
+                        #Minimum beides
+                        if scores[k]["beides"] < minimum_first_beides:
+                            minimum_first_beides = scores[k]["beides"]
+                            minimum_first_file_beides = [file_path + "/" + str(k)]
+                        elif scores[k]["beides"] == minimum_first_beides:
+                            minimum_first_file_beides.append(file_path + "/" + str(k))
+                        #Maximum beides
+                        if scores[k]["beides"] > maximum_first_beides:
+                            maximum_first_beides = scores[k]["beides"]
+                            maximum_first_file_beides = [file_path + "/" + str(k)]
+                        elif scores[k]["beides"] == maximum_first_beides:
+                            maximum_first_file_beides.append(file_path + "/" + str(k))
 
                         schuss_first.append(scores[k]["schussweg"])
                         block_first.append(scores[k]["spieler"])
                         beides_first.append(scores[k]["beides"])
                     elif strats.index(strat) == 1:
+                        '''Strategie 2'''
                         ohne_second.append(scores[k]["ohne"])
+                        '''Tracking von min und max Werten'''
+                        #Ohne minimum
                         if scores[k]["ohne"] < minimum_second_ohne:
                             minimum_second_ohne = scores[k]["ohne"]
                             minimum_second_file_ohne = [file_path + "/" + str(k)]
                         elif scores[k]["ohne"] == minimum_second_ohne:
                             minimum_second_file_ohne.append(file_path + "/" + str(k))
+                        #ohne Maximim
+                        if scores[k]["ohne"] > maximum_second_ohne:
+                            maximum_second_ohne = scores[k]["ohne"]
+                            maximum_second_file_ohne = [file_path + "/" + str(k)]
+                        elif scores[k]["ohne"] == maximum_second_ohne:
+                            maximum_second_file_ohne.append(file_path + "/" + str(k))
+                        #beides Minimum
+                        if scores[k]["beides"] < minimum_second_beides:
+                            minimum_second_beides = scores[k]["beides"]
+                            minimum_second_file_beides = [file_path + "/" + str(k)]
+                        elif scores[k]["beides"] == minimum_second_beides:
+                            minimum_second_file_beides.append(file_path + "/" + str(k))
+                        #Beides Maximum
+                        if scores[k]["beides"] > maximum_second_beides:
+                            maximum_second_beides = scores[k]["beides"]
+                            maximum_second_file_beides = [file_path + "/" + str(k)]
+                        elif scores[k]["beides"] == maximum_second_beides:
+                            maximum_second_file_beides.append(file_path + "/" + str(k))
 
                         schuss_second.append(scores[k]["schussweg"])
                         block_second.append(scores[k]["spieler"])
@@ -223,8 +269,15 @@ print(minimum_first_file_ohne)
 print("Minimum " + strats[1] + " - Ohne:")
 print(minimum_second_file_ohne)
 print("Minimum " + strats[0] + " - Beides:")
-print(minimum_first_file_ohne)
+print(minimum_first_file_beides)
 print("Minimum " + strats[1] + " - Beides:")
-print(minimum_second_file_ohne)
+print(minimum_second_file_beides)
 
-
+print("Maximum " + strats[0] + " - Ohne:")
+print(maximum_first_file_ohne)
+print("Maximum " + strats[1] + " - Ohne:")
+print(maximum_second_file_ohne)
+print("Maximum " + strats[0] + " - Beides:")
+print(maximum_first_file_beides)
+print("Maximum " + strats[1] + " - Beides:")
+print(maximum_second_file_beides)
