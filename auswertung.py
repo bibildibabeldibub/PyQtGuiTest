@@ -159,13 +159,15 @@ print(sw_bothn)
 print("\n")
 
 parts = []
+if strats[1] == 'first':
+    strats[1] = 'naiv'
 
 fig1, axes1 = plt.subplots(ncols=2, sharey='all')
 fig1.canvas.set_window_title("Ohne Bonus/Malus")
 axes1[0].set_title(strats[0] + " SW-Test(W): " + str(round(sw_ob[0], 3)))
 axes1[0].set_ylabel("Bewertung")
 parts.append(axes1[0].violinplot(ohne_first, showextrema=True, showmeans=True, showmedians=False))
-axes1[1].set_title("naiv" + " SW-Test(W): " + str(round(sw_on[0], 3)))
+axes1[1].set_title(strats[1] + " SW-Test(W): " + str(round(sw_on[0], 3)))
 parts.append(axes1[1].violinplot(ohne_second, showextrema=True, showmeans=True, showmedians=False))
 
 fig2, axes2 = plt.subplots(ncols=2, sharey='all')
@@ -173,7 +175,7 @@ fig2.canvas.set_window_title("Schussweg Malus")
 axes2[0].set_title(strats[0] + " SW-Test(W): " + str(round(sw_sb[0], 3)))
 axes2[0].set_ylabel("Bewertung")
 parts.append(axes2[0].violinplot(schuss_first, showextrema=True, showmeans=True, showmedians=False))
-axes2[1].set_title("naiv" + " SW-Test(W): " + str(round(sw_sn[0], 3)))
+axes2[1].set_title(strats[1] + " SW-Test(W): " + str(round(sw_sn[0], 3)))
 parts.append(axes2[1].violinplot(schuss_second, showextrema=True, showmeans=True, showmedians=False))
 
 fig3, axes3 = plt.subplots(ncols=2, sharey='all')
@@ -181,7 +183,7 @@ fig3.canvas.set_window_title("Block Bonus")
 axes3[0].set_title(strats[0] + " SW-Test(W): " + str(round(sw_bb[0], 3)))
 axes3[0].set_ylabel("Bewertung")
 parts.append(axes3[0].violinplot(block_first, showextrema=True, showmeans=True, showmedians=False))
-axes3[1].set_title("naiv" + " SW-Test(W): " + str(round(sw_bn[0], 3)))
+axes3[1].set_title(strats[1] + " SW-Test(W): " + str(round(sw_bn[0], 3)))
 parts.append(axes3[1].violinplot(block_second, showextrema=True, showmeans=True, showmedians=False))
 
 
@@ -190,7 +192,7 @@ fig4.canvas.set_window_title("Beides")
 axes4[0].set_title(strats[0] + " SW-Test(W): " + str(round(sw_bothb[0], 3)))
 axes4[0].set_ylabel("Bewertung")
 parts.append(axes4[0].violinplot(beides_first, showextrema=True, showmeans=True, showmedians=False))
-axes4[1].set_title("naiv" + " SW-Test(W): " + str(round(sw_bothn[0], 3)))
+axes4[1].set_title(strats[1] + " SW-Test(W): " + str(round(sw_bothn[0], 3)))
 parts.append(axes4[1].violinplot(beides_second, showextrema=True, showmeans=True, showmedians=False))
 
 
@@ -205,7 +207,8 @@ if not os.path.exists('plots'):
     os.mkdir('plots')
 # t = datetime.datetime.now()
 # t = t.strftime("%d_%m_%Y-%H_%M_%S")
-t = strats[0] + "-" + strats[1]
+
+t = logdir + "_" + strats[0] + "-" + strats[1]
 
 if not os.path.isdir(os.path.join("plots", t)):
     os.mkdir(os.path.join("plots", t))
