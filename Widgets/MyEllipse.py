@@ -56,7 +56,7 @@ class MyEllipse(QGraphicsEllipseItem):
 
             dummy_ellipse = QGraphicsEllipseItem(value.x(), value.y(), 20, 20)
             colliding_items = self.scene.items(dummy_ellipse.shape())
-            filtered_colliding_items = [o for o in colliding_items if ((type(o) is not PyQt5.QtWidgets.QGraphicsPolygonItem) and (o is not self))]
+            filtered_colliding_items = [o for o in colliding_items if ((type(o) is not PyQt5.QtWidgets.QGraphicsPolygonItem) and (o is not self) and type(o) is not PyQt5.QtWidgets.QGraphicsLineItem)]
 
             #print("Collision:\n" + str(filtered_colliding_items))
 

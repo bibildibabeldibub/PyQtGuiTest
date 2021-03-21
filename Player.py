@@ -43,10 +43,6 @@ class Player:
             data = json.load(config_file)
             self.velocity = data['roboter-geschwindigkeit']
             self.change_rotation = data['richtungswechsel-periode']
-            self.pos_distance = data['positionierungsdistanz']
-
-        #print("Center:\t" + str(self.ellipse.getCenter())+"\n\t" + str(self.ellipse.x()) + ", " + str(self.ellipse.y()))
-        #self.setRotation(-45)
 
 
     def setLocation(self, posx, posy):
@@ -116,7 +112,7 @@ class Player:
         """:returns mögliche Positionen des Angreifers"""
         positions = []
 
-        radius = self.velocity * self.scene.t_move
+        radius = self.velocity * 10 #self.scene.t_move -> 10 Sekunden hart
         # print(type(self))
         # print(self)
         # print("Create distance circle with radius= " + str(radius))

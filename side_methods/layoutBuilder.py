@@ -38,10 +38,10 @@ def buildSmall(self):
     verticallayout3.addLayout(groups_layout)
 
     self.tabWidget = QTabWidget()
-    self.infoAttackers = InfoBox(self.scene)
-    self.infoDefenders = InfoBox(self.scene)
-    self.tabWidget.addTab(self.infoAttackers, "Attackers")
-    self.tabWidget.addTab(self.infoDefenders, "Defenders")
+    self.info_attackers = InfoBox(self.scene)
+    self.info_defenders = InfoBox(self.scene)
+    self.tabWidget.addTab(self.info_attackers, "Attackers")
+    self.tabWidget.addTab(self.info_defenders, "Defenders")
 
     verticallayout3.addWidget(self.tabWidget)
 
@@ -82,10 +82,10 @@ def buildBig(self):
     verticallayout3.addLayout(groups_layout)
 
     self.tabWidget = QTabWidget()
-    self.infoAttackers = InfoBox(self.scene)
-    self.infoDefenders = InfoBox(self.scene)
-    self.tabWidget.addTab(self.infoAttackers, "Attackers")
-    self.tabWidget.addTab(self.infoDefenders, "Defenders")
+    self.info_attackers = InfoBox(self.scene)
+    self.info_defenders = InfoBox(self.scene)
+    self.tabWidget.addTab(self.info_attackers, "Attackers")
+    self.tabWidget.addTab(self.info_defenders, "Defenders")
 
     verticallayout3.addWidget(self.tabWidget)
 
@@ -137,12 +137,12 @@ def buildBtns(self, verticallayout = None):
     verticallayout.addWidget(self.loadButton)
 
     self.load_final_positions = QPushButton('Lade Endposition')
-    self.load_final_positions.clicked.connect(self.load_endpositions)
+    self.load_final_positions.clicked.connect(self.loadEndpositions)
     verticallayout.addWidget(self.load_final_positions)
 
-    self.voronoiButton = QPushButton('Voronoi')
-    self.voronoiButton.clicked.connect(self.vor)
-    verticallayout.addWidget(self.voronoiButton)
+    # self.voronoiButton = QPushButton('Voronoi')
+    # self.voronoiButton.clicked.connect(self.vor)
+    # verticallayout.addWidget(self.voronoiButton)
 
     # self.anim = QPushButton('Simple Anim')
     # self.anim.clicked.connect(self.animation)
@@ -154,7 +154,7 @@ def buildBtns(self, verticallayout = None):
 
     self.settest = QPushButton('Strategien Testen')
     self.settest.clicked.connect(self.testSet)
-    self.settest.setToolTip('Startet eine Reihe von Tests zur Bewertung der in Strategie 1 ausgewählten Strategie')
+    self.settest.setToolTip('Löscht alle aktuellen Spiler und startet eine Reihe von Tests')
     verticallayout.addWidget(self.settest)
 
     self.compare = QCheckBox('Compare strategies')
@@ -167,6 +167,24 @@ def buildBtns(self, verticallayout = None):
     verticallayout.addWidget(self.bewertungButton)
 
     verticallayout.addStretch(1)
+    self.examples_headline = QLabel('Beispiele:')
+    verticallayout.addWidget(self.examples_headline)
+
+    self.example_selector_att = QComboBox()
+    self.example_selector_att.addItem("Angreifer")
+    self.example_selector_att.currentIndexChanged.connect(self.exampleChangeA)
+
+    verticallayout.addWidget(self.example_selector_att)
+
+    self.example_selector_def = QComboBox()
+    self.example_selector_def.addItem("Verteidiger")
+    self.example_selector_def.currentIndexChanged.connect(self.exampleChangeD)
+    verticallayout.addWidget(self.example_selector_def)
+    verticallayout.addStretch(1)
+
+    self.restart_button = QPushButton('Restart')
+    self.restart_button.clicked.connect(self.restartFunction)
+    verticallayout.addWidget(self.restart_button)
 
     self.closeButton = QPushButton('Exit')
     self.closeButton.clicked.connect(self.close_function)

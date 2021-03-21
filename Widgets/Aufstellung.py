@@ -108,10 +108,14 @@ class Team(object):
 class OffenseTeam(Team):
     def __init__(self, scene, length):
         super().__init__()
+        with open('config.json') as conf:
+            data = json.load(conf)
+            min_x = data["att_min_x"]
+            max_x = data["att_max_x"]
         self.scene = scene
         self.length = length
         for i in range(self.length):
-            p = Player.offensePlayer(i, self.scene, posx=random.uniform(-450, 0), posy=random.uniform(-300, 300))
+            p = Player.offensePlayer(i, self.scene, posx=random.uniform(min_x, max_x), posy=random.uniform(-300, 300))
             self.spieler.update({i: p})
 
 class DefenseTeam(Team):
