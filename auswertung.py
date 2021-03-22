@@ -265,8 +265,8 @@ def auswerten(directory):
 
     t = logdir + "_" + strats[0] + "-" + strats[1]
 
-    if not os.path.isdir(os.path.join("plots", t)):
-        os.mkdir(os.path.join("plots", t))
+    # if not os.path.isdir(os.path.join("plots", t)):
+    #     os.mkdir(os.path.join("plots", t))
 
     # fig1.savefig(os.path.join("plots", t, "ohne"))
     # fig2.savefig(os.path.join("plots", t, "schussweg"))

@@ -205,7 +205,13 @@ class Bewerter(object):
                         """Entfernen überschatteter Schattenelemente
                         pos ist das bearbeite Element 
                         pos_dif ist das letzte überschattete Element"""
-                        schatten.pop(pos+1)
+                        try:
+                            schatten.pop(pos+1)
+                        except IndexError:
+                            print("Indexfehler:"
+                                  "\n Pos_diff: {pos_dif}"
+                                  "\n Schatten: {schatten}"
+                                  "\n Neu: {tor_oben}, {tor_unten}".format(pos_dif=pos_dif, schatten=schatten, tor_oben=tor_schatten_oben, tor_unten=tor_schatten_unten))
 
         print("Finaler Schattenwurf: " + str(schatten))
         verdeckt = 0
