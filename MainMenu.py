@@ -4,7 +4,7 @@ from PyQt5.QtGui import QPolygon
 from pathlib import Path
 from Player import *
 import VoronoiFunction
-from Widgets import MyScene
+from Widgets import MyScene, ListChoosing
 from Widgets.InfoBox import InfoBox
 import json
 import time
@@ -16,11 +16,10 @@ from datetime import datetime
 import os, shutil
 from side_methods import SetupToString, Logging, animation, layoutBuilder
 import random
+import auswertung
 
 
-
-
-myPath = Path(__file__).absolute().parent / 'strats'
+myPath = Path(__file__).absolute().parent
 
 class MainWindow(QWidget):
 
@@ -157,22 +156,16 @@ class MainWindow(QWidget):
             f.write(txt)
             f.close()
 
-    def load_function(self, file=None):
+    def loadFunction(self, file=None):
         """deleting actual players, starts file dialog for loading player positions"""
         if(not file):
-            # dialog = QMessageBox()
-            # dialog.setWindowTitle("Strategy deleting")
-            # dialog.setIcon(QMessageBox.Warning)
-            # dialog.setText("Continuing will delete actual strategy")
-            # dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            # val = dialog.exec_()
             val = 1024
         else: val = 1023
 
         print(file)
 
         if val == 1024:
-            filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
+            filenames = QFileDialog.getOpenFileName(self, 'Load File', os.path.join(myPath, 'log'))
         elif val == 1023: filenames = [file]
         else:
             return
@@ -193,17 +186,18 @@ class MainWindow(QWidget):
                 print(str(k) + ", " + str(defender[k]["posx"]) + ", " + str(defender[k]["posy"]))
                 self.addDefender(int(k), defender[k]["posx"], defender[k]["posy"])
 
-    def loadEndpositions(self, file=None):
+    def loadEndpositions(self, file=None, num:int=None):
         """deleting actual players, starts file dialog for loading player positions"""
         if(not file):
-            filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
+            filenames = QFileDialog.getOpenFileName(self, 'Load File', os.path.join(myPath, 'log'))
         else:
             filenames = [file]
 
-        input_dialog = QInputDialog()
-        num, ok = QInputDialog.getInt(input_dialog, "Wiederholungsauswahl", "Zahl der Wiederholung, die angezeigt werden soll:")
-        if not ok:
-            exit("Fehler bei Woederholungsauswahl")
+        if not num:
+            input_dialog = QInputDialog()
+            num, ok = QInputDialog.getInt(input_dialog, "Wiederholungsauswahl", "Zahl der Wiederholung, die angezeigt werden soll:")
+            if not ok:
+                exit("Fehler bei Woederholungsauswahl")
 
         num = "run-" + str(num)
         self.deleteAllPlayers()
@@ -213,6 +207,9 @@ class MainWindow(QWidget):
             jdata = json.loads(txt)
             attacker = jdata["Scores"][num]["Attacker"]
             defender = jdata["Scores"][num]["Defender"]
+            scores = "Ohne: %f | Mit: %f" % (jdata["Scores"][num]["ohne"], jdata["Scores"][num]["beides"])
+
+            self.textbox.setText(scores)
 
             for k in attacker.keys():
                 self.addAttacker(int(k), attacker[k]["posx"], attacker[k]["posy"])
@@ -330,7 +327,7 @@ class MainWindow(QWidget):
         print("--------Reset--------")
         self.deleteAllPlayers()
         if os.path.isfile("temp/resetfile/" + self.date):
-            self.load_function("temp/resetfile/" + self.date)
+            self.loadFunction("temp/resetfile/" + self.date)
         else:
             print("Warning: tempfile does not exist!")
             qApp.exit(0)
@@ -416,3 +413,30 @@ class MainWindow(QWidget):
     def restartFunction(self):
         print("Neustart")
         qApp.exit(-666)
+
+    def analyze(self):
+        print("Begin analyze")
+        filename = QFileDialog.getExistingDirectory(self, 'Load File', os.path.join(myPath, 'log'))
+        print("Folder:")
+        print(filename)
+        if not filename:
+            return
+        extrema = auswertung.auswerten(filename)
+        print(json.dumps(extrema, indent=4))
+        c = ListChoosing.ListDialog(extrema)
+        res = c.exec_()
+        file = list(extrema.values())[res][0]
+        print(file)
+        file = file.split('/run-')
+        if os.path.isfile(file[0]):
+            print("Path is File")
+        elif os.path.isdir(file[0]):
+            print("Path is dir")
+        else:
+            print("Neither")
+
+        print(file[1])
+
+        self.loadEndpositions(file[0],file[1])
+
+        return

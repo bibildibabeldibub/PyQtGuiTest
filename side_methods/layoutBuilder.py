@@ -133,7 +133,7 @@ def buildBtns(self, verticallayout = None):
     # verticallayout.addWidget(self.saveButton)
     #
     self.loadButton = QPushButton('Lade Aufstellung')
-    self.loadButton.clicked.connect(self.load_function)
+    self.loadButton.clicked.connect(self.loadFunction)
     verticallayout.addWidget(self.loadButton)
 
     self.load_final_positions = QPushButton('Lade Endposition')
@@ -165,6 +165,11 @@ def buildBtns(self, verticallayout = None):
     self.bewertungButton.clicked.connect(self.bewerten)
     self.bewertungButton.setEnabled(True)
     verticallayout.addWidget(self.bewertungButton)
+
+    self.analyzeButton = QPushButton('Ausewerten')
+    self.analyzeButton.clicked.connect(self.analyze)
+    self.analyzeButton.setEnabled(True)
+    verticallayout.addWidget(self.analyzeButton)
 
     verticallayout.addStretch(1)
     self.examples_headline = QLabel('Beispiele:')
