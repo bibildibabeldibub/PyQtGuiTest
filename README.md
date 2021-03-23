@@ -26,6 +26,11 @@ Linux:
 
     pip install screeninfo
 
+#6. matplotlib
+    
+    pip install matplotlib
+
+
 
 Hinweis: _pip_ sollte mit python installiert werden, falls nicht:
 
