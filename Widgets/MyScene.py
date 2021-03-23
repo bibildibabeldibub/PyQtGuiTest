@@ -85,7 +85,7 @@ class SoccerScene(QGraphicsScene):
         *Phase 1 wird unter verschiedenen Bedingungen beendet"""
         #eine Sekunde= frames/aufrufe pro sekunde => frames = t*(fps)
 
-        if self.phase == 0 and self.advance_counter == self.getSteps(self.t_pos):     #Phase 0 nach 45 Sekunden beendet
+        if self.phase == 0 and self.advance_counter == self.getSteps(self.t_pos):
             # self.animationRunning = False
             # self.animationWorker.pause = True
             self.stopAnimation()

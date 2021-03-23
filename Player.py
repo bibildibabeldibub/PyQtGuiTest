@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt, QLineF, QPointF, QRectF, QObject, pyqtSignal, pyqtS
 import numpy as np
 from Widgets.MyEllipse import MyEllipse
 import json
+import threading
 
 import time
 import math
@@ -11,14 +12,17 @@ import random
 import os
 import Strategies
 import importlib
+import threading
 
 
 class Player:
     positionChanged = pyqtSignal()
     polygonChanged = pyqtSignal()
+    naivPosition = pyqtSignal()
 
     def __init__(self, number: int, op: bool, scene: QGraphicsScene, posx, posy, blocked=False):
         """initialising player with ellipse, op is boolean and should be true if the player is an opponent"""
+        super().__init__()
         self.blocked = blocked
         self.number = number
         self.scene = scene
@@ -199,6 +203,7 @@ class defensePlayer(Player):
     def __init__(self, number: int, scene: QGraphicsScene, posx=20, posy=0, destination=None):
         super().__init__(number, True, scene, posx, posy)
 
+        self.new_pos = self.getLocation()
         self.scene.addDefender(self)
         self.scene.resetSignal.connect(self.clearEnemy)
         string = "Defense " + str(self.number)
@@ -273,7 +278,10 @@ class defensePlayer(Player):
             print("Kein Gegner gefunden!")
             return
 
-        pos = mod.eval(self.enemy)
-        return pos
+        self.new_pos = self.getLocation()
+        t = threading.Thread(target=mod.strat, args=(self, self.enemy, self.scene))
+        t.start()
+
+        return self.new_pos
 
 

@@ -102,33 +102,6 @@ class MyEllipse(QGraphicsEllipseItem):
                         self.animcounter = 0
                         # print("Rotation:\t" + str(self.rotation()))
                     self.new_pos = self.moveForward()
-                    dummy_ellipse = QGraphicsEllipseItem(self.new_pos[0], self.new_pos[1], 20, 20)
-                    colliding_items = self.scene.items(dummy_ellipse.shape())
-                    filtered_colliding_items = []
-                    for o in colliding_items:
-                        if ((type(o) is MyEllipse) and (o is not self)):
-                            if type(o.spieler) == Player.offensePlayer:
-                                filtered_colliding_items.append(o)
-
-                    while filtered_colliding_items:
-                        newdirection = random.uniform(-45, 45)
-                        while self.richtungswinkel-10 <= newdirection <= self.richtungswinkel+10:
-                            newdirection = random.uniform(-45, 45)
-
-                        dummy_ellipse = QGraphicsEllipseItem(self.new_pos[0], self.new_pos[1], 20, 20)
-                        colliding_items = self.scene.items(dummy_ellipse.shape())
-                        filtered_colliding_items = []
-                        for o in colliding_items:
-                            if ((type(o) is MyEllipse) and (o is not self)):
-                                if type(o.spieler) == Player.offensePlayer:
-                                    filtered_colliding_items.append(o)
-
-
-                    # print("Positionsdifferenz:\t" + str(self.new_pos))
-
-                # """Collision detection"""
-                # if(self.checkCollision(self.new_pos[0],self.new_pos[1])):
-                #     self.spieler.blocked = True
 
             elif isinstance(self.spieler, Player.defensePlayer):
                 if self.scene.phase is 0:
