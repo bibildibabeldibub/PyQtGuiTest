@@ -23,6 +23,7 @@ Linux:
     pip install pyclipper
 
 #5. screeninfo
+
     pip install screeninfo
 
 
