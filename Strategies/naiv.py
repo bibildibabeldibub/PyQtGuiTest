@@ -2,6 +2,7 @@ from side_methods.Bewertung import Bewerter
 
 
 def strat(defender, attacker, scene):
+    print("test 1 ")
     positions = attacker.getPosRaster()
     bewerter = Bewerter()
     worst_case_pos = []
@@ -17,7 +18,7 @@ def strat(defender, attacker, scene):
     for point, value in point_val.items():
         if value == max_val:
             worst_case_pos_str.append(point)
-
+    print("test 2 ")
     for i in worst_case_pos_str:
         #Umwandlung String zu Position
         point = i.strip('][').split(', ')
@@ -30,11 +31,13 @@ def strat(defender, attacker, scene):
     enemy_critical_positions = worst_case_pos
 
     pos = getDefPos(attacker, enemy_critical_positions)
-
+    defender.new_pos = pos
+    defender.setLocation(pos[0], pos[1])
     return pos
 
 
 def getDefPos(attacker, enemy_critical_positions):
+    print("test 3 ")
     en_current_pos = attacker.getLocation()
     dxm = round(enemy_critical_positions[0][0] - en_current_pos[0], 2)
     dym = round(enemy_critical_positions[0][1] - en_current_pos[1], 2)

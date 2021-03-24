@@ -286,8 +286,12 @@ class defensePlayer(Player):
             print("Kein Gegner gefunden!")
             return
 
-        t = threading.Thread(target=self.mod.strat, args=(self, self.enemy, self.scene))
-        t.start()
+        if file[:-3] == "naiv":
+            print("Load Naiv")
+            self.mod.strat(self, self.enemy, self.scene)
+        elif file[:-3] == "advanced":
+            t = threading.Thread(target=self.mod.strat, args=(self, self.enemy, self.scene))
+            t.start()
 
         self.naivPosition.emit()
 
