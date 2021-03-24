@@ -62,8 +62,10 @@ def auswerten(directory):
 
 
     directories = os.listdir(logdir)
-    directories.remove("excluded")
-    directories.remove("test")
+    if os.path.exists("excluded"):
+        directories.remove("excluded")
+    if os.path.exists("test"):
+        directories.remove("test")
 
     for x in directories:
         if x == "excluded" or x == "test":

@@ -207,9 +207,6 @@ class MainWindow(QWidget):
             jdata = json.loads(txt)
             attacker = jdata["Scores"][num]["Attacker"]
             defender = jdata["Scores"][num]["Defender"]
-            scores = "Ohne: %f | Mit: %f" % (jdata["Scores"][num]["ohne"], jdata["Scores"][num]["beides"])
-
-            self.textbox.setText(scores)
 
             for k in attacker.keys():
                 self.addAttacker(int(k), attacker[k]["posx"], attacker[k]["posy"])
@@ -435,7 +432,13 @@ class MainWindow(QWidget):
         else:
             print("Neither")
 
-        print(file[1])
+        num = "run-" + file[1]
+
+        with open(file[0]) as d:
+            jdata = json.load(d)
+            scores = "Ohne: %f | Mit: %f | Datei: %s" % (jdata["Scores"][num]["ohne"], jdata["Scores"][num]["beides"], file[0])
+
+        self.textbox.setText(scores)
 
         self.loadEndpositions(file[0],file[1])
 
