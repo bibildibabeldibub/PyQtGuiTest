@@ -103,18 +103,8 @@ def buildBtns(self, verticallayout = None):
     if not verticallayout:
         verticallayout = QVBoxLayout()
 
-
-    self.strat_selector1 = QComboBox()
-    self.strat_selector1.addItem("Strategie 1")
-    self.strat_selector1.currentIndexChanged.connect(self.selectionChange1)
-
-    verticallayout.addWidget(self.strat_selector1)
-
-    self.strat_selector2 = QComboBox()
-    self.strat_selector2.addItem("Strategie 2")
-    self.strat_selector2.currentIndexChanged.connect(self.selectionChange2)
-
-    verticallayout.addWidget(self.strat_selector2)
+    self.general_headline = QLabel('Allgemein:')
+    verticallayout.addWidget(self.general_headline)
 
     self.addplayer = QPushButton('Angreifer')
     self.addplayer.clicked.connect(self.addAttacker)
@@ -152,24 +142,41 @@ def buildBtns(self, verticallayout = None):
     # self.anim.clicked.connect(self.startExperiment)
     # verticallayout.addWidget(self.anim)
 
-    self.settest = QPushButton('Strategien Testen')
-    self.settest.clicked.connect(self.testSet)
-    self.settest.setToolTip('Löscht alle aktuellen Spiler und startet eine Reihe von Tests')
-    verticallayout.addWidget(self.settest)
-
-    self.compare = QCheckBox('Compare strategies')
-    self.compare.toggled.connect(self.toggleCompare)
-    verticallayout.addWidget(self.compare)
 
     self.bewertungButton = QPushButton('Bewerten')
     self.bewertungButton.clicked.connect(self.bewerten)
     self.bewertungButton.setEnabled(True)
     verticallayout.addWidget(self.bewertungButton)
 
-    self.analyzeButton = QPushButton('Ausewerten')
+    self.analyzeButton = QPushButton('Auswerten')
     self.analyzeButton.clicked.connect(self.analyze)
     self.analyzeButton.setEnabled(True)
     verticallayout.addWidget(self.analyzeButton)
+    verticallayout.addStretch(1)
+
+    self.experiment_headline = QLabel('Exeriment:')
+    verticallayout.addWidget(self.experiment_headline)
+
+    self.strat_selector1 = QComboBox()
+    self.strat_selector1.addItem("Strategie 1")
+    self.strat_selector1.currentIndexChanged.connect(self.selectionChange1)
+
+    verticallayout.addWidget(self.strat_selector1)
+
+    self.strat_selector2 = QComboBox()
+    self.strat_selector2.addItem("Strategie 2")
+    self.strat_selector2.currentIndexChanged.connect(self.selectionChange2)
+
+    verticallayout.addWidget(self.strat_selector2)
+
+    self.compare = QCheckBox('Compare strategies')
+    self.compare.toggled.connect(self.toggleCompare)
+    verticallayout.addWidget(self.compare)
+
+    self.settest = QPushButton('Strategien Testen')
+    self.settest.clicked.connect(self.testSet)
+    self.settest.setToolTip('Löscht alle aktuellen Spiler und startet eine Reihe von Tests')
+    verticallayout.addWidget(self.settest)
 
     verticallayout.addStretch(1)
     self.examples_headline = QLabel('Beispiele:')
