@@ -10,6 +10,7 @@ import math
 from Widgets import MyEllipse
 import side_methods.Bewertung
 from Widgets.Aufstellung import TestSetUp
+from side_methods import Bewertung
 
 class SoccerScene(QGraphicsScene):
 
@@ -50,6 +51,7 @@ class SoccerScene(QGraphicsScene):
         self.strats = []
         self.compare = False
         self.defend_positions = []
+        self.bewerter = Bewertung.Bewerter()
 
         field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]), QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
         self.addPolygon(field_poly, QPen(Qt.black))
@@ -248,7 +250,7 @@ class SoccerScene(QGraphicsScene):
 
         return raster
 
-    def show_raster(self):
+    def showRaster(self):
         self.shown_raster = []
         color = QColor(255,0,0)
         for i in self.raster_polygons:
@@ -326,3 +328,7 @@ class SoccerScene(QGraphicsScene):
             obj = json.loads(data)
             for pos in obj.keys():
                 self.defend_positions.append(obj[pos])
+
+    def bewertung(self):
+        self.bewerter.evaluateScene(self)
+

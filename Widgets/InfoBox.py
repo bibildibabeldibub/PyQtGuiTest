@@ -71,10 +71,6 @@ class InfoBox(QWidget):
         for i in range(len(self.infos)):
             self.infos.widget(i).updateInfoLabel()
 
-    def toggleEvaluation(self):
-        for i in range(len(self.infos)):
-            self.infos.widget(i).toggleEval()
-
     def removePlayerInfo(self, p):
         for i in range(self.infos.count()):
             widget = self.infos.widget(i)

@@ -50,9 +50,11 @@ class TestSetUp(object):
 
     def evaluateAll(self):
         run = "run-" + str(self.score_run)
-        bewertung = self.bewerter.evaluateScene(self.scene)
         endpositionen = {"Attacker": self.angreifer.__dict__(),
                          "Defender": self.verteidiger.__dict__()}
+
+        self.writeLog()
+        bewertung = self.bewerter.evaluateScene(self.scene)
 
         bewertung.update(endpositionen)
         self.scores.update({run: bewertung})
@@ -64,6 +66,7 @@ class TestSetUp(object):
     def lockSetup(self):
         self.lockedAttackers = self.angreifer.__dict__()
         self.lockedDefenders = self.verteidiger.__dict__()
+        print(json.dumps(self.lockedDefenders, indent=4))
         self.locked = True
 
     def changeStrategy(self):
@@ -105,10 +108,14 @@ class Team(object):
 class OffenseTeam(Team):
     def __init__(self, scene, length):
         super().__init__()
+        with open('config.json') as conf:
+            data = json.load(conf)
+            min_x = data["att_min_x"]
+            max_x = data["att_max_x"]
         self.scene = scene
         self.length = length
         for i in range(self.length):
-            p = Player.offensePlayer(i, self.scene, posx=random.uniform(-450, 0), posy=random.uniform(-300, 300))
+            p = Player.offensePlayer(i, self.scene, posx=random.uniform(min_x, max_x), posy=random.uniform(-300, 300))
             self.spieler.update({i: p})
 
 class DefenseTeam(Team):

@@ -119,10 +119,15 @@ class Bewerter(object):
         schatten = []
 
         for d in self.scene.defenders:
+            print(d)
             x_defender = d.getLocation()[0]
             y_defender = d.getLocation()[1]
             y_oberer_bauch = y_defender - 10
             y_unterer_bauch = y_defender + 10
+
+            if x_attacker >= x_defender:
+                'Angreifer ist auf gleicher oder näher am Tor als Verteidiger'
+                continue
 
             y_oberer_schatten = (y_oberer_bauch - y_attacker) * (450 - x_attacker) / (x_defender - x_attacker) + y_attacker
             y_unterer_schatten = (y_unterer_bauch - y_attacker) * (450 - x_attacker) / (x_defender - x_attacker) + y_attacker
@@ -138,7 +143,7 @@ class Bewerter(object):
                     """Schatten schneidet oberen Pfosten"""
                     tor_schatten_oben = y_oberer_pfosten
                     tor_schatten_unten = y_unterer_schatten
-            if y_oberer_pfosten < y_oberer_schatten < y_unterer_pfosten:
+            elif y_oberer_pfosten < y_oberer_schatten < y_unterer_pfosten:
                 if y_unterer_schatten < y_unterer_pfosten:
                     """Beide Schattengrenzen innerhalb des Tores"""
                     tor_schatten_oben = y_oberer_schatten
@@ -150,6 +155,8 @@ class Bewerter(object):
             else:
                 """Schatten liegt unter dem Tor"""
                 continue
+
+            print([tor_schatten_oben, tor_schatten_unten])
 
             if len(schatten) == 0:
                 schatten.append([tor_schatten_oben, tor_schatten_unten])
@@ -192,11 +199,19 @@ class Bewerter(object):
                     pos += 1
 
                 if pos_dif and pos+1 < len(schatten):
+                    print(pos_dif)
+                    print(pos)
                     for p in range(pos, pos_dif):
                         """Entfernen überschatteter Schattenelemente
                         pos ist das bearbeite Element 
                         pos_dif ist das letzte überschattete Element"""
-                        schatten.pop(pos+1)
+                        try:
+                            schatten.pop(pos+1)
+                        except IndexError:
+                            print("Indexfehler:"
+                                  "\n Pos_diff: {pos_dif}"
+                                  "\n Schatten: {schatten}"
+                                  "\n Neu: {tor_oben}, {tor_unten}".format(pos_dif=pos_dif, schatten=schatten, tor_oben=tor_schatten_oben, tor_unten=tor_schatten_unten))
 
         print("Finaler Schattenwurf: " + str(schatten))
         verdeckt = 0

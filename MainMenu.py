@@ -4,7 +4,7 @@ from PyQt5.QtGui import QPolygon
 from pathlib import Path
 from Player import *
 import VoronoiFunction
-from Widgets import MyScene
+from Widgets import MyScene, ListChoosing
 from Widgets.InfoBox import InfoBox
 import json
 import time
@@ -15,11 +15,11 @@ from screeninfo import get_monitors
 from datetime import datetime
 import os, shutil
 from side_methods import SetupToString, Logging, animation, layoutBuilder
+import random
+import auswertung
 
 
-
-
-myPath = Path(__file__).absolute().parent / 'strats'
+myPath = Path(__file__).absolute().parent
 
 class MainWindow(QWidget):
 
@@ -65,10 +65,19 @@ class MainWindow(QWidget):
         for f in listdir(self.strat_path):
             if isfile(join(self.strat_path, f)):
                 strats.append(f)
+                if f == "__init__.py":
+                    continue
                 self.strat_selector1.addItem(f)
                 self.strat_selector2.addItem(f)
 
-        self.temppath="log/temp/"
+        self.examples_path = 'Beispiele'
+        for f in listdir(self.examples_path):
+            if isfile(join(self.examples_path, f)):
+                strats.append(f)
+                self.example_selector_att.addItem(f)
+                self.example_selector_def.addItem(f)
+
+        self.temppath = "log/temp/"
         self.t = None
         self.log = False
         self.comparison = False
@@ -110,24 +119,32 @@ class MainWindow(QWidget):
         """adds a player to scene"""
         if not number:
             number = len(self.dict_attackers) + 1
+        if not x and x != 0:
+            x = random.uniform(-450, 0)
+        if not y and y != 0:
+            y = random.uniform(-300, 300)
         offensePlayer(number, self.scene, x, y)
 
     def addDefender(self, number=None, x=None, y=None):
         """adds a opponent to scene"""
         if not number:
             number = len(self.dict_defenders) + 1
+        if not x and x != 0:
+            x = random.uniform(0, 450)
+        if not y and y != 0:
+            y = random.uniform(-300, 300)
         defensePlayer(number, self.scene, x, y)
 
     def appendPlayer(self, player):
         if isinstance(player, offensePlayer):
             self.dict_attackers.append(player)
-            self.infoAttackers.appendPlayer(player)
+            self.info_attackers.appendPlayer(player)
             self.group_pl_layout.addWidget(player.check_box)
         elif isinstance(player, defensePlayer):
-            self.infoDefenders.appendPlayer(player)
+            self.info_defenders.appendPlayer(player)
             self.dict_defenders.append(player)
             self.group_op_layout.addWidget(player.check_box)
-        player.ellipse.s.positionMove.connect(self.update_info)
+        player.ellipse.s.positionMove.connect(self.vor)
 
     def save_function(self, event):
         """starts file dialog for saving the player positions"""
@@ -139,21 +156,16 @@ class MainWindow(QWidget):
             f.write(txt)
             f.close()
 
-    def load_function(self, file = None):
+    def loadFunction(self, file=None):
         """deleting actual players, starts file dialog for loading player positions"""
         if(not file):
-            dialog = QMessageBox()
-            dialog.setWindowTitle("Strategy deleting")
-            dialog.setIcon(QMessageBox.Warning)
-            dialog.setText("Continuing will delete actual strategy")
-            dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            val = dialog.exec_()
+            val = 1024
         else: val = 1023
 
         print(file)
 
         if val == 1024:
-            filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
+            filenames = QFileDialog.getOpenFileName(self, 'Load File', os.path.join(myPath, 'log'))
         elif val == 1023: filenames = [file]
         else:
             return
@@ -169,20 +181,23 @@ class MainWindow(QWidget):
             for k in attacker.keys():
                 self.addAttacker(int(k), attacker[k]["posx"], attacker[k]["posy"])
 
+            print("Verteidiger:")
             for k in defender.keys():
+                print(str(k) + ", " + str(defender[k]["posx"]) + ", " + str(defender[k]["posy"]))
                 self.addDefender(int(k), defender[k]["posx"], defender[k]["posy"])
 
-    def load_endpositions(self, file=None):
+    def loadEndpositions(self, file=None, num:int=None):
         """deleting actual players, starts file dialog for loading player positions"""
         if(not file):
-            filenames = QFileDialog.getOpenFileName(self, 'Save File', str(myPath))
+            filenames = QFileDialog.getOpenFileName(self, 'Load File', os.path.join(myPath, 'log'))
         else:
             filenames = [file]
 
-        input_dialog = QInputDialog()
-        num, ok = QInputDialog.getInt(input_dialog, "Wiederholungsauswahl", "Zahl der Wiederholung, die angezeigt werden soll:")
-        if not ok:
-            exit("Fehler bei Woederholungsauswahl")
+        if not num:
+            input_dialog = QInputDialog()
+            num, ok = QInputDialog.getInt(input_dialog, "Wiederholungsauswahl", "Zahl der Wiederholung, die angezeigt werden soll:")
+            if not ok:
+                exit("Fehler bei Woederholungsauswahl")
 
         num = "run-" + str(num)
         self.deleteAllPlayers()
@@ -206,39 +221,37 @@ class MainWindow(QWidget):
 
         VoronoiFunction.voronoi_function(self.dict_defenders, self.dict_attackers, self.field)
 
-    def update_info(self):
+    def updateInfo(self):
         """is triggered everytime a player changes his position"""
-        self.vor()
+        self.info_attackers.updateInfo()
+        self.info_defenders.updateInfo()
 
-    def add_lines(self):
+    def addLines(self):
         #Helferlinien
         if self.toggleLines.isChecked():
-            self.scene.show_raster()
+            self.scene.showRaster()
             self.helpX = self.scene.addLine(0,-300,0,300)
-            self.helpY = self.scene.addLine(-450,0,450,0)
+            #self.helpY = self.scene.addLine(-450,0,450,0)
 
         else:
             self.scene.removeItem(self.helpX)
-            self.scene.removeItem(self.helpY)
+            #self.scene.removeItem(self.helpY)
             self.scene.hide_raster()
 
     def deleteAllPlayers(self):
         for op in self.dict_attackers:
             op.check_box.setParent(None)
-            self.infoDefenders.removePlayerInfo(op)
+            self.info_defenders.removePlayerInfo(op)
             op.__del__()
         for p in self.dict_defenders:
             p.check_box.setParent(None)
-            self.infoAttackers.removePlayerInfo(p)
+            self.info_attackers.removePlayerInfo(p)
             p.__del__()
 
         self.dict_attackers.clear()
         self.dict_defenders.clear()
 
     def animation(self, wiederholungen=0):
-        self.infoAttackers.toggleEvaluation()
-        self.infoDefenders.toggleEvaluation()
-
         self.t = datetime.now()
 
         if not self.resetButton.isEnabled():
@@ -285,9 +298,6 @@ class MainWindow(QWidget):
                 msg.exec_()
                 return
 
-        self.infoAttackers.toggleEvaluation()
-        self.infoDefenders.toggleEvaluation()
-
         self.scene.setStrats()
         self.scene.appendStrats(self.strat_selector1.currentText())
         self.scene.appendStrats(self.strat_selector2.currentText())
@@ -299,6 +309,10 @@ class MainWindow(QWidget):
 
         self.scene.testSet(self.comparison)
 
+    def bewerten(self):
+        self.vor()
+        self.scene.bewertung()
+        self.updateInfo()
 
     def toggleCompare(self):
         self.comparison = self.compare.checkState()
@@ -310,10 +324,10 @@ class MainWindow(QWidget):
         print("--------Reset--------")
         self.deleteAllPlayers()
         if os.path.isfile("temp/resetfile/" + self.date):
-            self.load_function("temp/resetfile/" + self.date)
+            self.loadFunction("temp/resetfile/" + self.date)
         else:
             print("Warning: tempfile does not exist!")
-            exit()
+            qApp.exit(0)
 
 
     def anzeigen(self):
@@ -331,3 +345,101 @@ class MainWindow(QWidget):
         if os.path.exists("temp"):
             shutil.rmtree("temp")
         super()
+
+    def exampleChangeA(self):
+        filename = self.example_selector_att.currentText()
+        path = 'Beispiele'
+        if filename == "Angreifer":
+            self.deleteAllPlayers()
+            return
+        filename = os.path.join(path, filename)
+
+        if filename is not '':
+            f = open(filename, 'r')
+            txt = f.read()
+            jdata = json.loads(txt)
+            striker = jdata["Sturm"]
+            mid = jdata["Mittelfeld"]
+            deff = jdata["Abwehr"]
+            a = 0
+
+            for k in striker.keys():
+                self.addAttacker(a, striker[k]["x"], striker[k]["y"])
+                a += 1
+
+            for k in mid.keys():
+                self.addAttacker(a, mid[k]["x"], mid[k]["y"])
+                a += 1
+
+            for k in deff.keys():
+                self.addAttacker(a, deff[k]["x"], deff[k]["y"])
+                a += 1
+
+        return
+
+    def exampleChangeD(self):
+        filename = self.example_selector_def.currentText()
+        if filename == "Verteidiger":
+            self.deleteAllPlayers()
+            return
+        filename = os.path.join('Beispiele', filename)
+
+        if filename is not '':
+            f = open(filename, 'r')
+            txt = f.read()
+            jdata = json.loads(txt)
+            striker = jdata["Sturm"]
+            mid = jdata["Mittelfeld"]
+            deff = jdata["Abwehr"]
+            a = 0
+
+            for k in striker.keys():
+                self.addDefender(a, -striker[k]["x"], striker[k]["y"])
+                a += 1
+
+            for k in mid.keys():
+                self.addDefender(a, -mid[k]["x"], mid[k]["y"])
+                a += 1
+
+            for k in deff.keys():
+                self.addDefender(a, -deff[k]["x"], deff[k]["y"])
+                a += 1
+
+        return
+
+    def restartFunction(self):
+        print("Neustart")
+        qApp.exit(-666)
+
+    def analyze(self):
+        print("Begin analyze")
+        filename = QFileDialog.getExistingDirectory(self, 'Load File', os.path.join(myPath, 'log'))
+        print("Folder:")
+        print(filename)
+        if not filename:
+            return
+        extrema = auswertung.auswerten(filename)
+        print(json.dumps(extrema, indent=4))
+        c = ListChoosing.ListDialog(extrema)
+        res = c.exec_()
+        file = list(extrema.values())[res][0]
+        print(file)
+        file = file.split('/run-')
+        if os.path.isfile(file[0]):
+            print("Path is File")
+        elif os.path.isdir(file[0]):
+            print("Path is dir")
+        else:
+            print("Neither")
+
+        num = "run-" + file[1]
+
+        with open(file[0]) as d:
+            jdata = json.load(d)
+            scores = "Ohne: %f | Mit: %f | Datei: %s" % (jdata["Scores"][num]["ohne"], jdata["Scores"][num]["beides"], file[0])
+
+        self.textbox.setText(scores)
+
+        self.loadEndpositions(file[0],file[1])
+
+        return
