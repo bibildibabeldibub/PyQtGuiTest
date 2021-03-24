@@ -70,12 +70,15 @@ class MainWindow(QWidget):
                 self.strat_selector1.addItem(f)
                 self.strat_selector2.addItem(f)
 
-        self.examples_path = 'Beispiele'
-        for f in listdir(self.examples_path):
-            if isfile(join(self.examples_path, f)):
-                strats.append(f)
-                self.example_selector_att.addItem(f)
-                self.example_selector_def.addItem(f)
+        try:
+            self.examples_path = 'Beispiele'
+            for f in listdir(self.examples_path):
+                if isfile(join(self.examples_path, f)):
+                    strats.append(f)
+                    self.example_selector_att.addItem(f)
+                    self.example_selector_def.addItem(f)
+        except AttributeError:
+            pass
 
         self.temppath = "log/temp/"
         self.t = None
@@ -101,6 +104,7 @@ class MainWindow(QWidget):
 
     def close_function(self):
         """closes the window"""
+        self.stopSimulation()
         print("\n exit button has been activated\n")
         self.close()
 
@@ -310,9 +314,6 @@ class MainWindow(QWidget):
 
         self.scene.testSet(self.comparison)
 
-    def pause(self):
-        self.pauseSignal.emit()
-
     def bewerten(self):
         self.vor()
         self.scene.bewertung()
@@ -412,6 +413,7 @@ class MainWindow(QWidget):
         return
 
     def restartFunction(self):
+        self.stopSimulation()
         print("Neustart")
         qApp.exit(-666)
 
@@ -447,3 +449,6 @@ class MainWindow(QWidget):
         self.loadEndpositions(file[0],file[1])
 
         return
+
+    def stopSimulation(self):
+        self.scene.killAnimation()

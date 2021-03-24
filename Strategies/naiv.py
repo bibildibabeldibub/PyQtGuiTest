@@ -53,4 +53,5 @@ def getDefPos(attacker, enemy_critical_positions):
     return final_pos
 
 def advanced(defender, attacker, scene):
+    defender.setLocation(defender.new_pos[0], defender.new_pos[1])
     return

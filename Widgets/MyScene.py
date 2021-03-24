@@ -239,7 +239,7 @@ class SoccerScene(QGraphicsScene):
 
     def killAnimation(self):
         if self.animationWorker:
-            self.animationWorker.__del__()
+            self.animationWorker.kill()
 
     def rasterize(self):
         """:returns 2D-Array von Mittelpunkten des Rasters"""

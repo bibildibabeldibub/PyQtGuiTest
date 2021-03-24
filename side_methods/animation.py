@@ -23,8 +23,10 @@ class anim_worker(QtCore.QRunnable):
         self.seconds = seconds
         self.pause = True
         self.mainWindow = window
+        self.mainWindow.pauseSignal.connect(self.toggleStop)
         self.sender = SignalSender()
         self.counter = 0
+        self.killv = False
 
     def run(self):
         # print("start loop")
@@ -32,22 +34,33 @@ class anim_worker(QtCore.QRunnable):
         self.loop()
 
     def loop(self):
-        while not self.pause:
-            # self.counter += 1
-            # print(self.counter)
-            self.sender.sendSignal()
-            time.sleep(self.seconds)
+        while not self.killv:
+            while not self.pause:
+                # self.counter += 1
+                # print(self.counter)
+                self.sender.sendSignal()
+                time.sleep(self.seconds)
 
     def stop(self):
         self.pause = True
 
+    def kill(self):
+        self.pause = True
+        self.killv = True
+
     def conti(self):
         self.pause = False
 
+    def toggleStop(self):
+        if self.pause:
+            self.pause = True
+        else:
+            self.pause = False
+
     def __del__(self):
-        #print("Worker deleted")
+        print("Timer deleted")
         super()
 
     def __repr__(self):
-        string = "Worker with " + str(self.seconds) + "seconds between Signals."
+        string = "Timer with " + str(self.seconds) + "seconds between Signals."
         return string

@@ -55,7 +55,6 @@ def advanced(defender :Player, attacker, scene):
     dummy_ellipse = QGraphicsEllipseItem(defender.new_pos[0] - 45, defender.new_pos[1] - 45, 90, 90)
     colliding_items = scene.items(dummy_ellipse.shape())
     scene.addItem(dummy_ellipse)
-    time.sleep(1)
     scene.removeItem(dummy_ellipse)
     mates_around = [o for o in colliding_items if (type(o) == Player.defensePlayer) and (o is not defender.ellipse)]
 
@@ -65,14 +64,12 @@ def advanced(defender :Player, attacker, scene):
         center_x = defender.new_pos[0]
         center_y = defender.new_pos[1]
         for mate_ellipse in mates_around:
+            exit("Mitspieler in Kreis")
             center_x += mate_ellipse.s.new_pos[0]
             center_y += mate_ellipse.s.new_pos[1]
         center_x = center_x/(len(mates_around)+1)
         center_y = center_y/(len(mates_around)+1)
         center_test = scene.addEllipse(center_x, center_y, 10, 10, brush=QBrush(Qt.red), pen=QPen(Qt.green))
-        time.sleep(1)
         scene.removeItem(center_test)
 
-
-
-    return "test!"
+    return

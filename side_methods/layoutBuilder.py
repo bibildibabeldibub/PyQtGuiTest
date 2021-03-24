@@ -147,11 +147,6 @@ def buildBtns(self, verticallayout = None):
     self.bewertungButton.clicked.connect(self.bewerten)
     self.bewertungButton.setEnabled(True)
     verticallayout.addWidget(self.bewertungButton)
-
-    self.analyzeButton = QPushButton('Auswerten')
-    self.analyzeButton.clicked.connect(self.analyze)
-    self.analyzeButton.setEnabled(True)
-    verticallayout.addWidget(self.analyzeButton)
     verticallayout.addStretch(1)
 
     self.experiment_headline = QLabel('Experiment:')
@@ -179,10 +174,15 @@ def buildBtns(self, verticallayout = None):
     verticallayout.addWidget(self.settest)
 
     self.pause = QPushButton('Pausieren')
-    self.pause.clicked.connect(self.testSet)
+    self.pause.clicked.connect(self.stopSimulation)
     self.pause.setToolTip('Löscht alle aktuellen Spiler und startet eine Reihe von Tests')
     self.pause.setEnabled(False)
     verticallayout.addWidget(self.pause)
+
+    self.analyzeButton = QPushButton('Auswerten')
+    self.analyzeButton.clicked.connect(self.analyze)
+    self.analyzeButton.setEnabled(True)
+    verticallayout.addWidget(self.analyzeButton)
 
     # verticallayout.addStretch(1)
     # self.examples_headline = QLabel('Beispiele:')
@@ -198,7 +198,7 @@ def buildBtns(self, verticallayout = None):
     # self.example_selector_def.addItem("Verteidiger")
     # self.example_selector_def.currentIndexChanged.connect(self.exampleChangeD)
     # verticallayout.addWidget(self.example_selector_def)
-    # verticallayout.addStretch(1)
+    verticallayout.addStretch(3)
 
     self.restart_button = QPushButton('Restart')
     self.restart_button.clicked.connect(self.restartFunction)
