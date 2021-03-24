@@ -22,7 +22,7 @@ import auswertung
 myPath = Path(__file__).absolute().parent
 
 class MainWindow(QWidget):
-
+    pauseSignal = pyqtSignal()
     def __init__(self):
         super().__init__()
 
@@ -242,11 +242,11 @@ class MainWindow(QWidget):
         for op in self.dict_attackers:
             op.check_box.setParent(None)
             self.info_defenders.removePlayerInfo(op)
-            op.__del__()
+            op.delete()
         for p in self.dict_defenders:
             p.check_box.setParent(None)
             self.info_attackers.removePlayerInfo(p)
-            p.__del__()
+            p.delete()
 
         self.dict_attackers.clear()
         self.dict_defenders.clear()
@@ -306,8 +306,12 @@ class MainWindow(QWidget):
         self.settest.setEnabled(False)
         self.strat_selector1.setEnabled(False)
         self.strat_selector2.setEnabled(False)
+        self.pause.setEnabled(True)
 
         self.scene.testSet(self.comparison)
+
+    def pause(self):
+        self.pauseSignal.emit()
 
     def bewerten(self):
         self.vor()

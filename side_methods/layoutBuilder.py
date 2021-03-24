@@ -154,7 +154,7 @@ def buildBtns(self, verticallayout = None):
     verticallayout.addWidget(self.analyzeButton)
     verticallayout.addStretch(1)
 
-    self.experiment_headline = QLabel('Exeriment:')
+    self.experiment_headline = QLabel('Experiment:')
     verticallayout.addWidget(self.experiment_headline)
 
     self.strat_selector1 = QComboBox()
@@ -175,24 +175,30 @@ def buildBtns(self, verticallayout = None):
 
     self.settest = QPushButton('Strategien Testen')
     self.settest.clicked.connect(self.testSet)
-    self.settest.setToolTip('Löscht alle aktuellen Spiler und startet eine Reihe von Tests')
+    self.settest.setToolTip('Löscht alle aktuellen Spieler und startet eine Reihe von Tests')
     verticallayout.addWidget(self.settest)
 
-    verticallayout.addStretch(1)
-    self.examples_headline = QLabel('Beispiele:')
-    verticallayout.addWidget(self.examples_headline)
+    self.pause = QPushButton('Pausieren')
+    self.pause.clicked.connect(self.testSet)
+    self.pause.setToolTip('Löscht alle aktuellen Spiler und startet eine Reihe von Tests')
+    self.pause.setEnabled(False)
+    verticallayout.addWidget(self.pause)
 
-    self.example_selector_att = QComboBox()
-    self.example_selector_att.addItem("Angreifer")
-    self.example_selector_att.currentIndexChanged.connect(self.exampleChangeA)
-
-    verticallayout.addWidget(self.example_selector_att)
-
-    self.example_selector_def = QComboBox()
-    self.example_selector_def.addItem("Verteidiger")
-    self.example_selector_def.currentIndexChanged.connect(self.exampleChangeD)
-    verticallayout.addWidget(self.example_selector_def)
-    verticallayout.addStretch(1)
+    # verticallayout.addStretch(1)
+    # self.examples_headline = QLabel('Beispiele:')
+    # verticallayout.addWidget(self.examples_headline)
+    #
+    # self.example_selector_att = QComboBox()
+    # self.example_selector_att.addItem("Angreifer")
+    # self.example_selector_att.currentIndexChanged.connect(self.exampleChangeA)
+    #
+    # verticallayout.addWidget(self.example_selector_att)
+    #
+    # self.example_selector_def = QComboBox()
+    # self.example_selector_def.addItem("Verteidiger")
+    # self.example_selector_def.currentIndexChanged.connect(self.exampleChangeD)
+    # verticallayout.addWidget(self.example_selector_def)
+    # verticallayout.addStretch(1)
 
     self.restart_button = QPushButton('Restart')
     self.restart_button.clicked.connect(self.restartFunction)

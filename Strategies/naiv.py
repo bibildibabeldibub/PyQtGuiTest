@@ -51,3 +51,6 @@ def getDefPos(attacker, enemy_critical_positions):
         final_pos = [final_x, final_y]
 
     return final_pos
+
+def advanced(defender, attacker, scene):
+    return

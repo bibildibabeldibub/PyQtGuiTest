@@ -5,7 +5,7 @@ import numpy as np
 from Widgets.MyEllipse import MyEllipse
 import json
 import threading
-
+import gc
 import time
 import math
 import random
@@ -13,13 +13,6 @@ import os
 import Strategies
 import importlib
 import threading
-
-#
-# class SignalSender(QObject):
-#     def __init__(self):
-#         super().__init__()
-#
-
 
 
 class Player(QObject):
@@ -57,19 +50,24 @@ class Player(QObject):
             self.change_rotation = data['richtungswechsel-periode']
 
 
+
     def setLocation(self, posx, posy):
         """
         :param posx: X-Koordinate des Spielermittelpunkts
         :param posy: Y-Koordinate des Spielermittelpunkts
         """
+        self.x = posx
+        self.y = posy
         self.ellipse.setPos(posx-10, posy-10)
 
     def getLocation(self):
         """:return: tuple x and y coordinates as integer"""
-        return [round(self.ellipse.getX(), 2), round(self.ellipse.getY(), 2)]
+        self.x = round(self.ellipse.getX(), 2)
+        self.y = round(self.ellipse.getY(), 2)
+        return [self.x, self.y]
 
     def getLocationArray(self):
-        return np.array([[round(self.ellipse.getX(),2), round(self.ellipse.getY(),2)]])
+        return np.array([[round(self.ellipse.getX(), 2), round(self.ellipse.getY(), 2)]])
 
     def deleteMarker(self):
         self.scene.removeItem(self.ellipse)
@@ -169,14 +167,17 @@ class Player(QObject):
     def __repr__(self):
         string = ''
         string += str(self.number) + ', '
-        string += str(self.ellipse.getX()) + ', '
-        string += str(self.ellipse.getY()) + '\n'
+        string += str(self.getLocation()[0]) + ', '
+        string += str(self.getLocation()[1]) + '\n'
         return string
 
-    def __del__(self):
-        print("Spieler gelöscht")
+    def delete(self):
+        print("Spieler löschen:")
         self.scene.removeItem(self.ellipse)
+        #self.ellipse.delete()
+        #del self.ellipse
         self.scene.removeItem(self.polygon)
+        #del self.polygon
 
 
 class offensePlayer(Player):
@@ -214,6 +215,8 @@ class defensePlayer(Player):
         string = "Defense " + str(self.number)
         self.check_box.setText(string)
         self.check_box.update()
+
+        self.scene.naivPositionCheck.connect(self.advancedPositioning)
 
         self.enemy = None
         self.att_distances = {}
@@ -276,17 +279,30 @@ class defensePlayer(Player):
             pos = self.scene.defend_positions.pop()
             return [pos['x'], pos['y']]
 
-        mod = file[:-3]
-        mod = 'Strategies.' + mod
-        mod = importlib.import_module(mod)
+        self.mod = file[:-3]
+        self.mod = 'Strategies.' + str(self.mod)
+        self.mod = importlib.import_module(self.mod)
         if not self.enemy:
             print("Kein Gegner gefunden!")
             return
 
-        t = threading.Thread(target=mod.strat, args=(self, self.enemy, self.scene))
+        t = threading.Thread(target=self.mod.strat, args=(self, self.enemy, self.scene))
         t.start()
+
         self.naivPosition.emit()
 
         return self.new_pos
+
+    def advancedPositioning(self):
+        self.mod.advanced(self, self.enemy, self.scene)
+
+    def delete(self):
+        super().delete()
+        try:
+            self.scene.naivPositionCheck.disconnect()
+        except:
+            pass
+
+
 
 

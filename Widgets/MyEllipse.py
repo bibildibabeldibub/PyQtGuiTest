@@ -63,8 +63,6 @@ class MyEllipse(QGraphicsEllipseItem):
             colliding_items = self.scene.items(dummy_ellipse.shape())
             filtered_colliding_items = [o for o in colliding_items if ((type(o) is MyEllipse) and (o is not self))]
 
-            #print("Collision:\n" + str(filtered_colliding_items))
-
             if filtered_colliding_items:
                 print("Blocked!!!!\n")
                 print(filtered_colliding_items)
@@ -270,3 +268,6 @@ class MyEllipse(QGraphicsEllipseItem):
     def getY(self):
         """:returns y value of circles center"""
         return round(self.y(), 2) + 10
+
+    def delete(self):
+        del self.s

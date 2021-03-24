@@ -18,9 +18,11 @@ class SoccerScene(QGraphicsScene):
     continueSignal = pyqtSignal()
     positionedSignal = pyqtSignal()
     resetSignal = pyqtSignal(str)
+    naivPositionCheck = pyqtSignal()
 
     def __init__(self, fps, field, window=None):
         super().__init__()
+        self.naiv_positioned_defenders = []
         self.window = window
         with open('config.json') as config_file:
             data = json.load(config_file)
@@ -68,7 +70,12 @@ class SoccerScene(QGraphicsScene):
     def addDefender(self, player):
         if player not in self.defenders and player not in self.attackers:
             self.defenders.append(player)
+            player.naivPosition.connect(self.naivPositionIncrement)
             self.window.appendPlayer(player)
+
+    def naivPositionIncrement(self):
+        print("Positioning incrementing" + str(self.sender()))
+        self.naiv_positioned_defenders.append(self.sender())
 
     def advance(self):
         self.animation_control()
@@ -90,10 +97,13 @@ class SoccerScene(QGraphicsScene):
             # self.animationWorker.pause = True
             self.stopAnimation()
             self.killAnimation()
-            self.phase = 1
-            print("Pause")
+            while len(self.naiv_positioned_defenders) < 4:
+                time.sleep(0.5)
+            self.naivPositionCheck.emit()
+
             self.positionedSignal.emit()
-            time.sleep(1) ##Pause zwischen Phasen
+            self.naiv_positioned_defenders = []
+            self.phase = 1
             self.restartAnimation()
             return
 

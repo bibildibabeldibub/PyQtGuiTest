@@ -28,6 +28,9 @@ class InfoLabel(QLabel):
 
         self.setLayout(layout)
 
+    def delete(self):
+        del self.p
+
     def updateInfoLabel(self):
         self.l1.setText("Flächeninhalt:\n  " + str(self.p.area()))
         self.l2.setText("Position:\n  " + str(self.p.getLocation()))
@@ -77,7 +80,9 @@ class InfoBox(QWidget):
             if widget:
                 if widget.p == p:
                     self.infos.removeWidget(widget)
-            self.list_item.takeItem(i)
+                    widget.delete()
+            rem = self.list_item.takeItem(i)
+
 
 
 
