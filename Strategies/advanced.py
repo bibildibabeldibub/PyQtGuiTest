@@ -84,7 +84,7 @@ def advanced(defender :Player, attacker, scene):
             if e.spieler.getLocation()[0] > cluster_max_x:
                 cluster_max_x = e.spieler.getLocation()[0]
         if defender.new_pos[0] != cluster_max_x:
-            defender.new_pos[0] = defender.new_pos[0]+100
+            defender.new_pos[0] = defender.new_pos[0]+50
 
 
 
