@@ -14,9 +14,17 @@ import Strategies
 import importlib
 import threading
 
+#
+# class SignalSender(QObject):
+#     def __init__(self):
+#         super().__init__()
+#
 
-class Player:
+
+
+class Player(QObject):
     positionChanged = pyqtSignal()
+    positionMove = pyqtSignal()
     polygonChanged = pyqtSignal()
     naivPosition = pyqtSignal()
 
@@ -108,9 +116,6 @@ class Player:
             polyF.append(QPointF(p[0], p[1]))
 
         self.polygon.setPolygon(polyF)
-
-    def posChange(self):
-        self.positionChanged.emit()
 
     def getPosRaster(self):
         """:returns mögliche Positionen des Angreifers"""
@@ -278,9 +283,9 @@ class defensePlayer(Player):
             print("Kein Gegner gefunden!")
             return
 
-        self.new_pos = self.getLocation()
         t = threading.Thread(target=mod.strat, args=(self, self.enemy, self.scene))
         t.start()
+        self.naivPosition.emit()
 
         return self.new_pos
 
