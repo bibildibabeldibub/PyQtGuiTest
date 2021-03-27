@@ -98,7 +98,8 @@ class SoccerScene(QGraphicsScene):
             # self.animationWorker.pause = True
             self.stopAnimation()
             self.killAnimation()
-            if not self.naiv:
+
+            if not self.getCurrentStrat().endswith('.json') and not self.naiv:
                 while len(self.naiv_positioned_defenders) < 4:
                     time.sleep(0.5)
             self.naivPositionCheck.emit()

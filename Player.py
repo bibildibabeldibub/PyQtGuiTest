@@ -278,6 +278,7 @@ class defensePlayer(Player):
 
         if file.endswith('.json'):
             pos = self.scene.defend_positions.pop()
+            self.new_pos = [pos['x'], pos['y']]
             return [pos['x'], pos['y']]
 
         self.mod = file[:-3]
@@ -299,7 +300,8 @@ class defensePlayer(Player):
         return self.new_pos
 
     def advancedPositioning(self):
-        self.mod.advanced(self, self.enemy, self.scene)
+        if not self.scene.getCurrentStrat().endswith('json'):
+            self.mod.advanced(self, self.enemy, self.scene)
 
     def delete(self):
         super().delete()
