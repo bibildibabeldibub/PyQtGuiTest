@@ -66,13 +66,6 @@ def voronoi_function(list_players, list_opponents, field):
     vor = Voronoi(pointArray)
     vertices = vor.ridge_vertices
     eckpunkte = vor.vertices
-    #print("Points: " + str(vor.points))
-    #print("Ridge_Vertices: " + str(vertices))
-    #print("Vertices: " + str(eckpunkte.tolist()))
-    #print("Ridge_Points: " + str(vor.ridge_points))
-    #print("Regions: " + str(vor.regions))
-    #print("Point_regions" + str(vor.point_region))
-
 
     pointidx = 0
     val = []

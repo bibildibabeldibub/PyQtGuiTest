@@ -54,6 +54,7 @@ class SoccerScene(QGraphicsScene):
         self.compare = False
         self.defend_positions = []
         self.bewerter = Bewertung.Bewerter()
+        self.naiv = False
 
         field_poly = QPolygonF(QPolygon([QPoint(self.field[0][0], self.field[0][1]), QPoint(self.field[1][0], self.field[1][1]), QPoint(self.field[2][0], self.field[2][1]), QPoint(self.field[3][0], self.field[3][1])]))
         self.addPolygon(field_poly, QPen(Qt.black))
@@ -97,13 +98,17 @@ class SoccerScene(QGraphicsScene):
             # self.animationWorker.pause = True
             self.stopAnimation()
             self.killAnimation()
-            while len(self.naiv_positioned_defenders) < 4:
-                time.sleep(0.5)
+            if not self.naiv:
+                while len(self.naiv_positioned_defenders) < 4:
+                    time.sleep(0.5)
             self.naivPositionCheck.emit()
+            self.advance_counter = 0
 
             self.positionedSignal.emit()
             self.naiv_positioned_defenders = []
-            self.phase = 1
+            if self.naiv:
+                self.phase = 1
+            self.naiv = True
             self.restartAnimation()
             return
 
@@ -117,6 +122,8 @@ class SoccerScene(QGraphicsScene):
 
             self.stopAnimation()
             self.killAnimation()
+
+            self.naiv = False
 
             time.sleep(2)
             self.repetition_counter += 1
@@ -216,6 +223,7 @@ class SoccerScene(QGraphicsScene):
     def restartAnimation(self):
         print("Restart Animation")
         self.advance_counter = 0
+        self.naiv_positioned_defenders = []
 
         if self.animationRunning:
             self.stopAnimation()

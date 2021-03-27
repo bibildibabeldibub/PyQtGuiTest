@@ -25,7 +25,7 @@ def strat(defender, attacker, scene):
         m = attacker_pos[0] / (goal_pos[0] - attacker_pos[0])
         y_d = vec[1] * m
         naiv_pos = [attacker_pos[0] - attacker_pos[0], attacker_pos[1] - y_d]
-
+    naiv_pos = [round(naiv_pos[0], 2),round(naiv_pos[1], 2)]
     defender.new_pos = naiv_pos
 
     return naiv_pos
@@ -34,7 +34,9 @@ def advanced(defender :Player, attacker, scene):
     """Erfassung von Redundanten Spielern"""
 
     print("Advanced Positioning! ")
-
+    if defender.repositioned:
+        return
+    defender.new_pos[0] = round(defender.new_pos[0], 2)
     angreifer = scene.attackers
     max_x_ang = -450
     index = 0
@@ -47,20 +49,10 @@ def advanced(defender :Player, attacker, scene):
 
     if 0 <= defender.new_pos[0] <= 50:
         '''Verteidiger an der Mittellinie'''
-        defender.new_pos[0] = defender.new_pos[0] + max_x_ang+250
-        # if defender.enemy.getLocation()[0] <= -225:
-        #     dummy = QGraphicsRectItem(0, -300, 50, 600)
-        #     collision = scene.items(dummy.shape())
-        #     collision = [o for o in collision if type(o) == Widgets.MyEllipse.MyEllipse and o is not defender.ellipse]
-        #     if collision:
-        #         for e in collision:
-        #             v = e.spieler
+        defender.new_pos[0] = defender.new_pos[0] + max_x_ang+75
 
-
-
-
-    '''Verteidiger am Spielfeldrand'''
-    if defender.getLocation != defender.new_pos:
+    elif defender.getLocation()[1] == 300 or defender.getLocation()[1] == -300:
+        '''Verteidiger am Spielfeldrand'''
         print("Verteidiger am Spielfeldrand ! --------")
         dummy = QGraphicsEllipseItem(aggr.getLocation()[0]+300-100, 0.9 * aggr.getLocation()[1], 20, 20)
         collision = scene.items(dummy.shape())
@@ -69,24 +61,40 @@ def advanced(defender :Player, attacker, scene):
             defender.new_pos = [aggr.getLocation()[0]+300, aggr.getLocation()[1]]
         else:
             defender.new_pos = [0, aggr.getLocation()[1]]
+            defender.repositioned = True
 
     '''Verteidiger die eng zusammenstehen'''
     dummy_ellipse = QGraphicsEllipseItem(defender.getLocation()[0]-22.5, defender.getLocation()[1]-22.5, 45, 45)
+    dummy_ellipse.setPen(QPen(Qt.black))
+    scene.addItem(dummy_ellipse)
     collision = scene.items(dummy_ellipse.shape())
+    scene.removeItem(dummy_ellipse)
     collision = [o for o in collision if o is not defender.ellipse and type(o) is Widgets.MyEllipse.MyEllipse]
     if collision:
         print("Verteidiger Cluster  ! --------")
-        '''Nur der vorderste Spieler bleibt an Position'''
         cluster = [defender]
-        cluster_max_x = defender.new_pos[0]
+        cluster_min_x = defender.new_pos[0]
         for e in collision:
             cluster.append(e.spieler)
-            if e.spieler.getLocation()[0] > cluster_max_x:
-                cluster_max_x = e.spieler.getLocation()[0]
-        if defender.new_pos[0] != cluster_max_x:
-            defender.new_pos[0] = defender.new_pos[0]+50
+            if e.spieler.getLocation()[0] < cluster_min_x:
+                cluster_min_x = e.spieler.getLocation()[0]
+        # if defender.new_pos[0] != cluster_min_x:
+        #     '''Nur der vorderste Spieler bleibt an Position'''
+            # defender.new_pos[0] = defender.new_pos[0]+50
+        mitte_x = 0
+        mitte_y = 0
 
-
-
+        for p in cluster:
+            mitte_x += p.getLocation()[0]
+            mitte_y += p.getLocation()[1]
+        mitte_x = mitte_x/len(cluster)
+        mitte_y = mitte_y/len(cluster)
+        #scene.addEllipse(mitte_x-5, mitte_y-5, 10, 10, QPen(Qt.darkGreen), QBrush(Qt.darkGreen))
+        v = [defender.new_pos[0] - mitte_x, defender.new_pos[1] - mitte_y]
+        n = 50/betrag(v)
+        z = [v[0]*n, v[1]*n]
+        defender.new_pos[0] = mitte_x + z[0]
+        defender.new_pos[1] = mitte_y + z[1]
+        defender.repositioned = True
     defender.setLocation(defender.new_pos[0], defender.new_pos[1])
     return

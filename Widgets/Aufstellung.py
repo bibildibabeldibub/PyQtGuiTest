@@ -66,7 +66,7 @@ class TestSetUp(object):
     def lockSetup(self):
         self.lockedAttackers = self.angreifer.__dict__()
         self.lockedDefenders = self.verteidiger.__dict__()
-        print(json.dumps(self.lockedDefenders, indent=4))
+        #print(json.dumps(self.lockedDefenders, indent=4))
         self.locked = True
 
     def changeStrategy(self):

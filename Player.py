@@ -228,6 +228,7 @@ class defensePlayer(Player):
         self.ellipse.setTransformOriginPoint(10, 10)
         self.ellipse.setRotation(180)
         self.ellipse.update()
+        self.repositioned = False
 
     def clearEnemy(self, value=None):
         if value and value == "Strat":
