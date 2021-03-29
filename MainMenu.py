@@ -176,6 +176,7 @@ class MainWindow(QWidget):
 
         self.deleteAllPlayers()
         if filenames[0] is not '':
+            self.textbox.setText(filenames[0])
             f = open(filenames[0], 'r')
             txt = f.read()
             jdata = json.loads(txt)
@@ -209,6 +210,8 @@ class MainWindow(QWidget):
             f = open(filenames[0], 'r')
             txt = f.read()
             jdata = json.loads(txt)
+            scores = "Ohne: %f | Mit: %f | Datei: %s" % (jdata["Scores"][num]["ohne"], jdata["Scores"][num]["beides"], filenames[0]+num)
+            self.textbox.setText(scores)
             attacker = jdata["Scores"][num]["Attacker"]
             defender = jdata["Scores"][num]["Defender"]
 
@@ -429,6 +432,7 @@ class MainWindow(QWidget):
         c = ListChoosing.ListDialog(extrema)
         res = c.exec_()
         file = list(extrema.values())[res][0]
+        self.textbox.setText(file)
         print(file)
         file = file.split('/run-')
         if os.path.isfile(file[0]):
@@ -442,9 +446,6 @@ class MainWindow(QWidget):
 
         with open(file[0]) as d:
             jdata = json.load(d)
-            scores = "Ohne: %f | Mit: %f | Datei: %s" % (jdata["Scores"][num]["ohne"], jdata["Scores"][num]["beides"], file[0])
-
-        self.textbox.setText(scores)
 
         self.loadEndpositions(file[0],file[1])
 

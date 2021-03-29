@@ -60,6 +60,13 @@ def auswerten(directory):
     maximum_first_file_beides = [""]
     maximum_second_file_beides = [""]
 
+    setups_ohne_strat1 = {}
+    setups_ohne_strat2 = {}
+    setups_beides_strat1 = {}
+    setups_beides_strat2 = {}
+
+    strat_1 = ""
+    strat_2 = ""
 
     directories = os.listdir(logdir)
     if os.path.exists("excluded"):
@@ -90,7 +97,11 @@ def auswerten(directory):
     ######################## Gathering #######################
     for date in os.listdir(logdir):
         date_path = os.path.join(logdir, date)
-
+        strat_1_setup_mittel_ohne = 0
+        strat_1_setup_mittel_beides = 0
+        strat_2_setup_mittel_ohne = 0
+        strat_2_setup_mittel_beides = 0
+        setup_ind = 0
         for setup in os.listdir(date_path):
             setup_path = os.path.join(date_path, setup)
             for strat in os.listdir(setup_path):
@@ -105,10 +116,14 @@ def auswerten(directory):
                     if not scores.keys():
                         exit("Keine Scores in Datei: " + os.path.join(setup_path, strat))
 
+                    setup_length = 0        #Wiederholungsanzahl
                     for k in scores.keys():
+                        setup_length += 1
                         if strats.index(strat) == 0:
+                            strat_1 = strat
                             '''Strategie 1'''
                             ohne_first.append(scores[k]["ohne"])
+                            strat_1_setup_mittel_ohne += scores[k]["ohne"]
                             '''Sammeln von Extrema'''
                             #Minimum ohne
                             if scores[k]["ohne"] < minimum_first_ohne:
@@ -138,9 +153,12 @@ def auswerten(directory):
                             schuss_first.append(scores[k]["schussweg"])
                             block_first.append(scores[k]["spieler"])
                             beides_first.append(scores[k]["beides"])
+                            strat_1_setup_mittel_beides += scores[k]["beides"]
                         elif strats.index(strat) == 1:
                             '''Strategie 2'''
+                            strat_2 = strat
                             ohne_second.append(scores[k]["ohne"])
+                            strat_2_setup_mittel_ohne += scores[k]["ohne"]
                             '''Tracking von min und max Werten'''
                             #Ohne minimum
                             if scores[k]["ohne"] < minimum_second_ohne:
@@ -170,9 +188,42 @@ def auswerten(directory):
                             schuss_second.append(scores[k]["schussweg"])
                             block_second.append(scores[k]["spieler"])
                             beides_second.append(scores[k]["beides"])
+                            strat_2_setup_mittel_beides += scores[k]["beides"]
+            print(setup_length)
+            strat_1_setup_mittel_ohne = round(strat_1_setup_mittel_ohne/setup_length,1)
+            setups_ohne_strat1.update({setup: strat_1_setup_mittel_ohne})
+            strat_1_setup_mittel_beides = round(strat_1_setup_mittel_beides/setup_length,1)
+            setups_beides_strat1.update({setup: strat_1_setup_mittel_beides})
+            strat_2_setup_mittel_ohne = round(strat_2_setup_mittel_ohne/setup_length,1)
+            setups_ohne_strat2.update({setup: strat_2_setup_mittel_ohne})
+            strat_2_setup_mittel_beides = round(strat_2_setup_mittel_beides/setup_length,1)
+            setups_beides_strat2.update({setup: strat_2_setup_mittel_beides})
+            setup_ind += 1
 
+    print("Anzahl der Ergebnisse:")
     print(len(ohne_first))
     print(len(ohne_second))
+    print("\n")
+    print("Aufstellungsmittelwerte:\n")
+    print("{strat}: \n".format(strat=strat_1))
+    l1_o = list(setups_ohne_strat1.values())
+    print(l1_o)
+    print("{strat} Schlechteste Aufstellung, Ohne B/M: {Min} | {Aufstellung}".format(strat=strat_1, Min=min(l1_o), Aufstellung=list(setups_ohne_strat1.keys())[l1_o.index(min(l1_o))]))
+    print("{strat} Beste Aufstellung, Ohne B/M: {max} | {Aufstellung}".format(strat=strat_1, max=max(l1_o), Aufstellung=list(setups_ohne_strat1.keys())[l1_o.index(max(l1_o))]))
+    l1_m = list(setups_beides_strat1.values())
+    print(l1_m)
+    print("{strat} Schlechteste Aufstellung, Mit B/M: {Min} | {Aufstellung}".format(strat=strat_1, Min=min(l1_m), Aufstellung=list(setups_beides_strat1.keys())[l1_m.index(min(l1_m))]))
+    print("{strat} Beste Aufstellung, Mit B/M: {max} | {Aufstellung}".format(strat=strat_1, max=max(l1_m), Aufstellung=list(setups_beides_strat1.keys())[l1_m.index(max(l1_m))]))
+    print("\n")
+    print("{strat}: \n".format(strat=strat_2))
+    l2_o = list(setups_ohne_strat2.values())
+    print(l2_o)
+    print("{strat} Schlechteste Aufstellung, Ohne B/M: {Min} | {Aufstellung}".format(strat=strat_2, Min=min(l2_o), Aufstellung=list(setups_ohne_strat2.keys())[l2_o.index(min(l2_o))]))
+    print("{strat} Beste Aufstellung, Ohne B/M: {max} | {Aufstellung}".format(strat=strat_2, max=max(l2_o), Aufstellung=list(setups_ohne_strat2.keys())[l2_o.index(max(l2_o))]))
+    l2_m = list(setups_ohne_strat2.values())
+    print(l2_m)
+    print("{strat} Schlechteste Aufstellung, Mit B/M: {Min} | {Aufstellung}".format(strat=strat_2, Min=min(l2_m), Aufstellung=list(setups_beides_strat2.keys())[l2_m.index(min(l2_m))]))
+    print("{strat} Beste Aufstellung, Mit B/M: {max} | {Aufstellung}".format(strat=strat_2, max=max(l2_m), Aufstellung=list(setups_beides_strat2.keys())[l2_m.index(max(l2_m))]))
 
     print("Shapiro-Wilk-Test: Base-Ohne (W, P)")
     sw_ob = stats.shapiro(ohne_first)
